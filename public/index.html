@@ -231,6 +231,9 @@
         const script = document.createElement('script');
         script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap`;
         script.async = true;
+        script.onerror = () => {
+            alert('Failed to load Google Maps. Please check your API key and connection.');
+        };
         document.head.appendChild(script);
         googleMapsLoaded = true;
     }

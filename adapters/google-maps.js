@@ -1,72 +1,96 @@
 const axios = require('axios');
 
-// Create a reusable axios instance with better defaults
-const googleClient = axios.create({
-    baseURL: 'https://maps.googleapis.com/maps/api/place',
-    timeout: 10000, // 10 seconds
-    headers: {
-        'User-Agent': 'SafeEatsUSA/1.0.0',
-        'Accept': 'application/json'
-    }
-});
+const API_KEY = (process.env.GOOGLE_MAPS_API_KEY || '').trim();
+const BASE_URL = 'https://places.googleapis.com/v1/places';
 
 /**
- * Google Maps Places API adapter
+ * Google Places API (New) adapter
  */
 const searchPlaces = async (query) => {
-    const apiKey = (process.env.GOOGLE_MAPS_API_KEY || '').trim();
-    if (!apiKey || apiKey === 'your_google_maps_key_here') {
+    if (!API_KEY || API_KEY.includes('your_google_maps_key_here')) {
         return { results: [], status: 'MISSING_KEY' };
     }
 
     try {
-        const response = await googleClient.get('/textsearch/json', {
-            params: {
-                query,
-                key: apiKey,
-                type: 'restaurant'
+        const response = await axios.post(`${BASE_URL}:searchText`, {
+            textQuery: query,
+            maxResultCount: 15
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': API_KEY,
+                'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.location,places.photos'
             }
         });
 
-        if (response.data.status !== 'OK' && response.data.status !== 'ZERO_RESULTS') {
-            console.error('[Google Maps] Search Error Status:', response.data.status, response.data.error_message || '');
-            throw new Error(`Google API Error: ${response.data.status}`);
-        }
+        // Map NEW API format back to our LEGACY format for frontend compatibility
+        const mappedResults = (response.data.places || []).map(p => ({
+            place_id: p.id,
+            name: p.displayName?.text,
+            formatted_address: p.formattedAddress,
+            rating: p.rating,
+            user_ratings_total: p.userRatingCount,
+            geometry: {
+                location: {
+                    lat: p.location?.latitude,
+                    lng: p.location?.longitude
+                }
+            },
+            photos: p.photos ? [{ photo_reference: p.photos[0].name }] : []
+        }));
 
-        return response.data;
+        return { results: mappedResults, status: 'OK' };
     } catch (error) {
-        if (error.code === 'ECONNRESET') {
-            console.error('[Google Maps] Connection Reset! Check your firewall or VPN.');
-        }
-        console.error('[Google Maps] Search Request Failed:', error.message);
-        throw error;
+        console.error('[Google Maps New] Search Error:', error.response?.data || error.message);
+        throw new Error(error.response?.data?.error?.message || 'Failed to fetch data from Google Maps API');
     }
 };
 
 const getPlaceDetails = async (placeId) => {
-    const apiKey = (process.env.GOOGLE_MAPS_API_KEY || '').trim();
-    if (!apiKey || apiKey === 'your_google_maps_key_here') {
-        return { result: {}, status: 'MISSING_KEY' };
-    }
+    if (!API_KEY) return { result: {}, status: 'MISSING_KEY' };
 
     try {
-        const response = await googleClient.get('/details/json', {
-            params: {
-                place_id: placeId,
-                fields: 'name,formatted_address,rating,user_ratings_total,reviews,geometry,photos,formatted_phone_number,website,opening_hours,price_level',
-                key: apiKey
+        // Endpoint for getting a specific place's details
+        const response = await axios.get(`${BASE_URL}/${placeId}`, {
+            headers: {
+                'X-Goog-Api-Key': API_KEY,
+                'X-Goog-FieldMask': 'id,displayName,formattedAddress,rating,userRatingCount,location,photos,internationalPhoneNumber,websiteUri,regularOpeningHours,priceLevel,reviews'
             }
         });
 
-        if (response.data.status !== 'OK') {
-            console.error('[Google Maps] Details Error Status:', response.data.status, response.data.error_message || '');
-            throw new Error(`Google API Error: ${response.data.status}`);
-        }
+        const p = response.data;
+        
+        // Map NEW API format back to our LEGACY format
+        const mappedResult = {
+            place_id: p.id,
+            name: p.displayName?.text,
+            formatted_address: p.formattedAddress,
+            rating: p.rating,
+            user_ratings_total: p.userRatingCount,
+            geometry: {
+                location: {
+                    lat: p.location?.latitude,
+                    lng: p.location?.longitude
+                }
+            },
+            formatted_phone_number: p.internationalPhoneNumber,
+            website: p.websiteUri,
+            opening_hours: {
+                open_now: p.regularOpeningHours?.openNow
+            },
+            price_level: p.priceLevel === 'PRICE_LEVEL_INEXPENSIVE' ? 1 : (p.priceLevel === 'PRICE_LEVEL_MODERATE' ? 2 : 3),
+            photos: p.photos ? [{ photo_reference: p.photos[0].name }] : [],
+            reviews: (p.reviews || []).map(r => ({
+                author_name: r.authorAttribution?.displayName,
+                rating: r.rating,
+                text: r.text?.text
+            }))
+        };
 
-        return response.data;
+        return { result: mappedResult, status: 'OK' };
     } catch (error) {
-        console.error('[Google Maps] Details Request Failed:', error.message);
-        throw error;
+        console.error('[Google Maps New] Details Error:', error.response?.data || error.message);
+        throw new Error(error.response?.data?.error?.message || 'Failed to fetch place details');
     }
 };
 
