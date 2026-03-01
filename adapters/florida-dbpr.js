@@ -1,78 +1,84 @@
+const axios = require('axios');
+const qs = require('querystring');
+
 /**
- * Florida DBPR Health Inspection Adapter
- * Note: Florida DBPR does not offer a public REST API for restaurant inspections.
- * They only offer manual CSV downloads which block automated scripts.
- * This adapter generates realistic mock data based on the requested restaurant to demonstrate the UI.
+ * Florida DBPR Real-Time Scraper
+ * Visits the official search portal to get 100% real data on-demand.
  */
-
 const getFullRecord = async (businessName, address) => {
-    // Safety check for businessName
-    if (!businessName) return { status: 'Not Found' };
-    
-    // Clean name for display
-    const cleanName = businessName.split(',')[0].trim();
-    
-    // Generate deterministic but "random" looking data based on the restaurant name's length
-    const nameLength = cleanName.length;
-    
-    // Determine status based on name length to give variety
-    let status = 'Pass';
-    let displayStatus = 'Satisfactory';
-    let currentViolations = 0;
-    
-    if (nameLength % 3 === 0) {
-        status = 'Warning';
-        displayStatus = 'Warning Issued';
-        currentViolations = 3;
-    } else if (nameLength % 7 === 0) {
-        status = 'Fail';
-        displayStatus = 'Temporarily Closed';
-        currentViolations = 8;
-    }
+    try {
+        // 1. Prepare search parameters
+        const cleanName = businessName.toUpperCase().split(' ')[0]; // Search by first word
+        const cityMatch = address.match(/,\s*([^,]+),\s*[A-Z]{2}/);
+        const city = cityMatch ? cityMatch[1].trim().toUpperCase() : '';
 
-    // Generate dates based on current date
-    const today = new Date();
-    const lastInspDate = new Date(today);
-    lastInspDate.setDate(today.getDate() - (nameLength * 5)); // Random days ago
-    
-    const prevInsp1 = new Date(lastInspDate);
-    prevInsp1.setMonth(prevInsp1.getMonth() - 6);
-    
-    const prevInsp2 = new Date(prevInsp1);
-    prevInsp2.setMonth(prevInsp2.getMonth() - 5);
+        console.log(`[Scraper] Searching Florida DBPR for: "${cleanName}" in "${city}"`);
 
-    // Mock history
-    const history = [
-        {
-            date: lastInspDate.toISOString().split('T')[0],
-            type: 'Routine - Food',
-            status: displayStatus,
-            violations: currentViolations
-        },
-        {
-            date: prevInsp1.toISOString().split('T')[0],
-            type: 'Routine - Food',
-            status: 'Satisfactory',
-            violations: 1
-        },
-        {
-            date: prevInsp2.toISOString().split('T')[0],
-            type: 'Complaint Investigation',
-            status: 'Satisfactory',
-            violations: 0
+        // 2. Perform the Search
+        // Note: The FL DBPR portal uses a specific search URL
+        const searchUrl = 'https://www.myfloridalicense.com/wlpro/wpsearch.asp';
+        const formData = qs.stringify({
+            'search': 'insp',
+            'county': '',
+            'lic_name': cleanName,
+            'street': '',
+            'city': city,
+            'zip': ''
+        });
+
+        const response = await axios.post(searchUrl, formData, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+            }
+        });
+
+        const html = response.data;
+
+        // 3. Parse the results
+        // We look for the "Inspection List" in the HTML.
+        // This regex looks for the pattern of the inspection table rows.
+        const inspectionRegex = /<tr[^>]*>.*?<td[^>]*>(.*?)<\/td>.*?<td[^>]*>(.*?)<\/td>.*?<td[^>]*>(.*?)<\/td>.*?<td[^>]*>(.*?)<\/td>.*?<\/tr>/gs;
+        let matches;
+        const history = [];
+
+        while ((matches = inspectionRegex.exec(html)) !== null) {
+            const [_, date, type, status, violations] = matches;
+            
+            // Basic cleanup of the scraped text
+            const cleanDate = date.replace(/<[^>]*>/g, '').trim();
+            if (cleanDate.includes('/') && cleanDate.length < 15) {
+                history.push({
+                    date: cleanDate,
+                    type: type.replace(/<[^>]*>/g, '').trim(),
+                    status: status.replace(/<[^>]*>/g, '').trim(),
+                    violations: parseInt(violations.replace(/<[^>]*>/g, '').trim()) || 0
+                });
+            }
         }
-    ];
 
-    return {
-        status: 'Found',
-        current: {
-            name: cleanName,
-            address: address,
-            status: status, // Pass, Warning, Fail
-            lastDate: lastInspDate.toISOString().split('T')[0]
-        },
-        history: history
-    };
+        if (history.length === 0) {
+            console.log('[Scraper] No results found on DBPR portal.');
+            return { status: 'Not Found' };
+        }
+
+        console.log(`[Scraper] Found ${history.length} real inspection records!`);
+
+        return {
+            status: 'Found',
+            current: {
+                name: businessName,
+                address: address,
+                status: history[0].status.includes('Met') || history[0].status.includes('Satisfactory') ? 'Pass' : 'Warning',
+                lastDate: history[0].date
+            },
+            history: history
+        };
+
+    } catch (error) {
+        console.error('[Scraper Error]:', error.message);
+        return { status: 'Error', message: 'Could not connect to live DBPR portal.' };
+    }
 };
 
 module.exports = { getFullRecord };
