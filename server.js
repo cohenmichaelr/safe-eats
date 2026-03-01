@@ -44,7 +44,8 @@ app.get('/map', async (req, res) => {
         }
         res.status(400).json({ error: 'Missing params' });
     } catch (error) {
-        res.status(500).json({ error: 'Google API Error' });
+        console.error('[Map Error]:', error.message);
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 });
 
