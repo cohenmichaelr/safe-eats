@@ -13,23 +13,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-const authenticateApiKey = (req, res, next) => {
-    const apiKey = req.header('x-api-key');
-    if (!apiKey || apiKey !== process.env.APP_API_KEY) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-    next();
-};
-
+// Public Configuration Route
 app.get('/config', (req, res) => {
     res.json({
-        googleMapsKey: process.env.GOOGLE_MAPS_API_KEY,
-        appApiKey: process.env.APP_API_KEY
+        googleMapsKey: process.env.GOOGLE_MAPS_API_KEY
     });
 });
 
-app.use(authenticateApiKey);
-
+/**
+ * Route: /map
+ * Description: Interface with Google Maps Places API for location-based search and details
+ */
 app.get('/map', async (req, res) => {
     const { query, placeId } = req.query;
     try {
