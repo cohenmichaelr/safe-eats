@@ -6,6 +6,9 @@
  */
 
 const getFullRecord = async (businessName, address) => {
+    // Safety check for businessName
+    if (!businessName) return { status: 'Not Found' };
+    
     // Clean name for display
     const cleanName = businessName.split(',')[0].trim();
     

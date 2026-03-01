@@ -112,4 +112,5 @@ app.get('/health', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Google Maps API Key Loaded: ${process.env.GOOGLE_MAPS_API_KEY ? 'YES (Starts with ' + process.env.GOOGLE_MAPS_API_KEY.substring(0, 4) + ')' : 'NO'}`);
 });
