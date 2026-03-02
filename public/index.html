@@ -297,20 +297,34 @@
     function updateMapMarkers(restaurants, fitBounds = true) {
         markers.forEach(m => m.setMap(null)); markers = [];
         const bounds = new google.maps.LatLngBounds();
+
         restaurants.forEach(res => {
+            let color = 'blue'; // Unknown
+            const status = (res.healthStatus || '').toUpperCase();
+
+            if (status.includes('SATISFACTORY') || status.includes('MET') || status === 'PASS') {
+                color = 'green';
+            } else if (status.includes('WARNING') || status.includes('CALL BACK') || status.includes('FOLLOW UP')) {
+                color = 'yellow';
+            } else if (status.includes('CLOSED') || status.includes('SHUT DOWN') || status === 'FAIL') {
+                color = 'red';
+            }
+
             const marker = new google.maps.Marker({
                 position: res.geometry.location,
                 map: map,
                 title: res.name,
-                icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                icon: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
                 placeId: res.place_id
             });
+
             marker.addListener('click', () => showDetails(res.place_id));
             markers.push(marker);
             bounds.extend(res.geometry.location);
         });
         if (fitBounds && restaurants.length > 0) map.fitBounds(bounds);
     }
+
 
     async function showDetails(placeId) {
         detailsSheet.style.display = 'flex'; switchTab('overview');
