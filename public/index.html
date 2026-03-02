@@ -141,6 +141,9 @@
 
 <header>
     <div class="logo"><span>🛡️</span> Safe Eats USA</div>
+    <button class="btn" style="background-color: #f1f3f4; border: 1px solid var(--border); font-size: 0.75rem; padding: 0.4rem 0.8rem;" onclick="triggerRebuild()" id="rebuildBtn">
+        🔄 Update Records
+    </button>
 </header>
 
 <div class="main-container">
@@ -184,7 +187,7 @@
                     <div class="place-info-row"><div class="info-icon">🕒</div><div id="placeHours">Status</div></div>
                     <div class="health-section">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <h4 style="font-size: 0.75rem; color: var(--secondary); letter-spacing: 0.5px;">LIVE HEALTH STATUS</h4>
+                            <h4 style="font-size: 0.75rem; color: var(--secondary); letter-spacing: 0.5px;">HEALTH ANALYSIS (PALM BEACH POST)</h4>
                             <span class="badge" id="healthBadge">...</span>
                         </div>
                         <p style="font-size: 0.875rem;" id="healthSummary">Searching real-time data...</p>
@@ -231,9 +234,7 @@
         const script = document.createElement('script');
         script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap`;
         script.async = true;
-        script.onerror = () => {
-            alert('Failed to load Google Maps. Please check your API key and connection.');
-        };
+        script.onerror = () => alert('Failed to load Google Maps.');
         document.head.appendChild(script);
         googleMapsLoaded = true;
     }
@@ -246,7 +247,8 @@
             zoomControl: true,
             styles: [{ "featureType": "poi", "stylers": [{ "visibility": "off" }] }]
         });
-        map.addListener('center_changed', () => { if (!mapMoved) { mapMoved = true; searchAreaBtn.style.display = 'flex'; } });
+        map.addListener('dragend', () => { mapMoved = true; searchAreaBtn.style.display = 'flex'; });
+        map.addListener('zoom_changed', () => { mapMoved = true; searchAreaBtn.style.display = 'flex'; });
     };
 
     async function searchCurrentArea() {
@@ -255,7 +257,7 @@
         searchAreaBtn.style.display = 'none'; mapMoved = false;
         loader.style.display = 'block'; btnText.style.display = 'none';
         try {
-            const response = await fetch(`/map?query=${encodeURIComponent(term + ' near ' + center.lat() + ',' + center.lng())}`);
+            const response = await fetch(`/map?query=${encodeURIComponent(term)}&lat=${center.lat()}&lng=${center.lng()}`);
             const data = await response.json();
             displayResults(data.results || []);
             updateMapMarkers(data.results || [], false);
@@ -267,11 +269,13 @@
         e.preventDefault();
         const term = document.getElementById('term').value || 'Restaurants';
         const location = document.getElementById('location').value;
-        let query = term + (location ? ' in ' + location : (map ? ' near ' + map.getCenter().lat() + ',' + map.getCenter().lng() : ''));
+        let url = `/map?query=${encodeURIComponent(term)}`;
+        if (location) url += ` in ${encodeURIComponent(location)}`;
+        else if (map) url += `&lat=${map.getCenter().lat()}&lng=${map.getCenter().lng()}`;
         searchAreaBtn.style.display = 'none'; mapMoved = false;
         loader.style.display = 'block'; btnText.style.display = 'none';
         try {
-            const response = await fetch(`/map?query=${encodeURIComponent(query)}`);
+            const response = await fetch(url);
             const data = await response.json();
             displayResults(data.results || []);
             updateMapMarkers(data.results || [], !!location);
@@ -294,13 +298,16 @@
         markers.forEach(m => m.setMap(null)); markers = [];
         const bounds = new google.maps.LatLngBounds();
         restaurants.forEach(res => {
-            let color = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
-            if (res.healthStatus === 'Warning') color = 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
-            else if (res.healthStatus === 'Fail') color = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
-            else if (res.healthStatus === 'Unknown') color = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
-            const marker = new google.maps.Marker({ position: res.geometry.location, map: map, title: res.name, icon: color });
+            const marker = new google.maps.Marker({
+                position: res.geometry.location,
+                map: map,
+                title: res.name,
+                icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                placeId: res.place_id
+            });
             marker.addListener('click', () => showDetails(res.place_id));
-            markers.push(marker); bounds.extend(res.geometry.location);
+            markers.push(marker);
+            bounds.extend(res.geometry.location);
         });
         if (fitBounds && restaurants.length > 0) map.fitBounds(bounds);
     }
@@ -318,10 +325,11 @@
             document.getElementById('placeAddress').innerText = res.formatted_address;
             document.getElementById('placeHours').innerText = res.opening_hours?.open_now ? 'Open now' : 'Closed now';
             if (res.photos && res.photos.length > 0) {
-                const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${res.photos[0].photo_reference}&key=${config.googleMapsKey}`;
+                const photoName = res.photos[0].photo_reference; 
+                const photoUrl = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=800&key=${config.googleMapsKey}`;
                 document.getElementById('placePhoto').style.backgroundImage = `url('${photoUrl}')`;
             }
-            fetchHealthAndHistory(res.name, res.formatted_address);
+            fetchHealthAndHistory(res.name, res.formatted_address, res.city, res.state, res.county, placeId);
             document.getElementById('reviewsContainer').innerHTML = (res.reviews || []).map(r => `
                 <div style="margin-bottom: 1.5rem;">
                     <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
@@ -334,29 +342,46 @@
         } catch (error) { console.error(error); }
     }
 
-    async function fetchHealthAndHistory(name, address) {
+    async function fetchHealthAndHistory(name, address, city, state, county, placeId) {
         const badge = document.getElementById('healthBadge');
         const historyContainer = document.getElementById('historyContainer');
         badge.innerText = '...'; historyContainer.innerHTML = '<p style="font-size: 0.875rem;">Loading...</p>';
         try {
-            const res = await fetch(`/health?name=${encodeURIComponent(name)}&address=${encodeURIComponent(address)}`);
+            const url = `/health?name=${encodeURIComponent(name)}&address=${encodeURIComponent(address)}&city=${encodeURIComponent(city || '')}&state=${encodeURIComponent(state || '')}&county=${encodeURIComponent(county || '')}`;
+            const res = await fetch(url);
             const data = await res.json();
             if (data.status === 'Found') {
-                badge.innerText = data.current.status;
-                badge.className = `badge ${data.current.status.includes('Satisfactory') || data.current.status === 'Pass' ? 'badge-success' : 'badge-warning'}`;
-                document.getElementById('healthSummary').innerText = `Last Inspection: ${data.current.lastDate}`;
+                const status = data.current.status;
+                badge.innerText = status;
+                badge.className = `badge ${status.includes('Satisfactory') || status === 'Pass' ? 'badge-success' : 'badge-warning'}`;
+                
+                let summary = `Record Found. Last Inspection: ${data.current.lastDate}`;
+                if (data.profileUrl) {
+                    summary += `<br><a href="${data.profileUrl}" target="_blank" style="color: #d93025; font-size: 0.8rem; text-decoration: none; font-weight: 700; display: inline-block; margin-top: 0.75rem; border: 1px solid #d93025; padding: 0.4rem 0.8rem; border-radius: 4px;">🗞️ VIEW FULL ANALYSIS ON PALM BEACH POST</a>`;
+                }
+                document.getElementById('healthSummary').innerHTML = summary;
+                
                 historyContainer.innerHTML = data.history.map(h => `
                     <div class="history-item">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
                             <strong>${h.date}</strong>
-                            <span class="badge ${h.status.includes('Satisfactory') ? 'badge-success' : 'badge-warning'}" style="font-size: 0.65rem;">${h.status}</span>
+                            <span class="badge ${h.status.includes('Satisfactory') || h.status.includes('Met') ? 'badge-success' : 'badge-warning'}" style="font-size: 0.65rem;">${h.status}</span>
                         </div>
-                        <p style="font-size: 0.75rem; color: var(--secondary);">${h.type} · ${h.violations} Violations</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <p style="font-size: 0.75rem; color: var(--secondary);">${h.type} · ${h.violations} Violations</p>
+                            <a href="${data.profileUrl}" target="_blank" style="font-size: 0.7rem; color: var(--primary); text-decoration: none; font-weight: 600;">🗞️ VIEW DETAILS</a>
+                        </div>
                     </div>
                 `).join('');
+
+                const marker = markers.find(m => m.placeId === placeId);
+                if (marker) {
+                    const color = status.includes('Satisfactory') || status === 'Pass' ? 'green' : 'yellow';
+                    marker.setIcon(`http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`);
+                }
             } else {
                 badge.innerText = 'Not Found'; badge.className = 'badge';
-                document.getElementById('healthSummary').innerText = 'Not found in database.';
+                document.getElementById('healthSummary').innerText = 'Not found in newspaper database.';
                 historyContainer.innerHTML = '<p style="font-size: 0.875rem; color: var(--secondary);">No history found.</p>';
             }
         } catch (e) { badge.innerText = 'Error'; }
@@ -371,6 +396,26 @@
     }
 
     function closeDetails() { detailsSheet.style.display = 'none'; document.querySelectorAll('.restaurant-card').forEach(c => c.classList.remove('active')); }
+
+    async function triggerRebuild() {
+        const btn = document.getElementById('rebuildBtn');
+        if (!confirm('This will start a background process to scrape the Palm Beach Post directory. Continue?')) return;
+        
+        btn.innerText = '⏳ Starting...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/admin/rebuild-db', { method: 'POST' });
+            const data = await res.json();
+            alert('Background crawl started! Check the server terminal for progress.');
+            btn.innerText = '✅ Started';
+        } catch (e) {
+            alert('Failed to start rebuild.');
+            btn.innerText = '🔄 Update Records';
+            btn.disabled = false;
+        }
+    }
+
     fetchConfig();
 </script>
 </body>
