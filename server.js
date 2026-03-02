@@ -86,4 +86,9 @@ app.get('/health', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`DB found at ${DB_PATH}: ${fs.existsSync(DB_PATH) ? 'YES' : 'NO'}`);
+    if (fs.existsSync(DB_PATH)) {
+        const stats = fs.statSync(DB_PATH);
+        console.log(`DB Size: ${(stats.size / 1024).toFixed(2)} KB`);
+    }
 });
