@@ -10,6 +10,7 @@
             --secondary: #5f6368;
             --success: #1e8e3e;
             --warning: #f9ab00;
+            --alert: #f57c00;
             --danger: #d93025;
             --background: #ffffff;
             --surface: #ffffff;
@@ -543,37 +544,77 @@
             const data = await res.json();
             
             if (data.status === 'Found' && data.history && data.history.length) {
-                const latest = data.history[0];
-                let lastDate = new Date(0);
-                if (latest.date && latest.date.includes('/')) {
-                    const [m, d, y] = latest.date.split('/');
-                    lastDate = new Date(y, m - 1, d);
-                }
-                
-                const isOld = lastDate < threeMonthsAgo;
-                const sLower = (latest.status || '').toLowerCase();
-                
-                if (sLower.includes('fail')) {
-                    updateMarkerColor(markerIndex, '#d93025'); // Red
-                } else if (sLower.includes('warning')) {
-                    updateMarkerColor(markerIndex, '#f9ab00'); // Yellow
-                } else if (sLower.includes('satisfactory')) {
-                    updateMarkerColor(markerIndex, '#1e8e3e'); // Green
-                } else {
-                    updateMarkerColor(markerIndex, '#1a73e8'); // Blue
+                const sixMonthsAgo = new Date();
+                sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+                let mostSevereStatus = 'satisfactory';
+                let totalRecentViolations = 0;
+                let hadClosure = false;
+                let hasRecentInspections = false;
+
+                data.history.forEach(h => {
+                    let hDate = new Date(0);
+                    if (h.date && h.date.includes('/')) {
+                        const [m, d, y] = h.date.split('/');
+                        hDate = new Date(y, m - 1, d);
+                    } else if (h.date) {
+                        hDate = new Date(h.date);
+                    }
+
+                    if (hDate >= sixMonthsAgo) {
+                        hasRecentInspections = true;
+                        const sLower = (h.status || '').toLowerCase();
+                        
+                        // Rule: Red if temporarily closed in past 6 months
+                        if (sLower.includes('closed') || sLower.includes('emergency order')) {
+                            hadClosure = true;
+                        }
+                        
+                        totalRecentViolations += (h.violations || 0);
+                    }
+                });
+
+                let color = '#1e8e3e'; // Green
+                let bClass = 'success';
+                let statusText = data.history[0].status;
+
+                if (hadClosure) {
+                    color = '#d93025'; // Red
+                    bClass = 'danger';
+                    statusText = 'CLOSED (RECENT)';
+                } else if (totalRecentViolations > 5) {
+                    color = '#f57c00'; // Orange
+                    bClass = 'alert';
+                    statusText = `HIGH VIOLATIONS (${totalRecentViolations})`;
+                } else if (totalRecentViolations > 0) {
+                    color = '#f9ab00'; // Yellow
+                    bClass = 'warning';
+                    statusText = `VIOLATIONS FOUND (${totalRecentViolations})`;
+                } else if (!hasRecentInspections) {
+                    // Fallback to latest known if none in last 6 months
+                    const latestStatus = data.history[0].status.toLowerCase();
+                    if (latestStatus.includes('fail')) {
+                        color = '#d93025'; bClass = 'danger';
+                    } else if (latestStatus.includes('warning')) {
+                        color = '#f9ab00'; bClass = 'warning';
+                    }
                 }
 
-                badge.innerText = latest.status;
-                let bClass = 'secondary';
-                if (sLower.includes('satisfactory')) bClass = 'success';
-                else if (sLower.includes('warning')) bClass = 'warning';
-                else if (sLower.includes('fail')) bClass = 'danger';
-                
+                updateMarkerColor(markerIndex, color);
+                badge.innerText = statusText;
                 badge.className = `badge badge-${bClass}`;
+                if (bClass === 'alert') {
+                    badge.style.backgroundColor = '#fff3e0';
+                    badge.style.color = 'var(--alert)';
+                } else {
+                    badge.style.backgroundColor = '';
+                    badge.style.color = '';
+                }
                 
                 summary.innerHTML = `
-                    <div style="font-weight: 500; margin-bottom: 4px;">Latest Inspection: ${latest.date}</div>
-                    <div style="color: var(--secondary); margin-bottom: 12px;">Result: ${latest.status}</div>
+                    <div style="font-weight: 500; margin-bottom: 4px;">Latest Inspection: ${data.history[0].date}</div>
+                    <div style="color: var(--secondary); margin-bottom: 4px;">Total Violations (6mo): ${totalRecentViolations}</div>
+                    <div style="color: var(--secondary); margin-bottom: 12px;">Result: ${data.history[0].status}</div>
                     <a href="${data.profileUrl}" target="_blank" style="color:var(--primary); font-weight:500; text-decoration:none; display:flex; align-items:center; gap:4px;">
                         <span>📄 View Full Official Report</span>
                     </a>
