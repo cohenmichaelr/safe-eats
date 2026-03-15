@@ -53,29 +53,52 @@ app.get('/map', async (req, res) => {
                     const searchCounty = (res.county || '').toLowerCase().replace(' county', '').replace(/\s+/g, '-');
                     
                     return new Promise((resolve) => {
-                        let query = 'SELECT status, last_inspection_date FROM restaurants WHERE name LIKE ? AND address LIKE ?';
-                        let params = [firstWord, streetNum];
+                        // First try exact name + address + county
+                        let query = 'SELECT status, last_inspection_date FROM restaurants WHERE name = ? AND address = ?';
+                        let params = [res.name.toUpperCase(), (res.formatted_address || '').split(',')[0].toUpperCase()];
 
                         if (searchCounty) {
                             query += ' AND county = ?';
                             params.push(searchCounty);
                         }
-                        
-                        db.get(
-                            query,
-                            params,
-                            (err, row) => {
-                                if (err) console.error(`[SQL Error] ${err.message}`);
-                                else if (!row) console.log(`[SQL] No match for ${firstWord} at ${streetNum} in ${searchCounty}`);
-                                
-                                // Default to Unknown if no DB match
-                                res.healthStatus = row ? row.status : 'Unknown';
-                                res.lastInspectionDate = row ? row.last_inspection_date : null;
+
+                        db.get(query, params, (err, row) => {
+                            if (!row) {
+                                // Fallback 1: Try name + first part of address
+                                const streetNum = (res.formatted_address || '').split(' ')[0] + '%';
+                                const cleanName = res.name.toUpperCase().replace('PIZZERIA', '').replace('PIZZA', '').trim();
+                                const firstWord = (cleanName.split(' ')[0] || res.name.toUpperCase().split(' ')[0]) + '%';
+
+                                let fallbackQuery = 'SELECT status, last_inspection_date FROM restaurants WHERE name LIKE ? AND address LIKE ?';
+                                let fallbackParams = [firstWord, streetNum];
+                                if (searchCounty) {
+                                    fallbackQuery += ' AND county = ?';
+                                    fallbackParams.push(searchCounty);
+                                }
+
+                                db.get(fallbackQuery, fallbackParams, (err2, row2) => {
+                                    if (!row2 && searchCounty) {
+                                        // Fallback 2: Just name + county (for mobile units/NONE addresses)
+                                        // Use a more aggressive partial name match for the county
+                                        const shortName = (res.name.toUpperCase().substring(0, 5)) + '%';
+                                        db.get('SELECT status, last_inspection_date FROM restaurants WHERE name LIKE ? AND county = ? LIMIT 1', 
+                                            [shortName, searchCounty], (err3, row3) => {
+                                            res.healthStatus = row3 ? row3.status : 'Unknown';
+                                            res.lastInspectionDate = row3 ? row3.last_inspection_date : null;
+                                            resolve();
+                                        });
+                                    } else {
+                                        res.healthStatus = row2 ? row2.status : 'Unknown';
+                                        res.lastInspectionDate = row2 ? row2.last_inspection_date : null;
+                                        resolve();
+                                    }
+                                });
+                            } else {
+                                res.healthStatus = row.status;
+                                res.lastInspectionDate = row.last_inspection_date;
                                 resolve();
                             }
-                        );
-                    });
-                }));
+                        });                    });                }));
                 db.close();
             }
             
