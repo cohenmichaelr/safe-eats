@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Safe Eats USA - Database Browser</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --secondary: #5f6368;
+            --success: #1e8e3e;
+            --warning: #f9ab00;
+            --danger: #d93025;
+            --background: #ffffff;
+            --surface: #ffffff;
+            --text: #202124;
+            --border: #dadce0;
+            --header-height: 56px;
+            --shadow: 0 1px 2px rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sidebar / Bottom Sheet behavior */
+        .sidebar {
+            width: 400px;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+        }
+
+        .search-area-floating {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 100;
+            width: 376px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .search-form { display: flex; gap: 8px; }
+
+        input[type="text"] {
+            padding: 12px;
+            border: 1px solid transparent;
+            background: #f1f3f4;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            outline: none;
+            transition: background 0.2s, border 0.2s;
+        }
+        input[type="text"]:focus { background: white; border-color: var(--primary); }
+
+        .btn { padding: 8px 16px; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: #1765cc; }
+
+        .results-list { flex: 1; overflow-y: auto; }
+        .restaurant-card {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            gap: 12px;
+            transition: background 0.2s;
+        }
+        .restaurant-card:hover { background-color: #f8f9fa; }
+        .restaurant-card.active { background-color: #e8f0fe; }
+        
+        .card-info { flex: 1; }
+        .card-name { font-size: 1rem; font-weight: 500; margin-bottom: 2px; }
+        .card-address { font-size: 0.85rem; color: #70757a; }
+        
+        /* Map Area */
+        .map-area { flex: 1; position: relative; width: 100%; height: 100%; }
+        #map-canvas { width: 100%; height: 100%; }
+
+        /* Full Screen Detail Sheet */
+        .details-sheet {
+            position: absolute; top: 0; left: 0; width: 400px; height: 100%;
+            background-color: var(--surface); box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            z-index: 110; display: none; flex-direction: column; overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn {
+            position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%;
+            background-color: white; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 120;
+        }
+
+        .place-content { padding: 20px; padding-top: 60px; }
+        .place-title { font-size: 1.5rem; font-weight: 400; margin-bottom: 4px; }
+        
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .badge-success { background-color: #e6f4ea; color: var(--success); }
+        .badge-warning { background-color: #fef7e0; color: #b05e00; }
+        .badge-danger { background-color: #fce8e6; color: var(--danger); }
+        .badge-secondary { background-color: #f1f3f4; color: var(--secondary); }
+
+        .health-section { background-color: #f8f9fa; border-radius: 12px; padding: 16px; margin-top: 16px; }
+
+        /* Floating Search Area Button */
+        .search-area-btn {
+            position: absolute; top: 110px; left: 50%; transform: translateX(-50%); z-index: 20;
+            background-color: white; color: var(--primary); border: none;
+            padding: 8px 16px; border-radius: 999px; font-size: 0.9rem; font-weight: 500;
+            box-shadow: var(--shadow); cursor: pointer; display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute; bottom: 0; left: 0; width: 100%; height: 400px;
+                border-right: none; border-top: 1px solid var(--border);
+                transform: translateY(0); border-radius: 24px 24px 0 0;
+            }
+            .search-area-floating { width: calc(100% - 24px); }
+            .details-sheet { width: 100%; height: 95%; border-radius: 24px 24px 0 0; left: 0; top: auto; bottom: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <aside class="sidebar" id="sidebar">
+        <div style="padding: 110px 0 0 0; display: flex; flex-direction: column; height: 100%;">
+            <div id="status-bar" style="padding: 8px 16px; font-size: 0.8rem; background: #f8f9fa; border-bottom: 1px solid var(--border);">
+                Initializing map...
+            </div>
+            <div class="results-list" id="resultsList">
+                <div style="padding: 40px; text-align: center; color: var(--secondary);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🗄️</div>
+                    <h3>Database Browser</h3>
+                    <p>Search all restaurants in our local database</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="map-area">
+        <div class="search-area-floating">
+            <form class="search-form" id="searchForm">
+                <input type="text" id="term" placeholder="Live search by name or city...">
+                <button type="submit" class="btn btn-primary" id="searchBtn">Search DB</button>
+            </form>
+            <div style="display: flex; gap: 8px; margin-top: 4px; overflow-x: auto; padding: 4px 0;">
+                <button class="btn" style="background:none; color:var(--secondary); font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--border);" onclick="quickFilter('palm-beach')">Palm Beach</button>
+                <button class="btn" style="background:none; color:var(--secondary); font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--border);" onclick="quickFilter('broward')">Broward</button>
+                <button class="btn" style="background:none; color:var(--secondary); font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--border);" onclick="quickFilter('miami-dade')">Miami-Dade</button>
+            </div>
+        </div>
+        <button class="search-area-btn" id="searchAreaBtn" onclick="searchCurrentArea()">Search this area</button>
+        <div id="map-canvas"></div>
+    </main>
+
+    <div class="details-sheet" id="detailsSheet">
+        <button class="close-btn" onclick="closeDetails()">✕</button>
+        <div class="place-content">
+            <h2 class="place-title" id="placeTitle">Name</h2>
+            <div id="placeAddress" style="display:flex; gap:12px; margin-bottom:16px; color:#3c4043; font-size:0.9rem;">
+                <span>📍</span> <span id="txtAddress">...</span>
+            </div>
+            
+            <div class="health-section">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:0.75rem; color:var(--secondary); font-weight:700;">FLORIDA HEALTH DEPT STATUS</span>
+                    <span class="badge" id="healthBadge">...</span>
+                </div>
+                <div id="healthSummary" style="font-size:0.9rem; line-height:1.4;">...</div>
+            </div>
+
+            <div id="historyContainer" style="margin-top: 24px;">
+                <h3 style="font-size: 1rem; margin-bottom: 12px; font-weight: 500;">Inspection History</h3>
+                <div id="historyList">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let map, markers = [], config = { googleMapsKey: null }, currentResults = [], firstLoadDone = false;
+    let AdvancedMarkerElement, PinElement;
+    const searchForm = document.getElementById('searchForm'), resultsList = document.getElementById('resultsList');
+    const statusBar = document.getElementById('status-bar'), detailsSheet = document.getElementById('detailsSheet');
+
+    function debounce(func, timeout = 500) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+    }
+
+    async function fetchConfig() {
+        try {
+            const res = await fetch('/config');
+            config = await res.json();
+            if (config.googleMapsKey) loadGoogleMaps(config.googleMapsKey);
+        } catch (e) { console.error('Config failed'); }
+    }
+
+    function loadGoogleMaps(key) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initMap&libraries=marker,places,geocoding&v=beta`;
+        script.async = true;
+        document.head.appendChild(script);
+    }
+
+    window.initMap = async function() {
+        try {
+            const markerLib = await google.maps.importLibrary("marker");
+            AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
+            PinElement = markerLib.PinElement;
+
+            map = new google.maps.Map(document.getElementById('map-canvas'), {
+                center: { lat: 26.3683, lng: -80.1289 },
+                zoom: 12, 
+                disableDefaultUI: true, 
+                zoomControl: true,
+                mapId: 'DEMO_MAP_ID'
+            });
+
+            map.addListener('idle', debounce(() => { 
+                if (!firstLoadDone) {
+                    firstLoadDone = true;
+                }
+                searchCurrentArea();
+            }, 1000));
+
+            map.addListener('dragstart', () => { closeDetails(); });
+
+        } catch (e) { console.error('Map init failed', e); }
+    };
+
+    document.getElementById('term').addEventListener('input', debounce(() => performSearch(), 600));
+
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        performSearch();
+    });
+
+    async function quickFilter(county) {
+        document.getElementById('term').value = county;
+        performSearch(county);
+    }
+
+    async function performSearch(countyOverride) {
+        const term = countyOverride || document.getElementById('term').value;
+        const searchBtn = document.getElementById('searchBtn');
+        searchBtn.innerText = '...';
+        statusBar.innerText = 'Searching database...';
+        
+        try {
+            const url = `/api/database/search?query=${encodeURIComponent(term)}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            currentResults = data.results || [];
+            displayResults(currentResults);
+            updateMapMarkers(currentResults);
+            statusBar.innerText = `Found ${currentResults.length} records in database.`;
+        } catch (err) {
+            console.error('Search failed', err);
+            statusBar.innerText = 'Search failed.';
+        } finally {
+            searchBtn.innerText = 'Search DB';
+        }
+    }
+
+    async function searchCurrentArea() {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: map.getCenter() }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+                const countyComp = results[0].address_components.find(c => c.types.includes('administrative_area_level_2'));
+                if (countyComp) {
+                    const countyName = countyComp.long_name.toLowerCase().replace(' county', '').replace(/\s+/g, '-');
+                    // Only update if search box is empty or we're in auto-discovery mode
+                    if (!document.getElementById('term').value || document.getElementById('term').value === countyName) {
+                        document.getElementById('term').value = countyName;
+                        performSearch(countyName);
+                    }
+                }
+            }
+        });
+    }
+
+    function displayResults(data) {
+        if (!data || !data.length) {
+            resultsList.innerHTML = '<div style="padding: 20px; text-align: center;">No database records found.</div>';
+            return;
+        }
+
+        resultsList.innerHTML = data.map((r, index) => {
+            const hStatus = (r.status || 'Unknown');
+            let statusClass = 'secondary';
+            if (hStatus.toLowerCase().includes('satisfactory')) statusClass = 'success';
+            else if (hStatus.toLowerCase().includes('warning')) statusClass = 'warning';
+            else if (hStatus.toLowerCase().includes('fail')) statusClass = 'danger';
+
+            return `
+                <div class="restaurant-card" id="card-${index}" onclick="showDetails(${index})">
+                    <div class="card-info">
+                        <div class="card-name">${r.name}</div>
+                        <div class="card-address">${r.address}</div>
+                        <div style="margin-top: 8px;">
+                            <span class="badge badge-${statusClass}" style="font-size: 0.65rem;">
+                                ${hStatus}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function updateMapMarkers(data) {
+        if (!AdvancedMarkerElement) return;
+
+        markers.forEach(m => { if(m) m.setMap(null); });
+        markers = [];
+        
+        const geocoder = new google.maps.Geocoder();
+        const limit = Math.min(data.length, 60);
+        
+        for (let i = 0; i < limit; i++) {
+            const r = data[i];
+            
+            if (r.latitude && r.longitude) {
+                createMarker(i, r, { lat: r.latitude, lng: r.longitude });
+            } else if (r.address !== 'NONE' && r.address.length > 5) {
+                // Geocode on the fly
+                geocoder.geocode({ address: `${r.address}, ${r.county}, FL` }, (results, status) => {
+                    if (status === 'OK') {
+                        const loc = results[0].geometry.location;
+                        createMarker(i, r, loc);
+                        // Save to DB for next time
+                        saveLocation(r.id, loc.lat(), loc.lng(), r.source);
+                    }
+                });
+            }
+        }
+    }
+
+    function createMarker(index, r, position) {
+        const statusLower = (r.status || '').toLowerCase();
+        let color = '#1a73e8';
+        if (statusLower.includes('fail')) color = '#d93025';
+        else if (statusLower.includes('warning')) color = '#f9ab00';
+        else if (statusLower.includes('satisfactory')) color = '#1e8e3e';
+
+        const pin = new PinElement({ background: color, borderColor: '#ffffff', glyphColor: '#ffffff' });
+        const marker = new AdvancedMarkerElement({ position, map, title: r.name, content: pin.element });
+        
+        marker.addListener('click', () => { showDetails(index); });
+        markers[index] = marker;
+    }
+
+    async function saveLocation(id, lat, lng, source) {
+        fetch('/api/database/update-location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, lat, lng, source })
+        }).catch(e => console.error('Save loc failed', e));
+    }
+
+    async function showDetails(index) {
+        const r = currentResults[index];
+        if (!r) return;
+
+        detailsSheet.style.display = 'flex';
+        document.getElementById('placeTitle').innerText = r.name;
+        document.getElementById('txtAddress').innerText = r.address;
+        
+        const badge = document.getElementById('healthBadge');
+        badge.innerText = r.status;
+        const statusClass = r.status.toLowerCase().includes('satisfactory') ? 'success' : 'warning';
+        badge.className = `badge badge-${statusClass}`;
+        
+        document.getElementById('healthSummary').innerText = `Last Inspection: ${r.last_inspection_date || 'N/A'}`;
+        document.getElementById('historyList').innerHTML = 'Loading history...';
+
+        document.querySelectorAll('.restaurant-card').forEach((c, i) => {
+            if (i === index) c.classList.add('active');
+            else c.classList.remove('active');
+        });
+
+        if (markers[index]) {
+            map.panTo(markers[index].position);
+            map.setZoom(16);
+        }
+
+        // Fetch deep history from adapter
+        try {
+            const res = await fetch(`/health?name=${encodeURIComponent(r.name)}&address=${encodeURIComponent(r.address)}&county=${encodeURIComponent(r.county)}`);
+            const data = await res.json();
+            if (data.history && data.history.length) {
+                document.getElementById('historyList').innerHTML = data.history.map(h => `
+                    <div style="padding: 12px 0; border-bottom: 1px solid var(--border);">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size: 0.85rem;">
+                            <span style="font-weight:500;">${h.date}</span>
+                            <span class="badge badge-${(h.status.toLowerCase().includes('satisfactory') || h.status.toLowerCase().includes('met')) ? 'success' : 'warning'}" style="font-size: 0.6rem;">${h.status}</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--secondary);">${h.type}</div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('historyList').innerHTML = 'No deep history found.';
+            }
+        } catch (e) {
+            document.getElementById('historyList').innerHTML = 'Failed to load history.';
+        }
+    }
+
+    function closeDetails() {
+        detailsSheet.style.display = 'none';
+        document.querySelectorAll('.restaurant-card').forEach(c => c.classList.remove('active'));
+    }
+
+    fetchConfig();
+</script>
+</body>
+</html>

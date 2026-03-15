@@ -31,7 +31,7 @@ const searchPlaces = async (query, locationContext = null) => {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Goog-Api-Key': API_KEY,
-                'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.location,places.photos,places.addressComponents'
+                'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.location,places.photos,places.addressComponents,places.types,places.priceLevel,places.businessStatus'
             }
         });
 
@@ -47,7 +47,10 @@ const searchPlaces = async (query, locationContext = null) => {
                 rating: p.rating,
                 user_ratings_total: p.userRatingCount,
                 geometry: { location: { lat: p.location?.latitude, lng: p.location?.longitude } },
-                photos: p.photos ? [{ photo_reference: p.photos[0].name }] : []
+                photos: p.photos ? [{ photo_reference: p.photos[0].name }] : [],
+                types: p.types,
+                price_level: p.priceLevel,
+                business_status: p.businessStatus
             };
         });
 
@@ -61,7 +64,7 @@ const getPlaceDetails = async (placeId) => {
         const response = await axios.get(`${BASE_URL}/${placeId}`, {
             headers: {
                 'X-Goog-Api-Key': API_KEY,
-                'X-Goog-FieldMask': 'id,displayName,formattedAddress,rating,userRatingCount,location,photos,internationalPhoneNumber,websiteUri,regularOpeningHours,priceLevel,reviews,addressComponents'
+                'X-Goog-FieldMask': 'id,displayName,formattedAddress,rating,userRatingCount,location,photos,internationalPhoneNumber,websiteUri,regularOpeningHours,priceLevel,reviews,addressComponents,types,businessStatus'
             }
         });
         const p = response.data;
@@ -81,7 +84,9 @@ const getPlaceDetails = async (placeId) => {
             opening_hours: { open_now: p.regularOpeningHours?.openNow },
             price_level: p.priceLevel === 'PRICE_LEVEL_INEXPENSIVE' ? 1 : (p.priceLevel === 'PRICE_LEVEL_MODERATE' ? 2 : 3),
             photos: p.photos ? [{ photo_reference: p.photos[0].name }] : [],
-            reviews: (p.reviews || []).map(r => ({ author_name: r.authorAttribution?.displayName, rating: r.rating, text: r.text?.text }))
+            reviews: (p.reviews || []).map(r => ({ author_name: r.authorAttribution?.displayName, rating: r.rating, text: r.text?.text })),
+            types: p.types,
+            business_status: p.businessStatus
         };
         return { result: mappedResult, status: 'OK' };
     } catch (error) { throw new Error('Details Failed'); }

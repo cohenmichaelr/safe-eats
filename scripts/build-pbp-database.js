@@ -3,7 +3,15 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 const DB_PATH = path.join(__dirname, '../pbp_restaurants.db');
-const COUNTIES = ['palm-beach', 'broward', 'miami-dade'];
+const COUNTIES = [
+    'alachua', 'baker', 'bay', 'bradford', 'brevard', 'broward', 'calhoun', 'charlotte', 'citrus', 'clay',
+    'collier', 'columbia', 'desoto', 'dixie', 'duval', 'escambia', 'flagler', 'franklin', 'gadsden', 'gilchrist',
+    'glades', 'gulf', 'hamilton', 'hardee', 'hendry', 'hernando', 'highlands', 'hillsborough', 'holmes', 'indian-river',
+    'jackson', 'jefferson', 'lafayette', 'lake', 'lee', 'leon', 'levy', 'liberty', 'madison', 'manatee',
+    'marion', 'martin', 'miami-dade', 'monroe', 'nassau', 'okaloosa', 'okeechobee', 'orange', 'osceola', 'palm-beach',
+    'pasco', 'pinellas', 'polk', 'putnam', 'santa-rosa', 'sarasota', 'seminole', 'st-johns', 'st-lucie', 'sumter',
+    'suwannee', 'taylor', 'union', 'volusia', 'wakulla', 'walton', 'washington'
+];
 
 async function initDB() {
     return new Promise((resolve) => {
@@ -15,8 +23,21 @@ async function initDB() {
                 name TEXT,
                 address TEXT,
                 url TEXT,
-                status TEXT
+                status TEXT,
+                last_inspection_date TEXT
             )`);
+            
+            // Ensure all columns exist
+            db.all("PRAGMA table_info(restaurants)", (err, rows) => {
+                const cols = rows.map(r => r.name);
+                if (!cols.includes('status')) {
+                    db.run("ALTER TABLE restaurants ADD COLUMN status TEXT");
+                }
+                if (!cols.includes('last_inspection_date')) {
+                    db.run("ALTER TABLE restaurants ADD COLUMN last_inspection_date TEXT");
+                }
+            });
+
             db.run(`CREATE INDEX IF NOT EXISTS idx_county ON restaurants(county)`);
             db.run(`CREATE INDEX IF NOT EXISTS idx_name ON restaurants(name)`);
             resolve(db);
@@ -48,52 +69,97 @@ async function scrapeCounty(db, county) {
             const url = `https://data.palmbeachpost.com/restaurant-inspections/${county}/?page=${currentPage}`;
             await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
-            const pageData = await page.evaluate(() => {
+            const pageData = await page.evaluate((county) => {
                 const results = [];
-                const rows = Array.from(document.querySelectorAll('table tr')).slice(1);
+                // Find all links that point to a restaurant profile for this county
+                const links = Array.from(document.querySelectorAll(`a[href*="/restaurant-inspections/${county}/"]`));
                 
-                rows.forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    if (cells.length < 4) return;
-                    
-                    // Column 0 contains BOTH name and address in this format:
-                    // <a href="..."><b>NAME</b></a><br><span class="xsmall">ADDRESS</span>
-                    const mainCell = cells[0];
-                    const nameLink = mainCell.querySelector('a');
-                    const addressSpan = mainCell.querySelector('span.xsmall');
-                    const statusCell = cells[2]; // Index 2 is Disposition in county list
-                    
-                    if (!nameLink) return;
+                links.forEach(link => {
+                    const href = link.getAttribute('href');
+                    // Ensure it's a profile link, not a pagination link
+                    if (href.includes('?page=')) {
+                        // it might be a profile link with ?next= in it, but let's check for the ID format
+                        const match = href.match(/\/(\d+)\//);
+                        if (!match) return;
+                    } else {
+                        const match = href.match(/\/(\d+)\/$/);
+                        if (!match) return;
+                    }
 
-                    const href = nameLink.getAttribute('href');
-                    // ID is the last numeric part of the URL
-                    const match = href.match(/\/(\d+)\/$/);
+                    const match = href.match(/\/(\d+)\//);
                     const id = match ? match[1] : href;
+
+                    const parentText = link.parentElement.innerText.trim();
+                    let name = link.innerText.trim().toUpperCase();
+                    let date = null;
+                    let address = 'UNKNOWN';
+                    let statusText = 'Unknown';
+
+                    const lines = parentText.split('\n').map(l => l.trim()).filter(l => l !== '');
+                    const dateRegex = /([A-Z][a-z]+\.?\s+\d{1,2},\s+\d{4})/i;
+
+                    for (const line of lines) {
+                        if (dateRegex.test(line)) {
+                            date = line.match(dateRegex)[1];
+                        } else if (line.includes('(') && line.includes(')')) {
+                            address = line.match(/\(([^)]+)\)/)[1].trim().toUpperCase();
+                        } else if (line !== name && !dateRegex.test(line) && address === 'UNKNOWN') {
+                            // If it's a long string and not the date or name, it might be the address
+                            if (line.length > 5) address = line.toUpperCase();
+                        }
+                    }
+
+                    // Attempt to guess status based on section it is in (if possible), or default to Satisfactory 
+                    // since we'll fetch deep details on click anyway.
+                    if (parentText.toLowerCase().includes('fail') || parentText.toLowerCase().includes('emergency')) {
+                        statusText = 'Fail';
+                    } else if (parentText.toLowerCase().includes('warning')) {
+                        statusText = 'Warning';
+                    } else {
+                        statusText = 'Satisfactory';
+                    }
 
                     results.push({
                         id: id,
-                        name: nameLink.innerText.trim().toUpperCase(),
+                        name: name,
                         url: `https://data.palmbeachpost.com${href}`,
-                        address: addressSpan ? addressSpan.innerText.trim().toUpperCase() : 'UNKNOWN',
-                        status: statusCell ? statusCell.innerText.trim() : 'Satisfactory'
+                        address: address,
+                        status: statusText,
+                        date: date
                     });
                 });
-                return results;
-            });
+                
+                // Deduplicate by ID
+                const uniqueResults = [];
+                const seenIds = new Set();
+                for (const r of results) {
+                    if (!seenIds.has(r.id)) {
+                        seenIds.add(r.id);
+                        uniqueResults.push(r);
+                    }
+                }
+                
+                return uniqueResults;
+            }, county);
 
             if (pageData.length === 0) {
                 keepGoing = false;
                 break;
             }
 
-            db.serialize(() => {
-                db.run('BEGIN TRANSACTION');
-                const stmt = db.prepare('INSERT OR REPLACE INTO restaurants (id, county, name, address, url, status) VALUES (?, ?, ?, ?, ?, ?)');
-                for (const r of pageData) {
-                    stmt.run(r.id, county, r.name, r.address, r.url, r.status);
-                }
-                stmt.finalize();
-                db.run('COMMIT');
+            await new Promise((resolve, reject) => {
+                db.serialize(() => {
+                    db.run('BEGIN TRANSACTION');
+                    const stmt = db.prepare('INSERT OR REPLACE INTO restaurants (id, county, name, address, url, status, last_inspection_date) VALUES (?, ?, ?, ?, ?, ?, ?)');
+                    for (const r of pageData) {
+                        stmt.run(r.id, county, r.name, r.address, r.url, r.status, r.date);
+                    }
+                    stmt.finalize();
+                    db.run('COMMIT', (err) => {
+                        if (err) reject(err);
+                        else resolve();
+                    });
+                });
             });
 
             totalAdded += pageData.length;

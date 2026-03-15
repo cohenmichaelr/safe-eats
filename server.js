@@ -6,6 +6,7 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const googleMaps = require('./adapters/google-maps');
 const floridaDbpr = require('./adapters/florida-dbpr');
+const floridaFdacs = require('./adapters/florida-fdacs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -49,14 +50,27 @@ app.get('/map', async (req, res) => {
                 await Promise.all(results.results.map(async (res) => {
                     const firstWord = res.name.toUpperCase().split(' ')[0] + '%';
                     const streetNum = (res.formatted_address || '').split(' ')[0] + '%';
+                    const searchCounty = (res.county || '').toLowerCase().replace(' county', '').replace(/\s+/g, '-');
                     
                     return new Promise((resolve) => {
+                        let query = 'SELECT status, last_inspection_date FROM restaurants WHERE name LIKE ? AND address LIKE ?';
+                        let params = [firstWord, streetNum];
+
+                        if (searchCounty) {
+                            query += ' AND county = ?';
+                            params.push(searchCounty);
+                        }
+                        
                         db.get(
-                            'SELECT status FROM restaurants WHERE name LIKE ? AND address LIKE ?',
-                            [firstWord, streetNum],
+                            query,
+                            params,
                             (err, row) => {
+                                if (err) console.error(`[SQL Error] ${err.message}`);
+                                else if (!row) console.log(`[SQL] No match for ${firstWord} at ${streetNum} in ${searchCounty}`);
+                                
                                 // Default to Unknown if no DB match
                                 res.healthStatus = row ? row.status : 'Unknown';
+                                res.lastInspectionDate = row ? row.last_inspection_date : null;
                                 resolve();
                             }
                         );
@@ -75,13 +89,93 @@ app.get('/map', async (req, res) => {
 });
 
 app.get('/health', async (req, res) => {
-    const { name, address, city, state, county } = req.query;
+    const { name, address, placeId, county } = req.query;
     try {
-        const fullData = await floridaDbpr.getFullRecord(name, address, { city, state, county });
+        let locationDetails = { county };
+        
+        // If county is missing but placeId is present, fetch it from Google
+        if (!locationDetails.county && placeId) {
+            const details = await googleMaps.getPlaceDetails(placeId);
+            if (details.result) {
+                locationDetails = {
+                    city: details.result.city,
+                    state: details.result.state,
+                    county: details.result.county
+                };
+            }
+        }
+        
+        // Try DBPR first (most common for restaurants)
+        let fullData = await floridaDbpr.getFullRecord(name, address, locationDetails);
+        
+        // If not found in DBPR, try FDACS (grocery stores, convenience stores, etc.)
+        if (!fullData || fullData.status === 'Not Found') {
+            console.log(`[Server] Not found in DBPR, trying FDACS for ${name}...`);
+            const fdacsData = await floridaFdacs.getFullRecord(name, address, locationDetails);
+            if (fdacsData && fdacsData.status === 'Found') {
+                fullData = fdacsData;
+            }
+        }
+
         res.json(fullData);
     } catch (error) {
         res.status(500).json({ error: 'Health Data Error' });
     }
+});
+
+/**
+ * Route: /api/database/search
+ * Searches both local tables (restaurants and food_entities).
+ */
+app.get('/api/database/search', (req, res) => {
+    const { query } = req.query;
+    if (!query) return res.status(400).json({ error: 'Missing query' });
+
+    if (!fs.existsSync(DB_PATH)) {
+        return res.status(500).json({ error: 'Database not found' });
+    }
+
+    const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY);
+    const searchTerm = `%${query.toUpperCase()}%`;
+    const countyTerm = query.toLowerCase().replace(' county', '').replace(/\s+/g, '-');
+
+    const sql = `
+        SELECT id, name, address, county, status, last_inspection_date, latitude, longitude, 'DBPR' as source 
+        FROM restaurants 
+        WHERE name LIKE ? OR address LIKE ? OR county = ?
+        UNION ALL
+        SELECT id, name, address, county, status, last_inspection_date, latitude, longitude, 'FDACS' as source
+        FROM food_entities
+        WHERE name LIKE ? OR address LIKE ? OR county = ?
+        LIMIT 300
+    `;
+
+    db.all(sql, [searchTerm, searchTerm, countyTerm, searchTerm, searchTerm, countyTerm], (err, rows) => {
+        db.close();
+        if (err) {
+            console.error('[DB Search Error]:', err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json({ results: rows });
+    });
+});
+
+/**
+ * Route: /api/database/update-location
+ * Saves geocoded coordinates for a restaurant or food entity.
+ */
+app.post('/api/database/update-location', (req, res) => {
+    const { id, lat, lng, source } = req.body;
+    if (!id || lat === undefined || lng === undefined) return res.status(400).json({ error: 'Missing data' });
+
+    const db = new sqlite3.Database(DB_PATH);
+    const table = source === 'FDACS' ? 'food_entities' : 'restaurants';
+    
+    db.run(`UPDATE ${table} SET latitude = ?, longitude = ? WHERE id = ?`, [lat, lng, id], (err) => {
+        db.close();
+        if (err) return res.status(500).json({ error: 'Update failed' });
+        res.json({ status: 'updated' });
+    });
 });
 
 app.listen(PORT, () => {

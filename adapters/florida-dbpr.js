@@ -40,33 +40,65 @@ async function searchLocalDB(name, county, fullAddress) {
     return new Promise((resolve) => {
         const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY);
         const firstWord = name.split(' ')[0] + '%';
+        const streetNum = (fullAddress || '').split(' ')[0] + '%';
 
-        // 1. Get all restaurants in the correct county that share the first word of the name
+        let query = 'SELECT * FROM restaurants WHERE name LIKE ? AND address LIKE ?';
+        let params = [firstWord, streetNum];
+
+        if (county) {
+            query += ' AND county = ?';
+            params.push(county);
+        }
+
+        console.log(`[SQL Query] ${query} | Params: ${JSON.stringify(params)}`);
+
+        // Try to match by name first word, street number AND county for higher precision
         db.all(
-            'SELECT * FROM restaurants WHERE county = ? AND name LIKE ?',
-            [county, firstWord],
+            query,
+            params,
             (err, rows) => {
-                db.close();
-                if (err || !rows || rows.length === 0) return resolve(null);
-
-                // 2. Use Fuse.js to find the closest match based on the FULL restaurant name
-                const fuse = new Fuse(rows, { 
-                    keys: ['name'], 
-                    threshold: 0.5,
-                    includeScore: true 
-                });
-                
-                const results = fuse.search(name);
-                
-                if (results.length > 0) {
-                    console.log(`[DB Match] Found "${results[0].item.name}" (Score: ${results[0].score.toFixed(2)})`);
-                    resolve(results[0].item);
+                if (err || !rows || rows.length === 0) {
+                    console.log(`[SQL] No direct match found for ${firstWord}, ${streetNum}, and ${county}. Trying fallback...`);
+                    // Fallback: Just name and county
+                    let fallbackQuery = 'SELECT * FROM restaurants WHERE name LIKE ?';
+                    let fallbackParams = [firstWord];
+                    if (county) {
+                        fallbackQuery += ' AND county = ?';
+                        fallbackParams.push(county);
+                    }
+                    fallbackQuery += ' LIMIT 100';
+                    
+                    console.log(`[SQL Fallback] ${fallbackQuery} | Params: ${JSON.stringify(fallbackParams)}`);
+                    db.all(fallbackQuery, fallbackParams, (err2, rows2) => {
+                        db.close();
+                        processMatches(name, rows2 || [], resolve);
+                    });
                 } else {
-                    resolve(null);
+                    console.log(`[SQL] Found ${rows.length} potential matches.`);
+                    db.close();
+                    processMatches(name, rows, resolve);
                 }
             }
         );
     });
+}
+
+function processMatches(targetName, rows, resolve) {
+    if (!rows.length) return resolve(null);
+    
+    const fuse = new Fuse(rows, { 
+        keys: ['name', 'address'], 
+        threshold: 0.4,
+        includeScore: true 
+    });
+    
+    const results = fuse.search(targetName);
+    if (results.length > 0) {
+        console.log(`[DB Match] Best: "${results[0].item.name}" at "${results[0].item.address}" (Score: ${results[0].score.toFixed(2)})`);
+        resolve(results[0].item);
+    } else {
+        resolve(null);
+    }
 }
 
 async function performLiveScrape(businessName, address, details) {
@@ -104,32 +136,74 @@ async function performLiveScrape(businessName, address, details) {
 }
 
 async function fetchHistoryFromProfile(profileUrl, businessName, address) {
-    const res = await axios.get(profileUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-    const html = res.data;
-    const history = [];
-    const historyRegex = /<tr>\s*<td>(\d{2}\/\d{2}\/\d{4})<\/td>\s*<td>(.*?)<\/td>\s*<td>(.*?)<\/td>\s*<td>(.*?)<\/td>/gs;
-    let m;
-    while ((m = historyRegex.exec(html)) !== null) {
-        const [_, date, type, status, viol] = m;
-        history.push({
-            date: date.trim(),
-            type: type.replace(/<[^>]*>/g, '').trim(),
-            status: status.replace(/<[^>]*>/g, '').trim(),
-            violations: parseInt(viol.replace(/<[^>]*>/g, '').trim()) || 0
-        });
+    try {
+        const res = await axios.get(profileUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const html = res.data;
+        
+        // Remove scripts and styles for cleaner regex matching on text
+        const cleanText = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gm, ' ')
+                             .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gm, ' ')
+                             .replace(/<[^>]*>/g, ' '); // Replace remaining HTML tags with spaces
+
+        const history = [];
+        // Improved regex based on site structure analysis
+        const historyRegex = /([A-Z][a-z]+\.?\s+\d{1,2},\s+\d{4})\s+([\w\s-]+?)(?:\s*\(([^)]+)\))?\s*(?:View Inspection Detail\s*)?(\d+)\s+Hide Inspection Detail/g;
+        
+        let m;
+        while ((m = historyRegex.exec(cleanText)) !== null) {
+            const [_, dateStr, type, status, viol] = m;
+            history.push({
+                date: normalizeDate(dateStr.trim()),
+                type: type.trim(),
+                status: status ? status.trim() : type.trim(),
+                violations: parseInt(viol) || 0
+            });
+        }
+
+        if (history.length === 0) {
+            // Fallback: try matching simple table rows if the text-based one failed
+            const tableRegex = /<tr>\s*<td>([\d\/]+)<\/td>\s*<td>(.*?)<\/td>\s*<td>(.*?)<\/td>\s*<td>(\d+)<\/td>/gs;
+            while ((m = tableRegex.exec(html)) !== null) {
+                const [_, date, type, status, viol] = m;
+                history.push({
+                    date: date.trim(),
+                    type: type.replace(/<[^>]*>/g, '').trim(),
+                    status: status.replace(/<[^>]*>/g, '').trim(),
+                    violations: parseInt(viol) || 0
+                });
+            }
+        }
+
+        return {
+            status: history.length > 0 ? 'Found' : 'Not Found',
+            source: 'Palm Beach Post',
+            profileUrl: profileUrl,
+            current: {
+                name: businessName,
+                address: address,
+                status: history.length > 0 ? history[0].status : 'Unknown',
+                lastDate: history.length > 0 ? history[0].date : 'N/A'
+            },
+            history: history
+        };
+    } catch (e) {
+        console.error('[fetchHistoryFromProfile] Error:', e.message);
+        return { status: 'Not Found' };
     }
-    return {
-        status: 'Found',
-        source: 'Palm Beach Post',
-        profileUrl: profileUrl,
-        current: {
-            name: businessName,
-            address: address,
-            status: (history[0]?.status.includes('Met') || history[0]?.status.includes('Satisfactory')) ? 'Pass' : 'Warning',
-            lastDate: history[0]?.date || 'N/A'
-        },
-        history: history
-    };
+}
+
+function normalizeDate(dateStr) {
+    if (!dateStr) return 'N/A';
+    // If it's already MM/DD/YYYY, return it
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr)) return dateStr;
+    
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+    } catch (e) {
+        return dateStr;
+    }
 }
 
 module.exports = { getFullRecord };
