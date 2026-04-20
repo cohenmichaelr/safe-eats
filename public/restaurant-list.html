@@ -117,6 +117,64 @@
         }
 
         .violation-cell { font-weight: 500; text-align: center; }
+        .has-violations { background-color: #fff8f8; }
+        .row-clickable { cursor: pointer; transition: background-color 0.2s; }
+        .row-clickable:hover { background-color: #f1f3f4 !important; }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .violation-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary);
+        }
+
+        .violation-date { font-weight: bold; font-size: 0.85rem; color: var(--text-secondary); }
+        .violation-status { font-size: 0.9rem; margin: 4px 0; }
+        .violation-count { color: #d93025; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -128,7 +186,7 @@
 
 <div class="container">
     <div class="controls">
-        <input type="text" id="filterInput" placeholder="Filter by name, city, or type...">
+        <input type="text" id="filterInput" placeholder="Search by name, city (e.g. 'Boca Raton'), address, or type...">
         <button class="action-link" onclick="fetchData()" style="background: none; border: 1px solid var(--border); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.85rem;">🔄 Refresh List</button>
         <button class="action-link" onclick="triggerSync()" style="background: none; border: 1px solid var(--border); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.85rem; color: var(--primary);">📥 Sync from Florida DB</button>
         <div id="stats" style="font-size: 0.85rem; color: var(--text-secondary); margin-left: auto;">Loading data...</div>
@@ -150,6 +208,21 @@
         </tbody>
     </table>
     <div id="loading" class="loading">Fetching records from database...</div>
+</div>
+
+<div id="violationModal" class="modal-overlay" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h2 id="modalTitle" style="margin: 0;">Restaurant Name</h2>
+                <p id="modalAddress" style="margin: 4px 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">Address info</p>
+            </div>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div id="modalBody">
+            <p>Loading inspection history...</p>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -180,26 +253,65 @@
             updateStats(data.length);
         }
 
-        body.innerHTML = displayData.map(r => {
+        body.innerHTML = displayData.map((r, index) => {
             const status = (r.status || 'Unknown').toLowerCase();
             let badgeClass = 'secondary';
             if (status.includes('satisfactory') || status.includes('met')) badgeClass = 'success';
             else if (status.includes('warning')) badgeClass = 'warning';
             else if (status.includes('fail') || status.includes('closed')) badgeClass = 'danger';
 
+            const hasViolations = r.violation_count > 0;
+            const rowClass = `row-clickable ${hasViolations ? 'has-violations' : ''}`;
+
             return `
-                <tr>
+                <tr class="${rowClass}" onclick="showViolations('${encodeURIComponent(r.name)}', '${encodeURIComponent(r.address)}', '${r.source}')">
                     <td style="font-weight: 500;">${r.name}</td>
                     <td>${r.city || 'N/A'}</td>
                     <td style="color: var(--text-secondary); font-size: 0.8rem;">${r.type}</td>
                     <td><span class="badge badge-${badgeClass}">${r.status}</span></td>
-                    <td class="violation-cell" style="color: ${r.violation_count > 5 ? 'var(--danger)' : 'inherit'}">
+                    <td class="violation-cell" style="color: ${r.violation_count > 5 ? '#d93025' : (r.violation_count > 0 ? '#b05e00' : 'inherit')}">
                         ${r.violation_count}
                     </td>
                     <td style="color: var(--text-secondary);">${r.last_inspection_date || 'N/A'}</td>
                 </tr>
             `;
         }).join('');
+    }
+
+    async function showViolations(name, address, source) {
+        const modal = document.getElementById('violationModal');
+        const title = document.getElementById('modalTitle');
+        const addrElem = document.getElementById('modalAddress');
+        const body = document.getElementById('modalBody');
+
+        title.innerText = decodeURIComponent(name);
+        addrElem.innerText = decodeURIComponent(address);
+        body.innerHTML = '<p style="text-align: center; padding: 20px;">🔍 Fetching detailed inspection history...</p>';
+        modal.style.display = 'flex';
+
+        try {
+            const url = `/health?name=${name}&address=${address}&source=${source}`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.status === 'Found' && data.history && data.history.length > 0) {
+                body.innerHTML = data.history.map(h => `
+                    <div class="violation-item" style="border-left-color: ${h.violations > 5 ? '#d93025' : (h.violations > 0 ? '#fbbc04' : '#1e8e3e')}">
+                        <div class="violation-date">${h.date} - ${h.type}</div>
+                        <div class="violation-status">Status: <strong>${h.status}</strong></div>
+                        <div class="violation-status">Violations found: <span class="violation-count">${h.violations}</span></div>
+                    </div>
+                `).join('');
+            } else {
+                body.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No detailed history available for this location.</p>';
+            }
+        } catch (err) {
+            body.innerHTML = '<p style="color: #d93025;">Error loading violation details.</p>';
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('violationModal').style.display = 'none';
     }
 
     function sortTable(columnIndex) {
@@ -220,11 +332,19 @@
         headers[columnIndex].className = currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc';
 
         const sortedData = [...restaurants].sort((a, b) => {
-            let valA = a[key] || '';
-            let valB = b[key] || '';
+            let valA = a[key] === null || a[key] === undefined ? '' : a[key];
+            let valB = b[key] === null || b[key] === undefined ? '' : b[key];
 
             if (key === 'violation_count') {
                 return currentSort.direction === 'asc' ? valA - valB : valB - valA;
+            }
+
+            if (key === 'last_inspection_date') {
+                const dateA = new Date(valA);
+                const dateB = new Date(valB);
+                if (!isNaN(dateA) && !isNaN(dateB)) {
+                    return currentSort.direction === 'asc' ? dateA - dateB : dateB - dateA;
+                }
             }
 
             valA = valA.toString().toLowerCase();
@@ -258,6 +378,7 @@
         const filtered = restaurants.filter(r => 
             r.name.toLowerCase().includes(term) || 
             (r.city && r.city.toLowerCase().includes(term)) ||
+            (r.address && r.address.toLowerCase().includes(term)) ||
             r.type.toLowerCase().includes(term)
         );
         renderTable(filtered);
@@ -266,6 +387,10 @@
 
     fetchData();
 </script>
+
+</body>
+</html>
+
 
 </body>
 </html>
