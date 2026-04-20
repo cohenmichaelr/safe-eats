@@ -43,62 +43,58 @@ app.get('/map', async (req, res) => {
         } else if (query) {
             const results = await googleMaps.searchPlaces(query, { lat, lng });
             
-            // AUTOMATIC STATUS LOOKUP FOR COLORS
             if (results.results && fs.existsSync(DB_PATH)) {
                 const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY);
                 
-                await Promise.all(results.results.map(async (res) => {
-                    const firstWord = res.name.toUpperCase().split(' ')[0] + '%';
-                    const streetNum = (res.formatted_address || '').split(' ')[0] + '%';
-                    const searchCounty = (res.county || '').toLowerCase().replace(' county', '').replace(/\s+/g, '-');
-                    
+                await Promise.all(results.results.map(async (resItem) => {
+                    const searchCounty = (resItem.county || '').toLowerCase().replace(' county', '').replace(/\s+/g, '-');
+                    const nameParts = resItem.name.toUpperCase().split(' ');
+                    const firstWord = nameParts[0] + '%';
+                    const streetNum = (resItem.formatted_address || '').split(' ')[0] + '%';
+
                     return new Promise((resolve) => {
-                        // First try exact name + address + county
-                        let query = 'SELECT status, last_inspection_date FROM restaurants WHERE name = ? AND address = ?';
-                        let params = [res.name.toUpperCase(), (res.formatted_address || '').split(',')[0].toUpperCase()];
+                        // Priority 1: Exact Name + Address + County
+                        let sql = 'SELECT id, status, last_inspection_date, latitude, longitude FROM restaurants WHERE name = ? AND address LIKE ?';
+                        let params = [resItem.name.toUpperCase(), streetNum];
 
                         if (searchCounty) {
-                            query += ' AND county = ?';
+                            sql += ' AND county = ?';
                             params.push(searchCounty);
                         }
 
-                        db.get(query, params, (err, row) => {
+                        db.get(sql, params, (err, row) => {
                             if (!row) {
-                                // Fallback 1: Try name + first part of address
-                                const streetNum = (res.formatted_address || '').split(' ')[0] + '%';
-                                const cleanName = res.name.toUpperCase().replace('PIZZERIA', '').replace('PIZZA', '').trim();
-                                const firstWord = (cleanName.split(' ')[0] || res.name.toUpperCase().split(' ')[0]) + '%';
-
-                                let fallbackQuery = 'SELECT status, last_inspection_date FROM restaurants WHERE name LIKE ? AND address LIKE ?';
-                                let fallbackParams = [firstWord, streetNum];
+                                // Priority 2: Fuzzy Name + Street Number
+                                let fuzzySql = 'SELECT id, status, last_inspection_date, latitude, longitude FROM restaurants WHERE name LIKE ? AND address LIKE ?';
+                                let fuzzyParams = [firstWord, streetNum];
                                 if (searchCounty) {
-                                    fallbackQuery += ' AND county = ?';
-                                    fallbackParams.push(searchCounty);
+                                    fuzzySql += ' AND county = ?';
+                                    fuzzyParams.push(searchCounty);
                                 }
 
-                                db.get(fallbackQuery, fallbackParams, (err2, row2) => {
-                                    if (!row2 && searchCounty) {
-                                        // Fallback 2: Just name + county (for mobile units/NONE addresses)
-                                        // Use a more aggressive partial name match for the county
-                                        const shortName = (res.name.toUpperCase().substring(0, 5)) + '%';
-                                        db.get('SELECT status, last_inspection_date FROM restaurants WHERE name LIKE ? AND county = ? LIMIT 1', 
-                                            [shortName, searchCounty], (err3, row3) => {
-                                            res.healthStatus = row3 ? row3.status : 'Unknown';
-                                            res.lastInspectionDate = row3 ? row3.last_inspection_date : null;
-                                            resolve();
-                                        });
+                                db.get(fuzzySql, fuzzyParams, (err2, row2) => {
+                                    if (row2) {
+                                        resItem.id = row2.id;
+                                        resItem.healthStatus = row2.status;
+                                        resItem.lastInspectionDate = row2.last_inspection_date;
+                                        resItem.db_coords = row2.latitude ? { lat: row2.latitude, lng: row2.longitude } : null;
+                                        resItem.source = 'DBPR';
                                     } else {
-                                        res.healthStatus = row2 ? row2.status : 'Unknown';
-                                        res.lastInspectionDate = row2 ? row2.last_inspection_date : null;
-                                        resolve();
+                                        resItem.healthStatus = 'Unknown';
                                     }
+                                    resolve();
                                 });
                             } else {
-                                res.healthStatus = row.status;
-                                res.lastInspectionDate = row.last_inspection_date;
+                                resItem.id = row.id;
+                                resItem.healthStatus = row.status;
+                                resItem.lastInspectionDate = row.last_inspection_date;
+                                resItem.db_coords = row.latitude ? { lat: row.latitude, lng: row.longitude } : null;
+                                resItem.source = 'DBPR';
                                 resolve();
                             }
-                        });                    });                }));
+                        });
+                    });
+                }));
                 db.close();
             }
             
@@ -198,6 +194,36 @@ app.post('/api/database/update-location', (req, res) => {
         db.close();
         if (err) return res.status(500).json({ error: 'Update failed' });
         res.json({ status: 'updated' });
+    });
+});
+
+/**
+ * Route: /api/restaurants/all
+ * Returns all restaurants and food entities for the list view.
+ */
+app.get('/api/restaurants/all', (req, res) => {
+    if (!fs.existsSync(DB_PATH)) {
+        return res.status(500).json({ error: 'Database not found' });
+    }
+
+    const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY);
+    
+    // Combine both tables with normalized columns
+    const sql = `
+        SELECT name, address, city, type, violation_count, status, last_inspection_date, 'DBPR' as source 
+        FROM restaurants 
+        UNION ALL
+        SELECT name, address, city, 'Food Entity' as type, 0 as violation_count, status, last_inspection_date, 'FDACS' as source
+        FROM food_entities
+    `;
+
+    db.all(sql, [], (err, rows) => {
+        db.close();
+        if (err) {
+            console.error('[DB All Error]:', err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json({ results: rows });
     });
 });
 

@@ -26,29 +26,39 @@ async function crawl() {
         // 2. Fill Form with specific waits
         console.log('Filling search form...');
         
-        // Wait for the form to be ready
-        await page.waitForSelector('select', { timeout: 5000 });
+        // Use a more specific selector for the search form
+        await page.waitForSelector('form[name="search"]', { timeout: 10000 }).catch(() => console.log('Form not found, but continuing...'));
 
-        // Find the License Type dropdown (it might not be named "typ" exactly)
-        await page.evaluate(() => {
-            const selects = Array.from(document.querySelectorAll('select'));
-            const typeSelect = selects.find(s => s.innerText.includes('Food Service') || s.name === 'typ');
-            if (typeSelect) typeSelect.value = 'Food Service';
-            
+        // Try to find the city input specifically
+        const citySelector = 'input[name="city"]';
+        await page.waitForSelector(citySelector, { timeout: 5000 });
+        
+        await page.evaluate((cityName) => {
             const cityInput = document.querySelector('input[name="city"]');
-            if (cityInput) cityInput.value = window.cityName; // Pass from node context
-        }, { cityName: CITY });
+            if (cityInput) cityInput.value = cityName;
+            
+            // Find the "License Type" dropdown
+            const selects = Array.from(document.querySelectorAll('select'));
+            const typeSelect = selects.find(s => s.name === 'typ' || s.innerText.includes('Food'));
+            if (typeSelect) {
+                // Select "Food Service" which is usually 02
+                const option = Array.from(typeSelect.options).find(opt => opt.text.includes('Food Service'));
+                if (option) typeSelect.value = option.value;
+            }
+        }, CITY);
 
-        // Manual type for city just in case evaluate didn't catch it
-        const cityInput = await page.$('input[name="city"]');
-        if (cityInput) await cityInput.type(CITY);
-
-        // Click Search
+        // Click Search - specifically the Search button
         console.log('Submitting search...');
-        await Promise.all([
-            page.keyboard.press('Enter'),
-            page.waitForNavigation({ waitUntil: 'networkidle2' })
-        ]);
+        const searchButton = await page.$('input[value="Search"]');
+        if (searchButton) {
+            await Promise.all([
+                searchButton.click(),
+                page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 })
+            ]);
+        } else {
+            await page.keyboard.press('Enter');
+            await page.waitForNavigation({ waitUntil: 'networkidle2' });
+        }
 
         const results = [];
         let hasNextPage = true;

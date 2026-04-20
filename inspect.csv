@@ -1,0 +1,2956 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!--<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="profile" href="https://gmpg.org/xfn/11">
+<link rel="pingback" href="https://www2.myfloridalicense.com/xmlrpc.php">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+
+<title>MyFloridaLicense.com &#8211; License efficiently. Regulate fairly.</title>
+<meta name='robots' content='max-image-preview:large' />
+<link rel='dns-prefetch' href='//www.google.com' />
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+<link rel="alternate" type="application/rss+xml" title="MyFloridaLicense.com &raquo; Feed" href="https://www2.myfloridalicense.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="MyFloridaLicense.com &raquo; Comments Feed" href="https://www2.myfloridalicense.com/comments/feed/" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www2.myfloridalicense.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww2.myfloridalicense.com%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www2.myfloridalicense.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww2.myfloridalicense.com%2F&#038;format=xml" />
+	
+<style id='wp-img-auto-sizes-contain-inline-css' type='text/css'>
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id='wp-emoji-styles-inline-css' type='text/css'>
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<link rel='stylesheet' id='wp-block-library-css' href='https://www2.myfloridalicense.com/wp-includes/css/dist/block-library/style.min.css?ver=6.9' type='text/css' media='all' />
+<style id='global-styles-inline-css' type='text/css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+<link rel='stylesheet' id='swiftype-facets-css' href='https://www2.myfloridalicense.com/wp-content/plugins/swiftype-search/Search/../assets/facets.css?ver=6.9' type='text/css' media='all' />
+<link rel='stylesheet' id='UserAccessManagerLoginForm-css' href='https://www2.myfloridalicense.com/wp-content/plugins/user-access-manager/assets/css/uamLoginForm.css?ver=2.2.25' type='text/css' media='screen' />
+<link rel='stylesheet' id='swiftype-css' href='https://www2.myfloridalicense.com/wp-content/plugins/swiftype-search/Search/../assets/autocomplete.css?ver=6.9' type='text/css' media='all' />
+<link rel='stylesheet' id='vc-acf-field-picker-google-map-css' href='https://www2.myfloridalicense.com/wp-content/plugins/wp-acf-vc-bridge/assets/css/vc-acf-field-picker-google-map.css?ver=1.2.7' type='text/css' media='all' />
+<link rel='stylesheet' id='js_composer_front-css' href='https://www2.myfloridalicense.com/wp-content/plugins/js_composer/assets/css/js_composer.min.css?ver=6.5.0' type='text/css' media='all' />
+<link rel='stylesheet' id='ubermenu-css' href='https://www2.myfloridalicense.com/wp-content/plugins/ubermenu/pro/assets/css/ubermenu.min.css?ver=3.2.7' type='text/css' media='all' />
+<link rel='stylesheet' id='ubermenu-white-css' href='https://www2.myfloridalicense.com/wp-content/plugins/ubermenu/pro/assets/css/skins/white.css?ver=6.9' type='text/css' media='all' />
+<link rel='stylesheet' id='ubermenu-font-awesome-css' href='https://www2.myfloridalicense.com/wp-content/plugins/ubermenu/assets/css/fontawesome/css/font-awesome.min.css?ver=4.3' type='text/css' media='all' />
+<link rel='stylesheet' id='bsf-Defaults-css' href='https://www2.myfloridalicense.com/wp-content/uploads/smile_fonts/Defaults/Defaults.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='bsf-external-icons-css' href='https://www2.myfloridalicense.com/wp-content/uploads/smile_fonts/external-icons/external-icons.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='bsf-military-css' href='https://www2.myfloridalicense.com/wp-content/uploads/smile_fonts/military/military.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='bsf-stop-css' href='https://www2.myfloridalicense.com/wp-content/uploads/smile_fonts/stop/stop.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='ultimate-vc-addons-style-css' href='https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-css/style.min.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='ultimate-vc-addons-slick-css' href='https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-css/slick.min.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='ultimate-vc-addons-icons-css' href='https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/css/icons.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='ultimate-vc-addons-animate-css' href='https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-css/animate.min.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='ultimate-vc-addons-btn-css' href='https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-css/advanced-buttons.min.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='ultimate-vc-addons-headings-style-css' href='https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-css/headings.min.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='ultimate-vc-addons-info-box-style-css' href='https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-css/info-box.min.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='ultimate-vc-addons_cllink-css' href='https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-css/creative-link.min.css?ver=3.21.3' type='text/css' media='all' />
+<link rel='stylesheet' id='ivan-font-awesome-css' href='https://www2.myfloridalicense.com/wp-content/themes/ivan-matty/css/libs/font-awesome-css/font-awesome.min.css?ver=4.1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='ivan-font-icons-css' href='https://www2.myfloridalicense.com/wp-content/themes/ivan-matty/css/libs/ivan-icons/style.min.css?ver=1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='ivan-elegant-icons-css' href='https://www2.myfloridalicense.com/wp-content/themes/ivan-matty/css/libs/elegant-icons/elegant-icons.min.css?ver=1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='magnific-popup-css' href='https://www2.myfloridalicense.com/wp-content/themes/ivan-matty/css/libs/magnific-popup/magnific-popup.min.css?ver=0.9.9' type='text/css' media='all' />
+<link rel='stylesheet' id='ivan-theme-styles-css' href='https://www2.myfloridalicense.com/wp-content/themes/ivan-matty/css/theme-styles.min.css?ver=1' type='text/css' media='all' />
+<link rel='stylesheet' id='ivan-default-style-css' href='https://www2.myfloridalicense.com/wp-content/themes/ivan-matty/style.css?ver=6.9' type='text/css' media='all' />
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic%7COpen%20Sans:300,400,600,700,800,300italic,400italic,600italic,700italic,800italic&#038;display=swap&#038;ver=6.9" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic%7COpen%20Sans:300,400,600,700,800,300italic,400italic,600italic,700italic,800italic&#038;display=swap&#038;ver=6.9" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic%7COpen%20Sans:300,400,600,700,800,300italic,400italic,600italic,700italic,800italic&#038;display=swap&#038;ver=6.9" /></noscript><script type="text/javascript" id="swiftype-js-extra">
+/* <![CDATA[ */
+var swiftypeParams = {"engineKey":"FGHrDspKGq3RPvM1v9Mv"};
+//# sourceURL=swiftype-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/swiftype-search/Search/../assets/install_swiftype.min.js?ver=6.9" id="swiftype-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-js/ultimate-params.min.js?ver=3.21.3" id="ultimate-vc-addons-params-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-js/custom.min.js?ver=3.21.3" id="ultimate-vc-addons-custom-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-js/jquery-appear.min.js?ver=3.21.3" id="ultimate-vc-addons-appear-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-js/headings.min.js?ver=3.21.3" id="ultimate-vc-addons-headings-script-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-js/slick.min.js?ver=3.21.3" id="ultimate-vc-addons-slick-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-js/slick-custom.min.js?ver=3.21.3" id="ultimate-vc-addons-slick-custom-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-js/creative-link.min.js?ver=3.21.3" id="ultimate-vc-addons-jquery.ult_cllink-js"></script>
+<link rel="https://api.w.org/" href="https://www2.myfloridalicense.com/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://www2.myfloridalicense.com/wp-json/wp/v2/pages/3051" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www2.myfloridalicense.com/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress 6.9" />
+<link rel="canonical" href="https://www2.myfloridalicense.com/" />
+<link rel='shortlink' href='https://www2.myfloridalicense.com/' />
+<meta name="generator" content="Redux 4.5.0" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-12H0B8CYHX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-12H0B8CYHX');
+</script>
+
+<!-- Global site tag - Pingdom -->
+<script src="//rum-static.pingdom.net/pa-65e8ea37daab4200120007ba.js" async></script>
+<!-- Global site tag - Siteimprove -->
+<script async src="https://siteimproveanalytics.com/js/siteanalyze_84133.js"></script>
+<style id="ubermenu-custom-generated-css">
+/** UberMenu Custom Menu Styles (Customizer) **/
+/* main */
+.ubermenu-main .ubermenu-item.ubermenu-active .ubermenu-submenu-drop.ubermenu-submenu-type-mega { overflow:visible; }
+.ubermenu-main .ubermenu-item-level-0 > .ubermenu-target { font-size:13px; color:#41464b; }
+.ubermenu-main .ubermenu-nav .ubermenu-item.ubermenu-item-level-0 > .ubermenu-target { font-weight:normal; }
+.ubermenu.ubermenu-main .ubermenu-item-level-0:hover > .ubermenu-target, .ubermenu-main .ubermenu-item-level-0.ubermenu-active > .ubermenu-target { color:#8e0606; }
+.ubermenu-main .ubermenu-item-level-0.ubermenu-current-menu-item > .ubermenu-target, .ubermenu-main .ubermenu-item-level-0.ubermenu-current-menu-parent > .ubermenu-target, .ubermenu-main .ubermenu-item-level-0.ubermenu-current-menu-ancestor > .ubermenu-target { color:#8e0606; }
+.ubermenu-main .ubermenu-item.ubermenu-item-level-0 > .ubermenu-highlight { color:#8e0606; }
+.ubermenu-responsive-toggle.ubermenu-responsive-toggle-main { font-weight:normal; background:#0d61aa; color:#ffffff; }
+.ubermenu-responsive-toggle.ubermenu-responsive-toggle-main:hover { background:#0d61aa; color:#ffffff; }
+/* internalpage */
+.ubermenu-internalpage .ubermenu-item.ubermenu-active .ubermenu-submenu-drop.ubermenu-submenu-type-mega { overflow:visible; }
+.ubermenu.ubermenu-internalpage { background:none; border:none; box-shadow:none; }
+.ubermenu.ubermenu-internalpage .ubermenu-item-level-0 > .ubermenu-target { border:none; box-shadow:none; }
+.ubermenu.ubermenu-internalpage.ubermenu-horizontal .ubermenu-submenu-drop.ubermenu-submenu-align-left_edge_bar, .ubermenu.ubermenu-internalpage.ubermenu-horizontal .ubermenu-submenu-drop.ubermenu-submenu-align-full_width { left:0; }
+.ubermenu.ubermenu-internalpage.ubermenu-horizontal .ubermenu-item-level-0.ubermenu-active > .ubermenu-submenu-drop, .ubermenu.ubermenu-internalpage.ubermenu-horizontal:not(.ubermenu-transition-shift) .ubermenu-item-level-0 > .ubermenu-submenu-drop { margin-top:0; }
+.ubermenu-internalpage .ubermenu-item-level-0 > .ubermenu-target { font-size:16px; color:#41464b; padding-left:65px; padding-right:65px; }
+.ubermenu-internalpage .ubermenu-nav .ubermenu-item.ubermenu-item-level-0 > .ubermenu-target { font-weight:normal; }
+.ubermenu.ubermenu-internalpage .ubermenu-item-level-0:hover > .ubermenu-target, .ubermenu-internalpage .ubermenu-item-level-0.ubermenu-active > .ubermenu-target { color:#8e0606; }
+.ubermenu-internalpage .ubermenu-item-level-0.ubermenu-current-menu-item > .ubermenu-target, .ubermenu-internalpage .ubermenu-item-level-0.ubermenu-current-menu-parent > .ubermenu-target, .ubermenu-internalpage .ubermenu-item-level-0.ubermenu-current-menu-ancestor > .ubermenu-target { color:#ab0707; }
+.ubermenu-internalpage .ubermenu-item.ubermenu-item-level-0 > .ubermenu-highlight { color:#ab0707; }
+.ubermenu.ubermenu-internalpage .ubermenu-item-level-0 { margin:0px 45px; }
+.ubermenu-internalpage.ubermenu-sub-indicators .ubermenu-item-level-0.ubermenu-has-submenu-drop > .ubermenu-target:not(.ubermenu-noindicator) { padding-right:80px; }
+.ubermenu-internalpage.ubermenu-sub-indicators .ubermenu-item-level-0.ubermenu-has-submenu-drop > .ubermenu-target.ubermenu-noindicator { padding-right:65px; }
+.ubermenu-internalpage .ubermenu-submenu .ubermenu-highlight { color:#dd3333; }
+.ubermenu-internalpage .ubermenu-item-normal > .ubermenu-target,.ubermenu-internalpage .ubermenu-submenu .ubermenu-target,.ubermenu-internalpage .ubermenu-submenu .ubermenu-nonlink,.ubermenu-internalpage .ubermenu-submenu .ubermenu-widget,.ubermenu-internalpage .ubermenu-submenu .ubermenu-custom-content-padded,.ubermenu-internalpage .ubermenu-submenu .ubermenu-retractor,.ubermenu-internalpage .ubermenu-submenu .ubermenu-colgroup .ubermenu-column,.ubermenu-internalpage .ubermenu-submenu.ubermenu-submenu-type-stack > .ubermenu-item-normal > .ubermenu-target,.ubermenu-internalpage .ubermenu-submenu.ubermenu-submenu-padded { padding:0px 85px; }
+.ubermenu .ubermenu-grid-row { padding-right:0px 85px; }
+.ubermenu .ubermenu-grid-row .ubermenu-target { padding-right:0; }
+.ubermenu-responsive-toggle.ubermenu-responsive-toggle-internalpage { font-weight:normal; background:#0d61aa; color:#ffffff; }
+.ubermenu-responsive-toggle.ubermenu-responsive-toggle-internalpage:hover { background:#0d61aa; color:#ffffff; }
+
+
+/** UberMenu Custom Menu Item Styles (Menu Item Settings) **/
+/* 7959 */  .ubermenu .ubermenu-submenu.ubermenu-submenu-id-7959 { width:52%; min-width:52%; }
+/* 9082 */  .ubermenu .ubermenu-submenu.ubermenu-submenu-id-9082 { width:52%; min-width:52%; }
+/* 8889 */  .ubermenu .ubermenu-submenu.ubermenu-submenu-id-8889 { width:52%; min-width:52%; }
+/* 9173 */  .ubermenu .ubermenu-submenu.ubermenu-submenu-id-9173 { width:52%; min-width:52%; }
+/* 10268 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-10268 { width:55%; min-width:55%; }
+/* 10377 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-10377 { width:55%; min-width:55%; }
+/* 10478 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-10478 { width:55%; min-width:55%; }
+/* 21494 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-21494 { width:52%; min-width:52%; }
+/* 21497 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-21497 { width:52%; min-width:52%; }
+/* 12341 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-12341 { width:52%; min-width:52%; }
+/* 37923 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-37923 { width:52%; min-width:52%; }
+/* 25954 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-25954 { width:52%; min-width:52%; }
+/* 25952 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-25952 { width:52%; min-width:52%; }
+/* 45242 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-45242 { width:52%; min-width:52%; }
+/* 41453 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-41453 { width:52%; min-width:52%; }
+/* 25950 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-25950 { width:52%; min-width:52%; }
+/* 25957 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-25957 { width:52%; min-width:52%; }
+/* 48458 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-48458 { width:52%; min-width:52%; }
+/* 50680 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-50680 { width:52%; min-width:52%; }
+/* 50681 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-50681 { width:52%; min-width:52%; }
+/* 50692 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-50692 { width:52%; min-width:52%; }
+/* 67463 */ .ubermenu .ubermenu-submenu.ubermenu-submenu-id-67463 { width:52%; min-width:52%; }
+
+
+/** UberMenu Custom Tweaks (General Settings) **/
+.ubermenu-skin-white
+{
+border-top:0px!important;
+}
+
+.ubermenu.ubermenu-internalpage .ubermenu-item-level-0>.ubermenu-target
+{
+background:transparent!important;
+}
+
+.ubermenu .ubermenu-colgroup .ubermenu-column, .ubermenu .ubermenu-custom-content-padded, .ubermenu .ubermenu-nonlink, .ubermenu .ubermenu-retractor, .ubermenu .ubermenu-submenu-padded, .ubermenu .ubermenu-submenu-type-stack>.ubermenu-item-normal>.ubermenu-target, .ubermenu .ubermenu-target, .ubermenu .ubermenu-widget, .ubermenu-responsive-toggle
+{
+padding:11px 12px!important;
+}
+@media screen and (min-width: 960px)
+{
+.ubermenu-responsive-default.ubermenu-invert.ubermenu-vertical.ubermenu-sub-indicators .ubermenu-item-level-0.ubermenu-item-has-children>a.ubermenu-target:after
+{
+left: -6px!important;
+}
+}
+/* Status: Loaded from Transient */
+
+</style><meta name="generator" content="Powered by WPBakery Page Builder - drag and drop page builder for WordPress."/>
+<link rel="icon" href="https://www2.myfloridalicense.com/wp-content/uploads/2017/01/cropped-dbpr-favicon-32x32.jpg" sizes="32x32" />
+<link rel="icon" href="https://www2.myfloridalicense.com/wp-content/uploads/2017/01/cropped-dbpr-favicon-192x192.jpg" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://www2.myfloridalicense.com/wp-content/uploads/2017/01/cropped-dbpr-favicon-180x180.jpg" />
+<meta name="msapplication-TileImage" content="https://www2.myfloridalicense.com/wp-content/uploads/2017/01/cropped-dbpr-favicon-270x270.jpg" />
+		<style type="text/css" id="wp-custom-css">
+			/* styling for 'Total' field on Fee Calculation form */
+
+.gform_wrapper span.ginput_total {
+    font-size: 40px;
+	  color: #060
+}
+
+.pr-footer {
+	font-size: 11px;
+	font-family: 'Arial',sans-serif;
+	color: #333333;
+}
+
+@media only screen and (max-width: 769px) {
+.page-id-8639 #dbprLicRegSideMenu, 
+.page-id-8639 #dbprLicRegSideMenu, 
+.page-id-3658 #dbprLicRegSideMenu, 
+.page-id-4204 #dbprLicRegSideMenu, 
+.page-id-4324 #dbprLicRegSideMenu,
+.page-id-8053 #dbprLicRegSideMenu,
+.page-id-7080 #dbprLicRegSideMenu,
+.page-id-4375 #dbprLicRegSideMenu,
+.page-id-4447 #dbprLicRegSideMenu,
+.page-id-8680 #dbprLicRegSideMenu,
+.page-id-7481 #dbprLicRegSideMenu,
+.page-id-8994 #dbprLicRegSideMenu,
+.page-id-9337 #dbprLicRegSideMenu,
+.page-id-8244 #dbprLicRegSideMenu,
+.page-id-12026 #dbprLicRegSideMenu,
+.page-id-6453 #dbprLicRegSideMenu,
+.page-id-8828 #dbprLicRegSideMenu,
+.page-id-6894 #dbprLicRegSideMenu,
+.page-id-10969 #dbprLicRegSideMenu,
+.page-id-11594 #dbprLicRegSideMenu,
+.page-id-8496 #dbprLicRegSideMenu,
+.page-id-7047 #dbprLicRegSideMenu,
+.page-id-4787 #dbprLicRegSideMenu,
+.page-id-8528 #dbprLicRegSideMenu,
+.page-id-5586 #dbprLicRegSideMenu,
+.page-id-8569 #dbprLicRegSideMenu,
+.page-id-8604 #dbprLicRegSideMenu,
+.page-id-9154 #dbprLicRegSideMenu,
+.page-id-8877 #dbprLicRegSideMenu,
+.page-id-8718 #dbprLicRegSideMenu,
+.page-id-7702 #dbprLicRegSideMenu,
+.page-id-8757 #dbprLicRegSideMenu {
+		display: flex !important;
+		flex-direction: column-reverse !important;
+	align-items: center !important;
+	}
+}
+
+		</style>
+		<style id="iv_aries-dynamic-css" title="dynamic-css" class="redux-options-output">body{background-color:#ffffff;}.page .content-wrapper.page-boxed-style, .single-ivan_vc_projects .content-wrapper.page-boxed-style{background-color:#ffffff;}.index.content-wrapper.page-boxed-style, .index.content-wrapper.page-boxed-style.boxed-style, .archives.content-wrapper.page-boxed-style, .search.content-wrapper.page-boxed-style{background-color:#ffffff;}.single-post.content-wrapper.page-boxed-style, .single-post.content-wrapper.page-boxed-style.boxed-style{background-color:#ffffff;}.blog-mansory, .blog-full, .index.content-wrapper.boxed-style, .index.content-wrapper.boxed-style .boxed-page-inner, .blog-mansory .boxed-page-inner, .blog-full .boxed-page-inner{background-color:#ffffff;}.single-post.content-wrapper.boxed-style, .single-post.content-wrapper.boxed-style .boxed-page-inner{background-color:#ffffff;}body{font-family:'Lato';}h1, h2, h3, h4, h5, h6, 
+				.woocommerce table.shop_table th, .woocommerce-page table.shop_table th,
+				.woocommerce .cart-collaterals .cart_totals h2, .woocommerce-page .cart-collaterals .cart_totals h2,
+				.woocommerce .coupon label, .woocommerce-page .coupon label,
+				.woocommerce .shipping-calculator-button, .woocommerce-page .shipping-calculator-button
+			{font-family:'Lato';}.post .entry-meta, 
+				.woocommerce div.product .product_title, .woocommerce-page div.product .product_title,
+				.ivan-product-popup .summary h3,
+				.woocommerce div.product div.summary span.price, .woocommerce-page div.product div.summary span.price, 
+				.woocommerce div.product div.summary p.price, .woocommerce-page div.product div.summary p.price
+				.woocommerce ul.products li.product h3, .woocommerce-page ul.products li.product h3,
+				.woocommerce ul.products li.product .price, .woocommerce-page ul.products li.product .price
+				{font-family:''Helvetica Neue', Helvetica, Arial, sans-serif';font-weight:400;}#iv-layout-title-wrapper{background-color:#0d61aa;}#iv-layout-title-wrapper h1{font-family:'Lato';text-align:left;letter-spacing:1px;font-weight:700;color:#ffffff;font-size:28px;}#iv-layout-title-wrapper p{font-family:'Lato';text-align:left;font-weight:400;color:#ffffff;font-size:18px;}.blog #iv-layout-title-wrapper, .archives #iv-layout-title-wrapper{background-color:#0d61aa;background-size:contain;}.single-post #iv-layout-title-wrapper{background-color:#0d61aa;}.iv-layout.header, .iv-layout.header .iv-module, 
+				.iv-layout.header  .mega_main_menu_ul > li ul, .iv-layout.header .button{font-family:'Open Sans';}.ivan-main-layout-aside.aside-header-wrapper.ivan-main-layout-aside-right, 
+				.ivan-main-layout-aside.aside-header-wrapper.ivan-main-layout-aside-left,
+				.ivan-main-layout-normal .iv-layout.header, 
+				.iv-layout.header.stuck.transparent-bg,
+				.ivan-main-layout-normal .iv-layout.header.simple-boxed-menu.stuck{background-color:#ffffff;}.iv-layout.header .iv-module .inner-form, .iv-layout.header  .mega_main_menu_ul > li ul,
+				.iv-layout.header .iv-module .button{font-family:'Lato','Helvetica Neue', Helvetica, Arial, sans-serif;}.iv-layout.top-header{font-family:'Open Sans';}.iv-layout.footer{background-color:#2f2f2f;}.iv-layout.footer{font-family:'Open Sans';}.iv-layout.footer .widget .widget-title{font-family:'Open Sans';line-height:15px;font-weight:400;color:#f4f4f4;font-size:16px;}</style><style type="text/css"></style><style type="text/css"></style><style type="text/css"></style><style type="text/css">
+/* CSS Document */
+
+h1 {font-size: 2em !important; color:#0e5390;}
+h2 {font-size: 1.75em !important; color:#0e5390;}
+h3 {font-size: 1.5em !important; color:#0e5390;}
+h4 {font-size: 1.2em !important; color:#0e5390;}
+h5 {font-size: 1.10em !important; color:#0e5390;}
+h6 {font-size: 1.07em !important; color:#0e5390;}
+
+/*Reverse sidebar menu in mobile view*/
+.vc_row {display:flex;}
+
+@media screen and (max-width: 768px) {
+.iv-layout.footer {display:none;} 
+.iv-layout.title-wrapper h1 {font-size: 1.43em;}
+.vc_row {flex-direction:column;}
+.inner-widget-heading {display:none;}
+}
+/*End reverse sidebar menu in mobile view*/ 
+
+
+p {
+	font-size: 1.07em; 
+	line-height: 1.5; 
+	padding:0; 
+	margin: 3px 15px 20px 3px;
+}
+
+/* This might be older code that is no longer used */
+
+/*
+p.yellowbox {
+	padding:5px 0 15px 0; 
+	margin-left:3px 0 5px 25px;
+}
+
+.important_message {
+	background-color:#ffe11a;
+	padding: 5px 0 15px 0;
+	margin:3px 0 5px 25px;
+	text-align:left;
+}
+
+.blue-button {
+    background-color: #0e5390; border: 0; border-radius: 2px;
+    color: #fff !important;
+    padding: 12px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 0.86em;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+    
+ .blue-button:hover {
+  cursor: pointer;
+  position: relative;
+  transition: 0.5s;
+  color:#d3e5f9;
+}
+
+.top-menu-btn>a {
+    font-weight:bold;
+    box-shadow: none !important;
+    transition: none !important;
+    text-align: center !important;
+    padding: 0 15px !important;
+    background-color: #0e5390 !important;
+    color: #fff!important;
+    border-radius: 2px !important;
+    margin-top: 0 !important;
+}
+    
+.top-menu-btn>a:hover {    
+    background-color: #2B72AF !important;
+    color: #fff !important;
+}    
+
+.yellow-button {
+    background-color: #ffe11a; border: 0; border-radius: 2px;
+    color: #000;
+    padding: 12px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 0.86em;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+    
+ .yellow-button:hover {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+  color:#463d39;
+}
+*/
+
+.whitefont{color:white;} 
+
+a[href^="mailto:"] { 
+   color: #0e5390;
+   text-decoration:underline;
+}
+
+a:hover[href^="mailto:"] { 
+   color: #f896b2;
+   text-decoration:underline;
+}
+
+/* Declare email link style inside Red Footer Help Blocks*/
+.inner-help-box1 a[href^="mailto:"] {
+    color:#ffffff;
+    text-decoration:underline;
+}
+
+/* Declare email link hover style inside Red Footer Help Blocks*/
+.inner-help-box1 a:hover[href^="mailto:"]{
+    color:#f896b2;
+    text-decoration:underline;
+}
+
+a:focus, input:focus, button:focus {outline: 1px solid #0e5390 !important;}
+
+.wp-posts-carousel-buttons,.wp-posts-carousel-title{text-align:left !important;}
+
+#iv-layout-title-wrapper>.container {
+	padding-top:50px !important;
+	padding-bottom:50px !important;
+}
+#iv-layout-title-wrapper p {
+	font-size:1.3em !important;
+	line-height:1.5 !important;
+}
+
+.mega_dropdown>li>a>span {font-size:1em !important;}
+.mega_dropdown>li>a:hover {color:#0e5390 !important;}
+
+.widget_nav_menu>div>ul {padding:0px !important;}
+.widget_nav_menu>div>ul>.menu-item-type-post_type>a{color:#ebebeb !important;}
+.current-menu-item>a,.widget_nav_menu>div>ul>.current-menu-item>a,.widget_nav_menu>div>ul>.menu-item-type-post_type>a:hover {color:#8E0606 !important;}
+.ubermenu-nav {padding:0 10px !important;}
+.ubermenu-nav>li {padding:0 !important;}
+
+.inner-widget-heading {
+	background-color:#f2f1f1; 
+	padding:12px 0px 12px 10px;
+}
+
+.inner-body-heading {
+	background-color:#f2f1f1; 
+	padding:12px 0px 12px 10px; 
+	margin-right:25px;
+}
+
+.inner-help-box1 {
+	border-left:1px dashed #760424; 
+	height:auto;
+}
+
+.menu-button {
+	font:700 14px;
+	text-decoration:none;
+	background-color:#3588d0;
+	color:#fff;
+	padding:2px 6px;
+	border:1px solid #296da6;
+}
+
+.wp-posts-carousel-title>a {
+	text-decoration:none;
+	text-align:left !important;
+	font-size:1.93em !important; 
+	line-height: 1.5; 
+	font-weight:700 !important;
+	color:#0e5390 !important;
+}
+
+.wp-posts-carousel-created-date {
+	font-size:0.93 !important; 
+	font-style:normal !important;
+	padding-bottom:15px !important; 
+	color:#544f50 !important;
+}
+
+.wp-posts-carousel-desc {
+	color:#544f50 !important; 
+	padding:0% !important;
+	font-size:1em !important;
+}
+
+.gform_button,.wp-posts-carousel-more-button {
+	color:white !important; 
+	box-shadow:none !important;
+	transition:none !important;
+	padding-right:25px !important; 
+	border:0 solid transparent !important;
+	padding-left:25px !important;
+	background-color:#8E0606;
+}
+
+.wp-posts-carousel-more-button:hover {
+	background-color:#ad0707 !important;
+	border:0 solid transparent !important;
+	box-shadow:none !important;
+	transition:none !important;
+}
+
+.date_thumb,.gform_button {background-color:#0e5390 !important;}
+
+.vc_tta-panel-title>a>span {
+	font-size:1em !important; 
+	font-weight:600;
+}
+
+.date_thumb>.day,.date_thumb>.month {color:#fff !important;}
+.compact>.ecs-event>.summary {padding-left:10px !important;}
+.ecs-event-list>.ecs-event>.duration.time {
+	padding-left:3px !important;
+	font-family:arial !important;
+	font-size:1em !important;
+}
+
+.ecs-event-list {list-style:none;}
+.ecs-event {margin-bottom:25px;}
+.ecs-all-events {
+	padding-left:15px !important;
+	font-family:arial !important;
+	font-size:0.95em !important;
+	font-weight:700;
+}
+
+.compact>.ecs-event>.ecs-button,.compact>.ecs-event>.summary {
+	display:block !important;
+	text-decoration:underline !important;
+}
+
+.tribe-events-nav-next,.tribe-events-nav-previous{visibility:hidden;}
+
+/*
+.ginput_container>input,.ginput_container>textarea {
+	border:1px solid #ddd;
+	width:75% !important;
+}
+ 
+.ginput_container>select {width:65% !important;}
+*/
+
+.gform_button {border:0 solid transparent !important;padding-left:25px !important;}
+.gform_button:hover {background-color:#1179d3 !important;}
+
+.imp-info-block>div {background-color:#ffe11a !important;}
+.imp-info-block>div:hover {background-color:#fce864 !important;}
+ul {list-style-type:disc;} 
+li {padding-bottom:5px;}
+.wp-posts-carousel-buttons a {
+	color:white !important; 
+	background-color:#8E0606 !important;
+}
+
+.topweight {font-weight:600;}
+
+.jm-post-like {display: none !important;}
+.separator {display: none !important;}
+.cats {display: none;}
+.entry-meta {display: none;}
+.search-results .post .entry-meta {display:none;}
+#entry-meta {display:none;}
+
+.entry-header>entry-title>h1 {color:#1178D2 !important;}
+
+.iv-layout.footer {border-top: 11px solid #575757;}
+p.footer {color:#bdbdbd; font-size:1.2em;}
+p.footer2 {color:#bdbdbd; font-size:1.0em;}
+
+.post .entry-title a {
+    font-size:1.15em;
+    font-weight:bold;
+    color:#0e5390;
+}
+
+.post .entry-title a:hover {color:red;}
+
+.search-results a.entry-title h1 {margin-bottom:-10px; font-size:1.5em;}
+
+ .paging-navigation a, .paging-navigation span {
+     border:none;
+     font-size:1em;
+     padding-bottom:5px;
+ }
+
+.paging-navigation span.current {
+	border-radius: 50%;
+    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+    width: 15px;
+    height: 15px;
+    padding: 10px;
+    background: #fff;
+    border: 2px solid #666;
+    color: #666;
+    text-align: center;
+}
+
+.entry-inner {
+	width:85%;
+		margin-left: 75px;
+}
+
+.index .sidebar .sidebar-inner .index .sidebar .sidebar-inner, .search .sidebar .sidebar-inner, .single-post .sidebar .sidebar-inner {
+	margin-top:auto; 
+	top:0; 
+	border:1px solid #e5e5e5;
+}
+
+ .sidebar .widget .widget-title {
+    color: white;
+    padding:15px;
+    font-weight: 700 !important;
+    font-size:1.15em;
+    background-color:#0e5390;
+}
+
+/*.content-wrapper .wpb_widgetised_column .widget ul, .sidebar .widget ul {padding: 0 15px 15px 15px;}*/
+
+#aside {padding-bottom:0px;}
+
+.search-results .post .result-num span {
+	background-color:transparent;
+	color:#544f50 !important; 
+	line-height: 1.5;
+}
+
+.post .entry-title a {
+	font-size:medium; 
+	font-weight:500; 
+	color:#544f50;
+}
+
+.search-results .post .entry-title {line-height: 1.5;}
+#search-form>button{line-height:initial; border:1px #ddd solid;}
+
+#search-form>button:hover {
+    box-shadow:none !important;
+    transition:none !important;
+    text-align:center;
+}
+
+.ulitmate_dual_buttons {float:left;}
+
+.iv-layout.header .live-search .trigger {border:none;}
+.ult-overlay-close {height: 15px; width:17px; width: 30%; position: absolute;}
+  
+.vc_ui-tabs-line.vc_general > .vc_active > .vc_ui-tabs-line-trigger {display:none !important;}
+  
+.fancy-underline {
+  text-decoration-line: underline;
+  font-size: 1em; text-align: center;
+  color:white;
+}
+
+a  {
+  /*border-bottom:1px solid #0154a7;*/
+  font-size: 1em;
+  color:#0154a7;
+  text-decoration: none !important;
+  font-weight:500;
+  /*text-decoration:underline !important;*/
+  padding-bottom:0.3px;
+}
+
+a:hover  {
+	font-size: 1.03em;
+	/*color:#0154a7;
+	border-bottom:1px solid #0154a7;*/
+	padding-bottom:0.3px;
+}
+
+a:active {text-decoration:underline !important;}
+
+.iv-layout.footer a {font-size:1.15em; font-weight:bold;}
+.iv-layout.footer a:hover {font-size:1.15em; border-bottom:1px solid white; font-weight:bold;}
+
+a.footer  {
+  /*border-bottom:1px solid #0154a7;*/
+  font-size: 1.15em;
+  color:white;
+  text-align:center !important;
+  text-decoration: none !important;
+  font-weight:bold;
+}
+
+a.footer:hover  {
+  border-bottom:1px solid #ffffff;
+  font-size: 1.0em;
+  color:white;
+  text-align:center;
+ /*font-weight:bold;*/
+}
+
+.search-results .entry-meta .post-meta .post .date {display:none;}
+.search-results .post .entry-title a:hover {text-decoration: underline; color:#016ddc !important;}
+.search-results .post .entry-title a:visited {color:#8e0606; font-size:1.15em !important;}
+.search-results .post .entry-title a {color:#0E5390; font-size:1.15em !important;}
+.awesome {font-size:1.3em; margin-right:0.5em; text-align:middle;  display:inline;}
+
+.social-box {
+  display: inline-block;
+  width: 100%;
+  height: 3em;
+  margin-right: 1em;
+  /*background-color: steelblue;*/
+  text-align: center;
+  padding-top:10px;
+}
+
+.social-box:before {
+  content: '';
+  display: inline-block;
+  /*height: 100%;
+  vertical-align: middle;*/
+  margin-right: -0.25em; /* Adjusts for spacing */
+}
+
+.social-box a {  
+  /*color: red !important;*/
+  font-size: 1.5em !important;
+  margin: auto;
+  text-align: center;
+  vertical-align: middle;
+  margin-right: 0.45em;
+  margin-top:5px;
+}
+
+.search-page-title {
+    font-size: 1.7em;
+    font-weight: 300 !important;
+    letter-spacing: 2px;
+    line-height: 50px;
+    text-align:center;
+    display:block;
+    text-transform:uppercase;
+    padding-top:50px;
+    padding-bottom:25px;
+}
+
+.search-post-excerpt {
+    font-size: 0.85em !important;
+    margin:0 345px 0 0;
+    padding:0;
+    padding-right:25px;
+    font-weight: 500 !important;
+    line-height: 5px;
+    text-align:left;
+    display:block;
+}
+
+.search-post-link a {
+    font-size: 0.85em;
+    font-weight: 600 !important;
+    line-height: 20px;
+    text-align:left;
+    display:block;
+    color:#006621 !important;
+}
+
+/*.container div:last-child {margin-right: 0;}*/
+
+/* Accessibility for Forms */
+.form-scroll {overflow:scroll;}
+
+.vc_tta-panel-title>a>span {font-size: 0.75em !important;}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ThemeCSS PX to EM conversion */
+
+.ivan-staff-wrapper .infos .name {line-height: 1.5 !important;}
+.ivan-staff-wrapper .infos .job-title {line-height: 1.5 !important;}
+.ivan-staff-wrapper .social-icons a {font-size: 1.28em !important;}
+.ivan-staff-wrapper .in-infos-holder .name {
+  font-size: 1.28em !important;
+  line-height: 1.5 !important;
+}
+.ivan-staff-wrapper .in-infos-holder .job-title {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-staff-wrapper .in-flip-holder .description {font-size: 1em !important;}
+.ivan-staff-wrapper.social-auto .sa {
+  line-height: 2.14 !important;
+  font-size: 1em !important;
+}
+
+.ivan-dual-button.auto-borders .middle-text {line-height: 1.5 !important;}
+.ivan-dual-button.thin-borders .middle-text {line-height: 1.5 !important;}
+.ivan-dual-button .middle-text {
+  line-height: 1.5 !important;
+  font-size: 1em !important;
+}
+.ivan-dual-button .middle-text .middle-inner {line-height: 1.5 !important;}
+
+.ivan-button {
+  /* Disable Below Code if you're using Bootstrap buttons*/
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-button.circular.only-icon .icon-simple {font-size: 1.7em !important;}
+.ivan-button .icon-simple {font-size: 1.15em !important;}
+.ivan-button.only-icon .icon-simple {line-height: 1.5 !important;}
+.ivan-button.btn-desc .text-btn-inner {font-size: 1em !important;}
+.ivan-button.btn-desc .text-desc {font-size: 1em !important;}
+
+.ivan-button.large {font-size: 1em !important;}
+.ivan-button.large.circular.only-icon .icon-simple {font-size: 2em !important;}
+.ivan-button.large .icon-simple {font-size: 1.55em !important;}
+.ivan-button.large.btn-desc .text-btn-inner {font-size: 1em !important;}
+.ivan-button.large.btn-desc .text-desc {font-size: 1em !important;}
+
+.ivan-button.x-large {font-size: 1.15em !important;}
+.ivan-button.x-large.circular.only-icon .icon-simple {font-size: 2.4em !important;}
+.ivan-button.x-large .icon-simple {font-size: 1.85em !important;}
+.ivan-button.x-large.btn-desc .text-btn-inner {font-size: 1em !important;}
+.ivan-button.x-large.btn-desc .text-desc {font-size: 1em !important;}
+
+.ivan-button.compact {font-size: 1em !important;}
+.ivan-button.compact.circular.only-icon .icon-simple {font-size: 1em !important;}
+.ivan-button.compact .icon-simple {font-size: 1.15em !important;}
+.ivan-button.compact.btn-desc .text-btn-inner {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-button.compact.btn-desc .text-desc {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+
+.ivan-button.circular-mega.circular.only-icon .icon-simple {font-size: 2.4em !important;}
+
+.ivan-pricing-table h3 {
+  font-size: 1.55em !important;
+  line-height: 1.5 !important;
+}
+
+.ivan-pricing-table .plan-infos, .ivan-pricing-table li {font-size: 1em !important;}
+.ivan-pricing-table .signup {font-size: 1em !important; line-height: 1.5 !important;}
+.ivan-pricing-table .featured-table-text {
+  line-height: 1.5 !important;
+  font-size: 1em !important;
+}
+.ivan-pricing-table.default .plan-infos {font-size: 1.07em !important;}
+.ivan-pricing-table.big-price .top-section .currency {font-size: 1.15em !important;}
+.ivan-pricing-table.big-price .top-section .price-inner {
+  font-size: 6.4em !important;
+  line-height: 1.5 !important;
+}
+.ivan-pricing-table.description-support .top-section h3 {font-size: 1.55em !important;}
+.ivan-pricing-table.description-support .top-section .currency {font-size: 1.15em !important;}
+.ivan-pricing-table.description-support .top-section .price-inner {
+  font-size: 6.4em !important;
+  line-height: 1.5 !important;
+}
+.ivan-pricing-table.description-support li strong {font-size: 1em !important;}
+.ivan-pricing-table.subtitle .top-section .currency {font-size: 1.4em !important;}
+.ivan-pricing-table.subtitle .top-section .price-inner {
+  font-size: 6.7em !important;
+  line-height: 1.5 !important;
+}
+.ivan-pricing-table.small-desc .top-section .currency {font-size: 1.55em !important;}
+.ivan-pricing-table.small-desc .top-section .price-inner {
+  font-size: 5.15em !important;
+  line-height: 1.5 !important;
+}
+.ivan-pricing-table.small-desc .top-section .plan-subtitle {font-size: 1em !important;}
+
+.ivan-posts .entry.list .meta {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .entry.list .excerpt {font-size: 1em !important;}
+.ivan-posts .entry.list-thumb h3 {
+  font-size: 1.15em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .entry.list-thumb .meta {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .entry.list-thumb .excerpt {font-size: 1em !important;}
+.ivan-posts.list-thumb .ivan-post.first-post .entry-inner h3 {font-size: 1.55em !important;}
+.ivan-posts.list-thumb .ivan-post.first-post .entry-inner .meta {font-size: 1em !important;}
+.ivan-posts .ivan-post.default-style .entry h3 {
+  font-size: 1.15em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.default-style .entry .meta {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.default-style .entry .excerpt {font-size: 1em !important;}
+.ivan-posts .ivan-post.default-opaque .entry h3 {
+  font-size: 1.15em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.default-opaque .entry .meta {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.default-opaque .entry .excerpt {font-size: 1em !important;}
+.ivan-posts .ivan-post.border-cover .entry h3 {
+  font-size: 1.7em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.border-cover .entry .meta {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.border-cover.large-width .entry h3 {font-size: 2.4em !important;}
+.ivan-posts .ivan-post.simple-centered .entry h3 {
+  font-size: 1.28em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.simple-centered .entry .meta {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.simple-centered .entry .excerpt {font-size: 1em !important;}
+.ivan-posts .ivan-post.bottom-cover .entry h3 {
+  font-size: 1.7em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.bottom-cover .entry .meta {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-posts .ivan-post.bottom-cover.large-width .entry h3 {font-size: 2.4em !important;}
+
+
+@media (max-width: 480px) {
+  .ivan-posts .ivan-post.bottom-cover.large-width .entry h3,
+  .ivan-posts .ivan-post.border-cover.large-width .entry h3 {font-size: 1.7em !important;}
+}
+
+@media (max-width: 320px) {
+  .ivan-posts .ivan-post.bottom-cover .entry h3,
+  .ivan-posts .ivan-post.border-cover .entry h3 {font-size: 1.2em !important;}
+  .ivan-posts .ivan-post.bottom-cover .entry .meta,
+  .ivan-posts .ivan-post.border-cover .entry .meta {font-size: 1em !important;}
+  .ivan-posts .ivan-post.bottom-cover.large-width .entry h3,
+  .ivan-posts .ivan-post.border-cover.large-width .entry h3 {font-size: 1.2em !important;}
+  .ivan-posts .ivan-post.bottom-cover.large-width .entry .meta,
+  .ivan-posts .ivan-post.border-cover.large-width .entry .meta {font-size: 1em !important;}
+  .ivan-posts .entry.list-thumb .meta,
+  .ivan-posts .entry.list .meta {font-size: 1em !important;}
+}
+
+.ivan-projects .icon-wrapper .icon-inner {font-size: 2.28em !important;}
+.ivan-projects .entry-inner h3 {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-projects .entry-inner .categories {font-size: 1em !important;}
+.ivan-projects .entry-inner .excerpt {font-size: 1em !important;}
+.ivan-projects .read-more a {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-projects .ivan-project.hide-entry .entry h3 {font-size: 1em !important;}
+.ivan-projects .ivan-project.soft-cover .entry h3 {font-size: 1em !important;}
+.ivan-projects .ivan-project.outer-square .entry h3 {font-size: 1em !important;}
+.ivan-projects .ivan-project.outer-square .entry .read-more a {font-size: 1em !important;}
+.ivan-projects .ivan-project.lateral-cover .entry h3 {font-size: 1em !important;}
+.ivan-projects .ivan-project.lateral-cover .entry .read-more a {font-size: 1em !important;}
+.ivan-projects .ivan-project.border-cover .entry h3 {font-size: 2em !important;}
+.ivan-vc-filters a {font-size: 1em !important;}
+
+@media (max-width: 480px) {
+  .ivan-projects .col-xs-6.ivan-project .entry h3 {font-size: 1em !important;}
+  .ivan-projects .col-xs-6.ivan-project .entry .categories,
+  .ivan-projects .col-xs-6.ivan-project .entry .excerpt,
+  .ivan-projects .col-xs-6.ivan-project .entry .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project .entry .read-more {font-size: 1em !important;}
+  .ivan-projects .col-xs-6.ivan-project.hide-entry .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.cover-entry .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.soft-cover .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.outer-square .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.lateral-cover .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.smooth-cover .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.border-cover .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.hide-entry .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.cover-entry .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.soft-cover .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.outer-square .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.lateral-cover .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.smooth-cover .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.border-cover .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.hide-entry .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.cover-entry .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.soft-cover .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.outer-square .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.lateral-cover .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.smooth-cover .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.border-cover .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.hide-entry .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.cover-entry .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.soft-cover .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.outer-square .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.lateral-cover .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.smooth-cover .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.border-cover .entry-inner .read-more a {font-size: 1em !important;}
+}
+
+@media (max-width: 320px) {
+  .ivan-projects .col-xs-6.ivan-project .entry h3 {font-size: 1em !important;}
+  .ivan-projects .col-xs-6.ivan-project .entry .categories,
+  .ivan-projects .col-xs-6.ivan-project .entry .excerpt,
+  .ivan-projects .col-xs-6.ivan-project .entry .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project .entry .read-more {font-size: 1em !important;}
+  .ivan-projects .col-xs-6.ivan-project.hide-entry .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.cover-entry .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.soft-cover .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.outer-square .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.lateral-cover .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.smooth-cover .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.border-cover .entry-inner .categories,
+  .ivan-projects .col-xs-6.ivan-project.hide-entry .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.cover-entry .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.soft-cover .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.outer-square .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.lateral-cover .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.smooth-cover .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.border-cover .entry-inner .excerpt,
+  .ivan-projects .col-xs-6.ivan-project.hide-entry .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.cover-entry .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.soft-cover .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.outer-square .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.lateral-cover .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.smooth-cover .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.border-cover .entry-inner .excerpt p,
+  .ivan-projects .col-xs-6.ivan-project.hide-entry .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.cover-entry .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.soft-cover .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.outer-square .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.lateral-cover .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.smooth-cover .entry-inner .read-more a,
+  .ivan-projects .col-xs-6.ivan-project.border-cover .entry-inner .read-more a {font-size: 1em !important;}
+}
+
+.ivan-testimonial .testimonial-content {font-size: 1.28em !important;}
+.ivan-testimonial .testimonial-meta .author-name {
+  font-size: 1.15em !important;
+  line-height: 1.5 !important;
+}
+.ivan-testimonial .testimonial-meta .author-desc {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-testimonial.boxed-left .testimonial-content {font-size: 1.07em !important;}
+
+.ivan-tweet {font-size: 1.4em !important;}
+.ivan-tweet small {font-size: 1em !important;}
+
+.ivan-title-wrapper .icon-above {font-size: 4.65em !important;}
+.ivan-title-wrapper .title-wrapper .sub {
+  line-height: 1.5 !important;
+  font-size: 1.15em !important;
+}
+.ivan-title-wrapper .title-wrapper .top-title {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.ivan-title-wrapper.hero-style .title-heading {
+  font-size: 6em !important;
+  line-height: 1.5 !important;
+}
+.ivan-title-wrapper.hero-style .top-title {font-size: 1.28em !important;}
+.ivan-title-wrapper.hero-style .sub {font-size: 1.55em !important;}
+
+@media (max-width: 480px) {
+  .ivan-title-wrapper.hero-style .title-heading {font-size: 2.85em !important;}
+  .ivan-title-wrapper.hero-style .top-title {font-size: 1.15em !important;}
+  .ivan-title-wrapper.hero-style .sub {font-size: 1.28em !important;}
+}
+
+.ivan-image-block .img-main-block .block-btn a {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+
+.ivan-pie-chart-holder .ivan-pie-chart {font-size: 2.7em !important;}
+
+.ivan-service .service-title {font-size: 1.28em !important;}
+
+.ivan-progress .progress-title-holder {font-size: 1em !important;}
+
+.ivan-icon-box .icon-box-link-holder a {font-size: 1em !important;}
+
+.ivan-icon-list p {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+
+.ivan-icon-list i {
+  font-size: 1.28em !important;
+  line-height: 1.5 !important;
+}
+.ivan-icon-list.circle i {font-size: 1.15em !important;}
+
+.ivan-list ul > li {line-height: 1.5 !important;}
+.ivan-list.number ul > li:before {line-height: 1.5 !important;}
+.ivan-list.number.circle-in ul > li:before {line-height: 1.5 !important;}
+
+.ivan-message.with-icon i {line-height: 1.5 !important;}
+.ivan-message .ivan-message-text {font-size: 1em !important;}
+
+.ivan-quote blockquote h5 {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+
+.ivan-quote blockquote .author {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+  text-transform: uppercase;
+}
+.ivan-quote blockquote .pull-left {font-size: 1.55em !important;}
+
+.ivan-counter-wrapper h2 {
+  font-size: 2.7em !important;
+  line-height: 1.5 !important;
+}
+.ivan-counter-wrapper .icon-above {font-size: 4.65em !important;}
+.ivan-counter-wrapper.with-icon h2 {font-size: 2.57em !important;}
+.ivan-counter-wrapper .counter-wrapper {
+  position: relative;
+}
+.ivan-counter-wrapper .counter-wrapper .sub {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+ }
+ 
+.ivan-single-image-wrap.with-cover .iv-gallery-hover i {font-size: 2em !important;}
+
+.iv-gallery-wrapper ul li .iv-gallery-hover i {
+  font-size: 2em !important;
+  line-height: 1.5 !important;
+}
+
+.wpb_flexslider .flex-direction-nav a:before {font-size: 2.85em !important;}
+
+.ivan-tabs-wrap .wpb_tour_tabs_wrapper.iv-tabs .wpb_tabs_nav li {line-height: 1.5 !important;}
+.ivan-tabs-wrap .wpb_tour_tabs_wrapper.iv-tabs .wpb_tabs_nav li a {font-size: 1em !important;}
+.ivan-tabs-wrap .vc_tta.vc_tta-style-flat-boxed .vc_tta-tab > a {font-size: 1em !important;}
+.ivan-tabs-wrap .vc_tta.vc_tta-style-opaque .vc_tta-tab > a {font-size: 1em !important;}
+.ivan-accordion-wrap .vc_tta.vc_tta-style-flat-boxed .vc_tta-panel-heading a {font-size: 1em !important;}
+.ivan-accordion-wrap .vc_tta.vc_tta-style-opaque .vc_tta-panel-heading a {font-size: 1em !important;}
+
+.wpb_toggle.iv-toggle {font-size: 1em !important;}
+.wpb_toggle.iv-toggle.with-arrow .accordion-mark .accordion-mark-icon:before {line-height: 1.5 !important;}
+.wpb_toggle.iv-toggle.boxed {line-height: 1.5 !important;}
+.wpb_toggle.iv-toggle.boxed-arrow {line-height: 1.5 !important;}
+.wpb_toggle.iv-toggle.boxed-arrow .toggle-mark .toggle-mark-icon:before {line-height: 1.5 !important;}
+
+.ivan_acc_holder.iv-accordion .ui-accordion-header {font-size: 1em !important;}
+.ivan_acc_holder.iv-accordion.with-toggle .accordion-mark .accordion-mark-icon:before {line-height: 1.5 !important;}
+.ivan_acc_holder.iv-accordion.boxed .ui-accordion-header {line-height: 1.5 !important;}
+.ivan_acc_holder.iv-accordion.with-arrow .ui-accordion-header {line-height: 1.5 !important;}
+.ivan_acc_holder.iv-accordion.with-arrow .accordion-mark .accordion-mark-icon:before {line-height: 1.5 !important;}
+
+.ivan-lead {font-size: 1.28em !important;}
+
+.ivan-dropcap {
+  line-height: 1.5 !important;
+  font-size: 1.55em !important;
+}
+
+.fullPage-tooltip {font-size: 1em !important;}
+
+sub,
+sup {line-height: 1.5 !important;}
+
+
+body {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {line-height: 1.5 !important;}
+
+h1 small,
+h2 small,
+h3 small,
+h4 small,
+h5 small,
+h6 small,
+.h1 small,
+.h2 small,
+.h3 small,
+.h4 small,
+.h5 small,
+.h6 small,
+h1 .small,
+h2 .small,
+h3 .small,
+h4 .small,
+h5 .small,
+h6 .small,
+.h1 .small,
+.h2 .small,
+.h3 .small,
+.h4 .small,
+.h5 .small,
+.h6 .small {line-height: 1.5 !important;}
+
+
+
+blockquote p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+blockquote small,
+blockquote .small {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+
+address {
+  font-size: 1.2em !important;
+  line-height: 1.65 !important;
+}
+
+pre {
+  font-size: 1em !important;
+  line-height: 1.65 !important;
+}
+
+legend {font-size: 1.5em !important;}
+label {font-size: 1em !important;}
+output {font-size: 1em !important;}
+.input-sm {font-size: 1em !important;}
+select.input-sm {line-height: 2.15;}
+
+.input-lg {
+  font-size: 1.28em !important;
+  line-height: 1.5 !important;
+}
+
+select.input-lg {line-height: 4.5 !important;}
+
+.btn,
+.button,
+button,
+input[type="submit"] {font-size: 1em !important;}
+
+.mega_main_menu .default_dropdown .mega_dropdown li > .item_link:before {font-size: 1em !important;}
+.mega_main_menu_ul.menu.with-arrow > li.widgets_dropdown > .item_link .link_text:after,
+.mega_main_menu_ul.menu.with-arrow > li.menu-item-has-children > .item_link .link_text:after {line-height: 1.5 !important;}
+
+.woo-cart .basket-wrapper .woo-bag-icon {font-size: 2.64em !important;}
+.woo-cart .basket-wrapper .basket-count {line-height: 1.5 !important;}
+.woo-cart .basket-wrapper .basket-count span {font-size: 1em !important;}
+.woo-cart .cart_list li a.remove {font-size: 1em !important;}
+.woo-cart .cart_list li dl dt,
+.woo-cart .cart_list li dl dd {font-size: 1em !important;}
+
+.iv-mobile-menu-wrapper .description_text {font-size: 1em !important;}
+.iv-mobile-menu-wrapper .social-icons a {font-size: 1.15em !important;}
+
+.wpml-currency .wcml_currency_switcher li {font-size: 1em !important;}
+.wpml-currency .wcml_currency_switcher[disabled="disabled"]:before {
+  font: normal normal normal 1em/1 FontAwesome !important;
+}
+
+.iv-layout.top-header {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.top-header input[type="text"],
+.iv-layout.top-header input[type="email"],
+.iv-layout.top-header input[type="password"],
+.iv-layout.top-header input[type="search"],
+.iv-layout.top-header textarea {font-size: 1em !important;}
+.iv-layout.top-header input[type="submit"] {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.top-header .inner-form {font-size: 1em !important;}
+.iv-layout.top-header .live-search .trigger {font-size: 1.07em !important;}
+.iv-layout.top-header .live-search .submit-form {line-height: 2.15;}
+.iv-layout.top-header .social-icons a {font-size: 1.07em !important;}
+.iv-layout.top-header .woo-cart .basket-wrapper .woo-bag-icon {font-size: 1.85em !important;}
+.iv-layout.top-header .woo-cart .basket-wrapper .basket-count {line-height: 1.5 !important;}
+.iv-layout.top-header .woo-cart .basket-wrapper .basket-count span {font-size: 1em !important;}
+.iv-layout.top-header .woo-cart .buttons a {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.top-header .login-ajax .trigger {font-size: 1.07em !important;}
+.iv-layout.top-header .login-ajax .lwa .lwa-title {font-size: 1em !important;}
+.iv-layout.top-header .login-ajax .lwa .lwa-field .fa {line-height: 1.5 !important;}
+.iv-layout.top-header .login-ajax .lwa input[type="submit"] {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.top-header .login-ajax .lwa .lwa-submit-button a,
+.iv-layout.top-header .login-ajax .lwa .lwa-links {font-size: 1em !important;}
+
+.top-header .mega_main_menu .mega_main_menu_ul > li > .item_link span.description_text {font-size: 1em !important;}
+.top-header .mega_main_menu.direction-horizontal .mega_main_menu_ul > li.button_style > .item_link > .item_link_content {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.top-header .mega_main_menu .default_dropdown > ul .widgettitle,
+.top-header .mega_main_menu .default_dropdown li > ul .widgettitle,
+.top-header .mega_main_menu .multicolumn_dropdown > ul .widgettitle,
+.top-header .mega_main_menu .widgets_dropdown > ul .widgettitle,
+.top-header .mega_main_menu .default_dropdown > ul li.section_header_style > .item_link,
+.top-header .mega_main_menu .default_dropdown li > ul li.section_header_style > .item_link,
+.top-header .mega_main_menu .multicolumn_dropdown > ul li.section_header_style > .item_link,
+.top-header .mega_main_menu .widgets_dropdown > ul li.section_header_style > .item_link {font-size: 1em !important;}
+
+html[data-useragent*='MSIE 10.0'] .top-header.iv-layout .live-search .submit-form {line-height: 1.5 !important;}
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .top-header.iv-layout .live-search .submit-form {line-height: 1.5 !important;}
+}
+
+.iv-layout.header {
+  font-size: 1.07em !important;
+  line-height: 1.5 !important;
+}
+
+.iv-layout.header input[type="text"],
+.iv-layout.header input[type="email"],
+.iv-layout.header input[type="password"],
+.iv-layout.header input[type="search"],
+.iv-layout.header textarea {font-size: 1em !important;}
+.iv-layout.header input[type="submit"] {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.header .inner-form {font-size: 1em !important;}
+.iv-layout.header .responsive-menu .mobile-menu-trigger,
+.iv-layout.header .responsive-menu-select .mobile-menu-trigger {font-size: 1em !important;}
+.iv-layout.header .live-search .trigger {font-size: 1.07em !important;}
+.iv-layout.header .live-search .submit-form {line-height: 2.15;}
+.iv-layout.header .social-icons a {font-size: 1.15em !important;}
+.iv-layout.header .woo-cart .cart_list li .quantity {font-size: 1em !important;}
+.iv-layout.header .woo-cart .buttons a {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.header .login-ajax .trigger {font-size: 1.2em !important;}
+.iv-layout.header .login-ajax .lwa .lwa-title {font-size: 1em !important;}
+.iv-layout.header .login-ajax .lwa .lwa-field .fa {line-height: 1.5 !important;}
+.iv-layout.header .login-ajax .lwa input[type="submit"] {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.header .login-ajax .lwa .lwa-submit-button a,
+.iv-layout.header .login-ajax .lwa .lwa-links {font-size: 1em !important;}
+
+.header .mega_main_menu .mega_main_menu_ul > li {font-size: 1.07em !important;}
+.header .mega_main_menu .mega_main_menu_ul > li > .item_link span.description_text {font-size: 1em !important;}
+.header .mega_main_menu.direction-horizontal .mega_main_menu_ul > li.button_style > .item_link > .item_link_content {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.header .mega_main_menu .default_dropdown > ul .item_link,
+.header .mega_main_menu .default_dropdown li > ul .item_link,
+.header .mega_main_menu .multicolumn_dropdown > ul .item_link,
+.header .mega_main_menu .widgets_dropdown > ul .item_link {font-size: 1em !important;}
+.header .mega_main_menu .default_dropdown > ul .widgettitle,
+.header .mega_main_menu .default_dropdown li > ul .widgettitle,
+.header .mega_main_menu .multicolumn_dropdown > ul .widgettitle,
+.header .mega_main_menu .widgets_dropdown > ul .widgettitle,
+.header .mega_main_menu .default_dropdown > ul li.section_header_style > .item_link,
+.header .mega_main_menu .default_dropdown li > ul li.section_header_style > .item_link,
+.header .mega_main_menu .multicolumn_dropdown > ul li.section_header_style > .item_link,
+.header .mega_main_menu .widgets_dropdown > ul li.section_header_style > .item_link {font-size: 1em !important;}
+
+html[data-useragent*='MSIE 10.0'] .header.iv-layout .live-search .submit-form {line-height: 1.5 !important;}
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .header.iv-layout .live-search .submit-form {line-height: 1.5 !important;}
+}
+
+.simple-left-right .widget-area .widget .widget-title {font-size: 1em !important;}
+.simple-left-right .widget-area .widget .textwidget {line-height: 1.65 !important;}
+.simple-left-right .widget-area .widget input[type="submit"] {font-size: 1em !important;}
+.simple-left-right .widget-area .widget.widget_tag_cloud a {font-size: 1em !important;}
+
+.iv-layout.footer .widget .widget-title,
+.dynamic-footer .wpb_widgetised_column .widget .widget-title {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.footer .widget input[type="submit"],
+.dynamic-footer .wpb_widgetised_column .widget input[type="submit"] {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.footer .widget.widget_tag_cloud a,
+.dynamic-footer .wpb_widgetised_column .widget.widget_tag_cloud a {font-size: 1em !important;}
+.iv-layout.footer .widget .iv-social-icon,
+.dynamic-footer .wpb_widgetised_column .widget .iv-social-icon {font-size: 1.28em !important;}
+.iv-layout.bottom-footer {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.bottom-footer .iv-social-icon {font-size: 1.28em !important;}
+.iv-layout.bottom-footer .social-icons a {font-size: 1em !important;}
+
+.bottom-footer .mega_main_menu .mega_main_menu_ul > li > .item_link span.description_text {font-size: 1em !important;}
+
+.iv-layout.title-wrapper .top-title-description p, .iv-layout.title-wrapper h1, .iv-layout.title-wrapper p {line-height: 1.5 !important;}
+
+.iv-layout.title-wrapper h1 {
+  font-size: 1.85em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.title-wrapper p {
+  font-size: 1.3em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.title-wrapper .top-title-description p {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.title-wrapper .breadcrumbs li {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.iv-layout.title-wrapper.title-wrapper-large h1 {font-size: 3em !important;}
+.iv-layout.title-wrapper.title-wrapper-large p {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+
+@media (max-width: 767px) {
+  .iv-layout.title-wrapper h1 {
+    font-size: 1.85em !important;
+    line-height: 1.5 !important;
+  }
+  .iv-layout.title-wrapper p {
+    font-size: 1em !important;
+    line-height: 1.5 !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .ivan-m-l-aside .iv-layout.title-wrapper h1 {
+    font-size: 1.85em !important;
+  }
+  .ivan-m-l-aside .iv-layout.title-wrapper.title-wrapper-large h1 {
+    font-size: 3.9em !important;
+  }
+  .ivan-m-l-aside .iv-layout.title-wrapper.title-wrapper-large p {
+    font-size: 1.28em !important;
+    line-height: 1.5 !important;
+  }
+}
+
+.page-loader-spinner {font-size: 1em !important;}
+.loader {font-size: 1em !important;}
+
+.error404 .not-found .not-found-number {
+  font-size: 4.28em !important;
+  line-height: 1.5 !important;
+}
+.error404 .not-found .not-found-text {line-height: 1.5 !important;}
+
+#back-top {
+  line-height: 1.5 !important;
+  font-size: 1.7em !important;
+}
+
+@media (max-width: 767px) {
+  .not-found .not-found-number {font-size: 2.14em !important;}
+}
+
+.read-more .read-more-btn {font-size: 1em !important;}
+
+.sticky-post-holder {
+  line-height: 1.5 !important;
+  font-size: 1em !important;
+}
+
+.ivan-mansory-blog .sticky-post-holder {
+  line-height: 1.5 !important;
+  font-size: 1em !important;
+}
+
+.blog-full .sticky-post-holder {
+  line-height: 1.5 !important;
+  font-size: 1em !important;
+}
+
+.search-results .post .result-num span {
+  line-height: 1.5 !important;
+  font-size: 1em !important;
+}
+.search-results .post .entry-title {
+  font-size: 1.15em !important;
+  line-height: 1.5 !important;
+}
+.search-results .post .entry-meta {font-size: 1em !important;}
+
+.blog-large.style-simple .entry-title {font-size: 1.7em !important;}
+.blog-large.style-simple .entry-meta {font-size: 1em !important;}
+.blog-large.style-simple .format-quote .quote-mark {font-size: 2.5em !important;}
+.blog-large.style-simple .format-quote .quote-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-simple .format-quote .quote-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-simple .format-status .status-mark {font-size: 2.5em !important;}
+.blog-large.style-simple .format-status .status-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-simple .format-status .status-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-bottom-meta .entry-title {font-size: 1.7em !important;}
+.blog-large.style-bottom-meta .entry-meta {font-size: 1em !important;}
+.blog-large.style-bottom-meta .format-quote .quote-mark {font-size: 2.5em !important;}
+.blog-large.style-bottom-meta .format-quote .quote-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-bottom-meta .format-quote .quote-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-bottom-meta .format-status .status-mark {font-size: 2.5em !important;}
+.blog-large.style-bottom-meta .format-status .status-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-bottom-meta .format-status .status-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-bottom-meta .format-link .link-mark {font-size: 2.5em !important;}
+.blog-large.style-aside-date .date-block .day {font-size: 3.14em !important;}
+.blog-large.style-aside-date .date-block .month {font-size: 1em !important;}
+.blog-large.style-aside-date .entry-title {font-size: 1.7em !important;}
+.blog-large.style-aside-date .entry-meta {font-size: 1em !important;}
+.blog-large.style-aside-date .format-quote .quote-mark {font-size: 2.5em !important;}
+.blog-large.style-aside-date .format-quote .quote-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-aside-date .format-quote .quote-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-aside-date .format-status .status-mark {font-size: 2.5em !important;}
+.blog-large.style-aside-date .format-status .status-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-aside-date .format-status .status-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-large.style-aside-date .format-link .link-mark {font-size: 2.5em !important;}
+
+.blog-medium.style-simple .entry-title {font-size: 1.7em !important;}
+.blog-medium.style-simple .entry-meta {font-size: 1em !important;}
+.blog-medium.style-simple .format-quote .quote-mark {font-size: 2.5em !important;}
+.blog-medium.style-simple .format-quote .quote-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-medium.style-simple .format-quote .quote-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-medium.style-simple .format-status .status-mark {font-size: 2.5em !important;}
+.blog-medium.style-simple .format-status .status-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-medium.style-simple .format-status .status-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-medium.style-simple .format-link .link-mark {font-size: 2.5em !important;}
+
+.blog-masonry.style-simple .entry-title {font-size: 1.28em !important;}
+.blog-masonry.style-simple .entry-meta {font-size: 1em !important;}
+.blog-masonry.style-simple .format-quote .quote-mark {font-size: 2.5em !important;}
+.blog-masonry.style-simple .format-quote .quote-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-masonry.style-simple .format-quote .quote-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-masonry.style-simple .format-status .status-mark {font-size: 2.5em !important;}
+.blog-masonry.style-simple .format-status .status-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-masonry.style-simple .format-status .status-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-masonry.style-simple .format-link .link-mark {font-size: 2.5em !important;}
+
+.blog-full.style-polaroid .entry-title {font-size: 1.85em !important;}
+.blog-full.style-polaroid .entry-meta {font-size: 1em !important;}
+.blog-full.style-polaroid .entry-content {
+  font-size: 1.15em !important;
+  line-height: 1.5 !important;
+}
+.blog-full.style-polaroid .format-quote .quote-mark {font-size: 2.5em !important;}
+.blog-full.style-polaroid .format-quote .quote-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-full.style-polaroid .format-quote .quote-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-full.style-polaroid .format-status .status-mark {font-size: 2.5em !important;}
+.blog-full.style-polaroid .format-status .status-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.blog-full.style-polaroid .format-status .status-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+
+.paging-navigation a,
+.paging-navigation span {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+.page-links a,
+.page-links span {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+
+.single-post .entry-title {font-size: 1.7em !important;}
+.single-post .entry-meta {font-size: 1em !important;}
+.single-post .entry-tags .tags-label {font-size: 1em !important;}
+.single-post .entry-tags a {font-size: 1em !important;}
+.single-post .format-quote .quote-mark {font-size: 2.5em !important;}
+.single-post .format-quote .quote-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.single-post .format-quote .quote-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.single-post .format-status .status-mark {font-size: 2.5em !important;}
+.single-post .format-status .status-main {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.single-post .format-status .status-main p {
+  font-size: 1.5em !important;
+  line-height: 1.5 !important;
+}
+.single-post .format-link .link-mark {font-size: 2.5em !important;}
+
+.entry-author-meta h3 {
+  font-size: 1.7em !important;
+  line-height: 1.5 !important;
+}
+.entry-author-meta .author-meta {font-size: 1em !important;}
+.entry-author-meta .author-social-icon {font-size: 1.28em !important;}
+
+.entry-related-posts h3 {
+  font-size: 1.7em !important;
+  line-height: 1.5 !important;
+}
+.entry-related-posts h5 {
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+}
+
+#comments h3 {
+  font-size: 1.7em !important;
+  line-height: 1.5 !important;
+}
+#comments .comment-navigation {font-size: 1em !important;}
+#comments .comment-body .author-tag {font-size: 1em !important;}
+#comments .comment-body .comment-meta h5 {font-size: 1.15em !important;}
+#comments .comment-body .comment-meta .comment-date {font-size: 1em !important;}
+#comments .comment-body .comment-reply-link {font-size: 1em !important;}
+#comments #respond #reply-title {
+  font-size: 1.7em !important;
+  line-height: 1.5 !important;
+}
+
+.project-related-heading {font-size: 1.7em !important;}
+
+.post-nav-fixed .nl-arrow-icon {
+  line-height: 4.2;
+  font-size: 2.14em !important;
+}
+
+.post-nav-fixed .nl-infos {
+  line-height: 4.2;
+  font-size: 1em !important;
+}
+
+.sidebar .widget .widget-title,
+.content-wrapper .wpb_widgetised_column .widget .widget-title {
+  font-size: 1.07em !important;
+  line-height: 1.5 !important;
+}
+
+.sidebar .widget.widget_tag_cloud a,
+.content-wrapper .wpb_widgetised_column .widget.widget_tag_cloud a,
+.sidebar .widget.widget_product_tag_cloud a,
+.content-wrapper .wpb_widgetised_column .widget.widget_product_tag_cloud a {font-size: 1em !important;}
+
+.vc_tta-panel-title>a>span {font-size:0.90em !important;}
+.ubtn-text {font-size: 0.9em !important;}
+
+
+.search-results .post .entry-title a:visited {color:#8e0606; font-size:1.15em !important;}
+.search-results .post .entry-title a {color:#0E5390;font-size: 1.15em !important;}
+
+.wp-caption p.wp-caption-text {font-size:0.7em !important;}
+
+.uvc-sub-heading {line-height: 1.5 !important;}
+
+/* Fix for Gravity Forms Date Picker */
+.gfield--type-date .ginput_complex .gravity-select-parent {
+  width: 100% !important;
+}
+.gfield--type-date .ginput_complex .ginput_container_date select {
+  min-width: 130px !important;
+}
+.gfield--type-date .gravity-select-parent .select-arrow {
+  left: 80px !important;
+}.ubtn-text{
+white-space: normal;
+padding:2px;
+}
+
+.mfb-fix
+{
+    margin-bottom: 0px !important;
+}
+
+.ult_main_cl.ult-adjust-bottom-margin 
+{
+    margin-bottom: 0px !important;
+}
+
+
+/*-------------------------------------*/
+    
+    .cf:before, .cf:after{
+      content:"";
+      display:table;
+    }
+    
+    .cf:after{
+      clear:both;
+    }
+
+    .cf{
+      zoom:1;
+    }
+
+    /*-------------------------------------*/	
+   
+    .form-wrapper  {
+        position: relative;
+        width: 100%;
+        padding: 15px 8px;
+        margin: 5px auto 255px auto;
+        background: #444;
+        background: rgba(0,0,0,.4);
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+        border-radius: 10px;
+        -moz-box-shadow: 0 1px 1px rgba(0,0,0,.4) inset, 0 1px 0 rgba(255,255,255,.2);
+        -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.4) inset, 0 1px 0 rgba(255,255,255,.2);
+        box-shadow: 0 1px 1px rgba(0,0,0,.4) inset, 0 1px 0 rgba(255,255,255,.2);
+        color:white;
+    }
+    
+    .form-wrapper a{
+        color:white;
+        text-decoration: none!important;
+        font-weight:500;
+        padding-bottom:0.3px;
+        word-wrap: break-word;
+    }
+    .form-wrapper a:hover{
+        color:white; 
+        font-size: 15px;
+        border-bottom:1px solid #fff;
+        padding-bottom:0.3px;}
+    
+    .form-wrapper input {
+        width: 100%;
+        height: 50px;
+        padding: 25px 0;
+        float: left;
+        font: bold 16px 'Lato', 'trebuchet MS', 'Tahoma';
+        border: 0;
+        background: #fff;
+        -moz-border-radius: 3px 0 0 3px;
+        -webkit-border-radius: 3px 0 0 3px;
+        border-radius: 3px 0 0 3px;      
+        
+    }
+    
+    .form-wrapper input:focus {
+        outline: 0;
+        background: #fff;
+        -moz-box-shadow: 0 0 2px rgba(0,0,0,.8) inset;
+        -webkit-box-shadow: 0 0 2px rgba(0,0,0,.8) inset;
+        box-shadow: 0 0 2px rgba(0,0,0,.8) inset;
+    }
+    
+    .form-wrapper input::-webkit-input-placeholder {
+       color: #999;
+       font-weight: normal;
+       font-style: italic;
+    }
+    
+    .form-wrapper input:-moz-placeholder {
+        color: #999;
+        font-weight: normal;
+        font-style: italic;
+    }
+    
+    .form-wrapper input:-ms-input-placeholder {
+        color: #999;
+        font-weight: normal;
+        font-style: italic;
+    }    
+    
+    .form-wrapper button {
+		overflow: visible;
+        position: absolute;
+        top: 25px;
+        right: 8px;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+        height: 50px;
+        width: 110px;
+        font: bold 15px/16px 'lucida sans', 'trebuchet MS', 'Tahoma';
+        color: #fff;
+        text-transform: uppercase;
+        background: #8E0606;
+        -moz-border-radius: 0 3px 3px 0;
+        -webkit-border-radius: 0 3px 3px 0;
+        border-radius: 0 3px 3px 0;      
+        text-shadow: 0 -1px 0 rgba(0, 0 ,0, .3);
+    }   
+      
+    .form-wrapper button:hover{		
+        background: #ab0707;
+        color:#fff;
+    }	
+      
+    .form-wrapper button:active,
+    .form-wrapper button:focus{   
+        background: #ab0707;    
+    }
+    
+    .form-wrapper button:before {
+        content: '';
+        position: absolute;
+        border-width: 8px 8px 8px 0;
+        border-style: solid solid solid none;
+        border-color: transparent #8E0606 transparent;
+        top: 18px;
+        left: -6px;
+    }
+    
+    .form-wrapper button:hover:before{
+        border-right-color: #ab0707;
+    }
+    
+    .form-wrapper button:focus:before{
+        border-right-color: #ab0707;
+    }    
+    
+    .form-wrapper button::-moz-focus-inner {
+        border: 0;
+        padding: 0;
+    }
+.byline p{
+  text-align:left;
+  
+  color:#fff;
+  font: bold italic 18px Droid Serif, Helvetica, Sans-serif;
+  text-shadow: 0 2px 7px rgba(0,0,0,0.6);
+  
+}
+
+.byline p a{
+  color:#d83c3c;
+  text-decoration:none;
+}
+
+
+/* End Form Styling*/</style>
+	<style type="text/css">	
+	a,
+	.btn-link,
+	a.jm-post-like:active,a.jm-post-like:focus,a.jm-post-like:hover,a.liked:active,a.liked:focus,a.liked:hover,
+	.woocommerce table.cart a.remove:hover,.woocommerce-page table.cart a.remove:hover,
+	.woocommerce .widget_shopping_cart .cart_list li a.remove:hover,.woocommerce-page .widget_shopping_cart .cart_list li a.remove:hover,.woocommerce-page.widget_shopping_cart .cart_list li a.remove:hover,.woocommerce.widget_shopping_cart .cart_list li a.remove:hover,
+	.woocommerce-wishlist .share-icons a:hover {
+	  color: #0154A7;
+	}
+
+	.woocommerce table.cart a.remove:hover,.woocommerce-page table.cart a.remove:hover,
+	.woocommerce .widget_shopping_cart .cart_list li a.remove:hover,.woocommerce-page .widget_shopping_cart .cart_list li a.remove:hover,.woocommerce-page.widget_shopping_cart .cart_list li a.remove:hover,.woocommerce.widget_shopping_cart .cart_list li a.remove:hover,
+	.woocommerce-wishlist .share-icons a:hover {
+		border-color: #0154A7;
+	}
+
+	a:focus,a:hover,
+	.btn-link:focus,.btn-link:hover {
+		color: #00479a;
+	}
+
+	
+	.ivan-staff-wrapper .social-icons a:hover,
+	.ivan-call-action.primary-bg.with-icon .call-action-icon i,
+	.ivan-button:hover,
+	.ivan-button.outline:hover,
+	.ivan-button.no-border:hover,
+	.ivan-pricing-table.default.dark-bg .signup:hover,
+	.ivan-pricing-table.default.black-bg .signup:hover,
+	.ivan-pricing-table.big-price .top-section .adquire-plan .signup:hover,
+	.ivan-pricing-table.description-support .bottom-section .signup:hover,
+	.ivan-pricing-table.subtitle .bottom-section .signup:hover,
+	.ivan-pricing-table.subtitle.dark-bg .signup:hover,
+	.ivan-pricing-table.subtitle.black-bg .signup:hover,
+	.ivan-pricing-table.small-desc .bottom-section .signup:hover,
+	.ivan-pricing-table.small-desc.dark-bg .signup:hover,
+	.ivan-pricing-table.small-desc.black-bg .signup:hover,
+	.ivan-vc-filters a.current,.ivan-vc-filters a:hover,
+	.marker-icon.ivan-gmap-marker,
+	.ivan-title-wrapper.primary-bg .icon-above i,
+	.ivan-title-wrapper.primary-bg strong,
+	.ivan-title-wrapper.primary-bg a,.ivan-title-wrapper.primary-bg a:hover,
+	.ivan-title-wrapper.primary-bg-clean .icon-above i,
+	.ivan-title-wrapper.primary-bg-clean strong,
+	.ivan-title-wrapper.primary-bg-clean a,.ivan-title-wrapper.primary-bg-clean a:hover,
+	.ivan-service .main-icon,
+	.ivan-service.primary-bg .fa-stack .main-icon,
+	.ivan-icon-box .icon-box-link-holder a:hover,
+	.ivan-icon-box .icon-box-holder .fa-stack .main-icon,
+	.ivan-icon-box.primary-bg .icon-box-holder .main-icon,
+	.ivan-icon-box.primary-bg-clean .icon-box-holder .main-icon,
+	.ivan-icon-wrapper .primary-bg .ivan-icon,
+	.ivan-icon-wrapper .primary-bg a:hover,
+	.ivan-icon-wrapper .primary-bg .ivan-font-stack .stack-holder,
+	.ivan-icon-wrapper .primary-bg .ivan-font-stack.with-link:hover .stack-holder,
+	.ivan-icon-list.primary-bg i,
+	.ivan-list.primary-bg.number ul>li:before,
+	.wpb_toggle.iv-toggle.with-arrow.wpb_toggle_title_active .accordion-mark .accordion-mark-icon,
+	.ivan_acc_holder.iv-accordion.with-toggle .ui-state-active .accordion-mark .accordion-mark-icon,
+	.btn.active,.btn:active,.btn:focus,.btn:hover,.button.active,.button:active,.button:focus,.button:hover,.open .dropdown-toggle.btn,.open .dropdown-toggle.button,.open .dropdown-togglebutton,.open .dropdown-toggleinput[type=submit],button.active,button:active,button:focus,button:hover,input[type=submit].active,input[type=submit]:active,input[type=submit]:focus,input[type=submit]:hover,
+	.btn:focus,.btn:hover,.button:focus,.button:hover,button:focus,button:hover,input[type=submit]:focus,input[type=submit]:hover,
+	.btn-default.active,.btn-default:active,.btn-default:focus,.btn-default:hover,.open .dropdown-toggle.btn-default,
+	.btn-primary,input.btn-primary,
+	.btn-primary.active,.btn-primary:active,.btn-primary:focus,.btn-primary:hover,.open .dropdown-toggle.btn-primary,.open .dropdown-toggleinput.btn-primary,input.btn-primary.active,input.btn-primary:active,input.btn-primary:focus,input.btn-primary:hover,
+	.btn-warning.active,.btn-warning:active,.btn-warning:focus,.btn-warning:hover,.open .dropdown-toggle.btn-warning,
+	.btn-danger.active,.btn-danger:active,.btn-danger:focus,.btn-danger:hover,.open .dropdown-toggle.btn-danger,
+	.btn-success.active,.btn-success:active,.btn-success:focus,.btn-success:hover,.open .dropdown-toggle.btn-success,
+	.btn-info.active,.btn-info:active,.btn-info:focus,.btn-info:hover,.open .dropdown-toggle.btn-info,
+	.iv-layout.top-header a:hover,
+	.iv-layout.top-header .responsive-menu .mobile-menu-trigger:hover,
+	.iv-layout.top-header .live-search .trigger:hover,
+	.iv-layout.top-header .social-icons a:hover,
+	.iv-layout.top-header .woo-cart:hover .basket,.iv-layout.top-header .woo-cart:hover .cart-total .amount,.iv-layout.top-header .woo-cart:hover .top,
+	.iv-layout.top-header .login-ajax .trigger:hover,
+	.top-header .mega_main_menu .mega_main_menu_ul>li.current-menu-ancestor>.item_link,.top-header .mega_main_menu .mega_main_menu_ul>li.current-menu-item>.item_link,
+	.top-header .mega_main_menu .mega_main_menu_ul>li.highlight_style>.item_link,
+	.top-header .mega_main_menu .mega_main_menu_ul>li.highlight_style>.item_link:hover,
+	.top-header .mega_main_menu.direction-horizontal .mega_main_menu_ul>li.button_style>.item_link:hover>.item_link_content,
+	.iv-layout.header a:hover,
+	.iv-layout.header .woo-cart:hover .basket,.iv-layout.header .woo-cart:hover .cart-total .amount,.iv-layout.header .woo-cart:hover .top,
+	.header .mega_main_menu .mega_main_menu_ul>li.highlight_style>.item_link,
+	.header .mega_main_menu .mega_main_menu_ul>li.highlight_style>.item_link:hover,
+	.header .mega_main_menu .mega_main_menu_ul>li:hover>.item_link,
+	.header .mega_main_menu.direction-horizontal .mega_main_menu_ul>li.button_style>.item_link:hover>.item_link_content,
+	.iv-layout.footer .constrast-text a,
+	.iv-layout.footer.light a,
+	.iv-layout.footer.light a:hover,
+	.iv-layout.footer.light .constrast-text a,
+	.iv-layout.footer.light .widget input[type=search]:focus,.iv-layout.footer.light .widget input[type=text]:focus,.iv-layout.footer.light .widget input[type=password]:focus,.iv-layout.footer.light .widget input[type=email]:focus,.iv-layout.footer.light .widget select:focus,.iv-layout.footer.light .widget textarea:focus,
+	.iv-layout.footer.light .widget input[type=submit]:hover,
+	.iv-layout.footer.light .widget.widget_tag_cloud a:hover,
+	.iv-layout.bottom-footer.light a,
+	.iv-layout.bottom-footer.light a:hover,
+	.iv-layout.bottom-footer.light .mega_main_menu .mega_main_menu_ul>li.current-menu-ancestor>.item_link,.iv-layout.bottom-footer.light .mega_main_menu .mega_main_menu_ul>li.current-menu-item>.item_link,
+	.iv-layout.bottom-footer.light .mega_main_menu .mega_main_menu_ul>li.highlight_style>.item_link,
+	.iv-layout.bottom-footer.light .mega_main_menu .mega_main_menu_ul>li.highlight_style>.item_link:hover,
+	.error404 .not-found .error-dot,
+	.post .entry-title a:hover,
+	.blog-large.style-simple .format-quote .quote-main a:hover,
+	.blog-large.style-simple .format-status .status-main a:hover,
+	.blog-large.style-bottom-meta .format-quote .quote-main a:hover,
+	.blog-large.style-bottom-meta .format-status .status-main a:hover,
+	.blog-large.style-aside-date .format-quote .quote-main a:hover,
+	.blog-large.style-aside-date .format-status .status-main a:hover,
+	.blog-medium.style-simple .format-quote .quote-main a:hover,
+	.blog-medium.style-simple .format-status .status-main a:hover,
+	.blog-masonry.style-simple .format-quote .quote-main a:hover,
+	.blog-masonry.style-simple .format-status .status-main a:hover,
+	.blog-full.style-polaroid .format-quote .quote-main a:hover,
+	.blog-full.style-polaroid .format-status .status-main a:hover,
+	.paging-navigation a:hover,.paging-navigation span:hover,
+	.paging-navigation a.current,.paging-navigation span.current,
+	.single-post .format-quote .quote-main a:hover,
+	.single-post .format-status .status-main a:hover,
+	.entry-author-meta .author-social-icon:hover,
+	.entry-related-posts h5 a:hover,
+	#comments .comment-navigation a:hover,
+	#comments .comment-body .comment-meta h5 a:hover,
+	#comments .comment-body .comment-reply-link:hover,
+	.content-wrapper .wpb_widgetised_column .widget li a:hover,.sidebar .widget li a:hover,
+	.woocommerce div.product div.summary .breadcrumb a:hover,.woocommerce-page div.product div.summary .breadcrumb a:hover,
+	.woocommerce div.product div.summary .product_meta>span a:hover,.woocommerce-page div.product div.summary .product_meta>span a:hover,
+	.woocommerce div.product div.summary .share-icons a:hover,.woocommerce-page div.product div.summary .share-icons a:hover,
+	.woocommerce ul.cart_list li a:hover,.woocommerce ul.product_list_widget li a:hover,.woocommerce-page ul.cart_list li a:hover,.woocommerce-page ul.product_list_widget li a:hover,
+	.woocommerce .widget_product_categories .product-categories li.current-cat a:hover,.woocommerce-page .widget_product_categories .product-categories li.current-cat a:hover,
+	.ivan-product-popup .summary h3 a:hover {
+		color: #11587C;
+	}
+
+	.ivan-button.outline:hover hr,
+	.ivan-button.no-border,
+	.ivan-button.primary-bg,
+	.ivan-projects .ivan-project.hide-entry .entry,
+	.ivan-projects .ivan-project.outer-square .entry,
+	.ivan-projects .ivan-project.lateral-cover .entry,
+	.ivan-projects .ivan-project.smooth-cover .entry,
+	.ivan-testimonial.primary-bg.boxed-left .testimonial-content,
+	.ivan-title-wrapper.primary-bg .ivan-vc-separator.small,
+	.ivan-title-wrapper.primary-bg-clean .ivan-vc-separator.small,
+	.ivan-service .fa-stack,
+	.ivan-service.primary-bg,
+	.ivan-progress.primary-bg .ivan-progress-inner,
+	.ivan-icon-box.primary-bg .icon-box-holder .fa-stack,
+	.ivan-icon-box.primary-bg-clean .icon-box-holder .fa-stack,
+	.ivan-icon-boxed-holder.primary-bg .ivan-icon-boxed-icon-inner .fa-stack,
+	.ivan-icon-boxed-holder.primary-bg-clean .ivan-icon-boxed-icon-inner .fa-stack,
+	.ivan-icon-boxed-holder.boxed-shadow .ivan-icon-boxed-icon-inner .fa-stack,
+	.ivan-icon-wrapper .primary-bg .ivan-font-stack-square,
+	.ivan-icon-list.primary-bg.circle i,
+	.ivan-list.primary-bg.number.circle-in ul>li:before,
+	.ivan-list.primary-bg.circle ul>li:before,
+	.ivan-quote.primary-bg blockquote,
+	.ivan-tabs-wrap .wpb_tour_tabs_wrapper.iv-tabs.iv-boxed .wpb_tabs_nav li.ui-tabs-active a,
+	.ivan-vc-separator.primary-bg,
+	.simple-left-right .widget-area .widget select option,
+	.page-loader-spinner>div,
+	.woocommerce #respond input#submit.alt,.woocommerce a.button.alt,
+	.woocommerce button.button.alt,.woocommerce input.button.alt,
+	.woocommerce-page #respond input#submit.alt,.woocommerce-page a.button.alt,
+	.woocommerce-page button.button.alt,
+	.woocommerce-page input.button.alt,
+	.ivan-pricing-table.default.primary-bg,
+	.ivan-pricing-table.subtitle .featured-table-text,
+	.ivan-pricing-table.subtitle.primary-bg,
+	.ivan-pricing-table.small-desc .featured-table-text,
+	.ivan-pricing-table.small-desc.primary-bg,
+	.ivan-projects .ivan-project.cover-entry .entry .read-more a:hover,
+	.ivan-projects .ivan-project.soft-cover .entry .read-more a:hover,
+	.ivan-icon-wrapper .primary-bg .ivan-font-stack-square.with-link:hover,
+	.wpb_toggle.iv-toggle.boxed-arrow.wpb_toggle_title_active,
+	.ivan_acc_holder.iv-accordion.with-arrow .ui-state-active,
+	.iv-social-icon.circle:hover,.iv-social-icon.square:hover,
+	.iv-mobile-menu-wrapper .current-menu-item>a,
+	.simple-left-right .widget-area .widget input[type=submit]:hover,
+	.dynamic-footer .wpb_widgetised_column .widget .iv-social-icon.circle:hover,.dynamic-footer .wpb_widgetised_column .widget .iv-social-icon.square:hover,.iv-layout.footer .widget .iv-social-icon.circle:hover,.iv-layout.footer .widget .iv-social-icon.square:hover,
+	.iv-layout.footer.light .widget .iv-social-icon.circle:hover,.iv-layout.footer.light .widget .iv-social-icon.square:hover,
+	.iv-layout.bottom-footer .iv-social-icon.circle:hover,.iv-layout.bottom-footer .iv-social-icon.square:hover,
+	.iv-layout.bottom-footer.light .iv-social-icon.square:hover,q .iv-layout.bottom-footer.light .iv-social-icon.circle:hover,
+	#infinite-handle span:hover,
+	.sticky-post-holder,
+	.thumbnail-hover .overlay,
+	#all-site-wrapper .mejs-controls .mejs-horizontal-volume-slider .mejs-horizontal-volume-current,#all-site-wrapper .mejs-controls .mejs-time-rail .mejs-time-current,
+	#comments .comment-body .author-tag,
+	.post-nav-fixed .nl-infos,
+	p.demo_store,
+	.woocommerce span.onsale,.woocommerce-page span.onsale,
+	.woocommerce .widget_layered_nav_filters ul li a,.woocommerce-page .widget_layered_nav_filters ul li a
+	{
+		background-color: #11587C;
+	}
+
+	.ivan-button.outline:hover {
+		background-color: transparent;
+	}
+	
+	.ivan-button:hover,
+	.ivan-button.outline:hover,
+	.ivan-button.no-border:hover,
+	.ivan-button.primary-bg,
+	.ivan-button.primary-bg.outline.text-separator.with-icon .text-btn,
+	.ivan-pricing-table.default.dark-bg .signup:hover,
+	.ivan-pricing-table.default.black-bg .signup:hover,
+	.ivan-pricing-table.big-price .top-section .adquire-plan .signup:hover,
+	.ivan-pricing-table.description-support .bottom-section .signup:hover,
+	.ivan-pricing-table.subtitle .bottom-section .signup:hover,
+	.ivan-pricing-table.subtitle.dark-bg .signup:hover,
+	.ivan-pricing-table.subtitle.black-bg .signup:hover,
+	.ivan-pricing-table.small-desc .bottom-section .signup:hover,
+	.ivan-pricing-table.small-desc.dark-bg .signup:hover,
+	.ivan-pricing-table.small-desc.black-bg .signup:hover,
+	.ivan-projects .ivan-project.cover-entry .entry .read-more a:hover,
+	.ivan-projects .ivan-project.soft-cover .entry .read-more a:hover,
+	.wpb_toggle.iv-toggle.with-arrow.wpb_toggle_title_active .accordion-mark,
+	.ivan_acc_holder.iv-accordion.with-toggle .ui-state-active .accordion-mark,
+	.btn.active,.btn:active,.btn:focus,.btn:hover,.button.active,.button:active,.button:focus,.button:hover,.open .dropdown-toggle.btn,.open .dropdown-toggle.button,.open .dropdown-togglebutton,.open .dropdown-toggleinput[type=submit],button.active,button:active,button:focus,button:hover,input[type=submit].active,input[type=submit]:active,input[type=submit]:focus,input[type=submit]:hover,
+	.btn:focus,.btn:hover,.button:focus,.button:hover,button:focus,button:hover,input[type=submit]:focus,input[type=submit]:hover,
+	.btn-default.active,.btn-default:active,.btn-default:focus,.btn-default:hover,.open .dropdown-toggle.btn-default,
+	.btn-primary,input.btn-primary,
+	.btn-primary.active,.btn-primary:active,.btn-primary:focus,.btn-primary:hover,.open .dropdown-toggle.btn-primary,.open .dropdown-toggleinput.btn-primary,input.btn-primary.active,input.btn-primary:active,input.btn-primary:focus,input.btn-primary:hover,
+	.btn-primary.disabled,.btn-primary.disabled.active,.btn-primary.disabled:active,.btn-primary.disabled:focus,.btn-primary.disabled:hover,.btn-primary[disabled],.btn-primary[disabled].active,.btn-primary[disabled]:active,.btn-primary[disabled]:focus,.btn-primary[disabled]:hover,fieldset[disabled] .btn-primary,fieldset[disabled] .btn-primary.active,fieldset[disabled] .btn-primary:active,fieldset[disabled] .btn-primary:focus,fieldset[disabled] .btn-primary:hover,fieldset[disabled] input.btn-primary,fieldset[disabled] input.btn-primary.active,fieldset[disabled] input.btn-primary:active,fieldset[disabled] input.btn-primary:focus,fieldset[disabled] input.btn-primary:hover,input.btn-primary.disabled,input.btn-primary.disabled.active,input.btn-primary.disabled:active,input.btn-primary.disabled:focus,input.btn-primary.disabled:hover,input.btn-primary[disabled],input.btn-primary[disabled].active,input.btn-primary[disabled]:active,input.btn-primary[disabled]:focus,input.btn-primary[disabled]:hover,
+	.btn-warning.active,.btn-warning:active,.btn-warning:focus,.btn-warning:hover,.open .dropdown-toggle.btn-warning,
+	.btn-danger.active,.btn-danger:active,.btn-danger:focus,.btn-danger:hover,.open .dropdown-toggle.btn-danger,
+	.btn-success.active,.btn-success:active,.btn-success:focus,.btn-success:hover,.open .dropdown-toggle.btn-success,
+	.btn-info.active,.btn-info:active,.btn-info:focus,.btn-info:hover,.open .dropdown-toggle.btn-info,
+	.iv-layout.top-header .woo-cart:hover .basket,.iv-layout.top-header .woo-cart:hover .cart-total .amount,.iv-layout.top-header .woo-cart:hover .top,
+	.top-header .mega_main_menu.direction-horizontal .mega_main_menu_ul>li.button_style>.item_link:hover>.item_link_content,
+	.iv-layout.header .woo-cart:hover .basket,.iv-layout.header .woo-cart:hover .cart-total .amount,.iv-layout.header .woo-cart:hover .top,
+	.header .mega_main_menu.direction-horizontal .mega_main_menu_ul>li.button_style>.item_link:hover>.item_link_content,
+	.simple-left-right .widget-area .widget input[type=search]:focus,.simple-left-right .widget-area .widget input[type=text]:focus,.simple-left-right .widget-area .widget input[type=password]:focus,.simple-left-right .widget-area .widget input[type=email]:focus,.simple-left-right .widget-area .widget select:focus,.simple-left-right .widget-area .widget textarea:focus,
+	.simple-left-right .widget-area .widget input[type=submit]:hover,
+	#infinite-handle span:hover,
+	.paging-navigation a:hover,.paging-navigation span:hover,
+	.paging-navigation a.current,.paging-navigation span.current,
+	.woocommerce div.product div.summary .share-icons a:hover,.woocommerce-page div.product div.summary .share-icons a:hover,
+	.woocommerce #respond input#submit.alt,.woocommerce a.button.alt,.woocommerce button.button.alt,
+	.woocommerce input.button.alt,.woocommerce-page #respond input#submit.alt,.woocommerce-page a.button.alt,
+	.woocommerce-page button.button.alt,.woocommerce-page input.button.alt,
+	.ivan-service .fa-stack,
+	.ivan-icon-box.primary-bg .icon-box-holder .fa-stack,
+	.ivan-icon-box.primary-bg-clean .icon-box-holder .fa-stack,
+	.ivan-icon-boxed-holder.primary-bg .ivan-icon-boxed-icon-inner .fa-stack,
+	.ivan-icon-boxed-holder.primary-bg-clean .ivan-icon-boxed-icon-inner .fa-stack,
+	.ivan-icon-boxed-holder.boxed-shadow .ivan-icon-boxed-icon-inner .fa-stack,
+	.ivan-tabs-wrap .wpb_tour_tabs_wrapper.iv-tabs.iv-boxed .wpb_tabs_nav li.ui-tabs-active a,
+	.ivan-tabs-wrap .wpb_tour_tabs_wrapper.iv-tabs.iv-boxed .wpb_tab,
+	.iv-layout.top-header .inner-form,
+	.top-header .mega_main_menu .default_dropdown li>ul,.top-header .mega_main_menu .default_dropdown>ul,
+	.top-header .mega_main_menu .multicolumn_dropdown>ul,.top-header .mega_main_menu .widgets_dropdown>ul,
+	.iv-layout.header .inner-form,
+	.header .mega_main_menu .default_dropdown li>ul,.header .mega_main_menu .default_dropdown>ul,
+	.header .mega_main_menu .multicolumn_dropdown>ul,.header .mega_main_menu .widgets_dropdown>ul  {
+		border-color: #11587C;
+	}
+
+	.iv-layout.header .inner-form:after,
+	.header .mega_main_menu .mega_main_menu_ul>li.menu-item-has-children:hover>.item_link:after,
+	.iv-layout.header .inner-form:before,
+	.header .mega_main_menu .mega_main_menu_ul>li.menu-item-has-children:hover>.item_link:before {
+		border-bottom-color: #11587C;
+	}
+
+	.ivan-testimonial.primary-bg.boxed-left .testimonial-content:after {
+		border-top-color: #11587C;
+	}
+
+	/* **** */
+	/* Accent Color */
+	/* **** */
+
+	.ivan-button.no-border,
+	.ivan-button.primary-bg,
+	.ivan-button.primary-bg:hover,
+	.ivan-button.primary-bg.with-icon.icon-cover .icon-simple,
+	.ivan-pricing-table.default.primary-bg .plan-infos,.ivan-pricing-table.default.primary-bg h3,.ivan-pricing-table.default.primary-bg li,
+	.ivan-pricing-table.default.primary-bg li a,
+	.ivan-pricing-table.default.primary-bg li a:hover,
+	.ivan-pricing-table.default.primary-bg .signup,
+	.ivan-pricing-table.default.primary-bg .signup:hover,
+	.ivan-pricing-table.default.primary-bg .featured-table-text,
+	.ivan-pricing-table.subtitle .featured-table-text,
+	.ivan-pricing-table.subtitle.primary-bg .plan-infos,.ivan-pricing-table.subtitle.primary-bg .plan-subtitle,.ivan-pricing-table.subtitle.primary-bg h3,.ivan-pricing-table.subtitle.primary-bg li,
+	.ivan-pricing-table.subtitle.primary-bg li a,
+	.ivan-pricing-table.subtitle.primary-bg li a:hover,
+	.ivan-pricing-table.subtitle.primary-bg .signup,
+	.ivan-pricing-table.subtitle.primary-bg .signup:hover,
+	.ivan-pricing-table.subtitle.primary-bg .featured-table-text,
+	.ivan-pricing-table.small-desc .featured-table-text,
+	.ivan-pricing-table.small-desc.primary-bg .plan-infos,.ivan-pricing-table.small-desc.primary-bg .plan-subtitle,.ivan-pricing-table.small-desc.primary-bg h3,.ivan-pricing-table.small-desc.primary-bg li,
+	.ivan-pricing-table.small-desc.primary-bg li a,
+	.ivan-pricing-table.small-desc.primary-bg li a:hover,
+	.ivan-pricing-table.small-desc.primary-bg .signup,
+	.ivan-pricing-table.small-desc.primary-bg .signup:hover,
+	.ivan-pricing-table.small-desc.primary-bg .featured-table-text,
+	.ivan-projects .ivan-project.cover-entry .entry .read-more a:hover,
+	.ivan-projects .ivan-project.soft-cover .entry .read-more a:hover,
+	.ivan-testimonial.primary-bg.boxed-left .testimonial-content,
+	.ivan-testimonial.primary-bg.boxed-left .testimonial-content a,.ivan-testimonial.primary-bg.boxed-left .testimonial-content a:hover,
+	.ivan-service .fa-stack .main-icon,
+	.ivan-service.primary-bg .service-title,
+	.ivan-service.primary-bg .main-icon,
+	.ivan-icon-box.primary-bg .icon-box-holder .fa-stack .main-icon,
+	.ivan-icon-box.primary-bg-clean .icon-box-holder .fa-stack .main-icon,
+	.ivan-icon-boxed-holder.primary-bg .ivan-icon-boxed-icon-inner .fa-stack .main-icon,
+	.ivan-icon-boxed-holder.primary-bg-clean .ivan-icon-boxed-icon-inner .fa-stack .main-icon,
+	.ivan-icon-boxed-holder.boxed-shadow .ivan-icon-boxed-icon-inner .fa-stack .main-icon,
+	.ivan-icon-wrapper .primary-bg a,
+	.ivan-icon-wrapper .primary-bg .ivan-font-stack .main-icon,
+	.ivan-icon-wrapper .primary-bg .ivan-font-stack-square i,
+	.ivan-icon-list.primary-bg.circle i,
+	.ivan-list.primary-bg.number.circle-in ul>li:before,
+	.ivan-quote.primary-bg blockquote .author,.ivan-quote.primary-bg blockquote .pull-left,.ivan-quote.primary-bg blockquote h5,
+	.ivan-tabs-wrap .wpb_tour_tabs_wrapper.iv-tabs.iv-boxed .wpb_tabs_nav li.ui-tabs-active a,
+	.wpb_toggle.iv-toggle.boxed-arrow.wpb_toggle_title_active,
+	.wpb_toggle.iv-toggle.boxed-arrow.wpb_toggle_title_active .toggle-mark .toggle-mark-icon,
+	.ivan_acc_holder.iv-accordion.with-arrow .ui-state-active a,
+	.ivan_acc_holder.iv-accordion.with-arrow .ui-state-active .accordion-mark .accordion-mark-icon,
+	.iv-social-icon.circle:hover,.iv-social-icon.square:hover,
+	.dynamic-footer .wpb_widgetised_column .widget .iv-social-icon.circle:hover,.dynamic-footer .wpb_widgetised_column .widget .iv-social-icon.square:hover,.iv-layout.footer .widget .iv-social-icon.circle:hover,.iv-layout.footer .widget .iv-social-icon.square:hover,
+	.iv-layout.footer.light .widget .iv-social-icon.circle:hover,.iv-layout.footer.light .widget .iv-social-icon.square:hover,
+	.iv-layout.bottom-footer .iv-social-icon.circle:hover,.iv-layout.bottom-footer .iv-social-icon.square:hover,
+	.iv-layout.bottom-footer.light .iv-social-icon.square:hover,q .iv-layout.bottom-footer.light .iv-social-icon.circle:hover,
+	#infinite-handle span:hover,
+	.sticky-post-holder,
+	#comments .comment-body .author-tag,
+	.post-nav-fixed .nl-infos,
+	.post-nav-fixed:hover .nl-arrow-icon,
+	p.demo_store,
+	.woocommerce span.onsale,.woocommerce-page span.onsale,
+	.woocommerce #respond input#submit.alt,.woocommerce a.button.alt,.woocommerce button.button.alt,.woocommerce input.button.alt,.woocommerce-page #respond input#submit.alt,.woocommerce-page a.button.alt,.woocommerce-page button.button.alt,.woocommerce-page input.button.alt,
+	.woocommerce .widget_layered_nav_filters ul li a,.woocommerce-page .widget_layered_nav_filters ul li a {
+		color: #FFFFFF;
+	}
+
+	.ivan-button:hover hr,
+	.ivan-button.primary-bg hr,
+	.ivan-button.primary-bg:hover hr,
+	.ivan-service.primary-bg .fa-stack,
+	.thumbnail-hover .thumb-cross:after,
+	.thumbnail-hover .thumb-cross:before {
+		background-color: #FFFFFF;
+	}
+
+	.ivan-pricing-table.default.primary-bg .signup,
+	.ivan-pricing-table.default.primary-bg .signup:hover,
+	.ivan-pricing-table.subtitle.primary-bg .signup,
+	.ivan-pricing-table.subtitle.primary-bg .signup:hover,
+	.ivan-pricing-table.small-desc.primary-bg .signup,
+	.ivan-pricing-table.small-desc.primary-bg .signup:hover,
+	.ivan-service.primary-bg .fa-stack {
+		border-color: #FFFFFF;
+	}
+
+	/* **** */
+	/* Darken/Lighten */
+	/* **** */
+
+	/* 5% Darken */
+
+	
+	.ivan-pricing-table.default.primary-bg .featured-table-text,
+	.ivan-pricing-table.subtitle.primary-bg .featured-table-text,
+	.ivan-pricing-table.small-desc.primary-bg .featured-table-text,
+	.post-nav-fixed:hover .nl-arrow-icon,
+	.ivan-pricing-table.default.primary-bg .featured-table-text,
+	.ivan-pricing-table.subtitle.primary-bg .featured-table-text,
+	.ivan-pricing-table.small-desc.primary-bg .featured-table-text,
+	.post-nav-fixed:hover .nl-arrow-icon  {
+		background-color: #044b6f;
+	}
+
+	.ivan-button.primary-bg:hover,
+	.woocommerce #respond input#submit.alt:hover,.woocommerce a.button.alt:hover,
+	.woocommerce button.button.alt:hover,.woocommerce input.button.alt:hover,
+	.woocommerce-page #respond input#submit.alt:hover,.woocommerce-page a.button.alt:hover,
+	.woocommerce-page button.button.alt:hover,.woocommerce-page input.button.alt:hover {
+		border-color: #044b6f;
+		background-color: #044b6f;
+	}
+
+	.ivan-button.primary-bg.outline,
+	.ivan-button.primary-bg.outline:hover,
+	.iv-layout.footer .constrast-text a:hover,
+	.iv-layout.footer.light .constrast-text a:hover {
+		color: #044b6f;
+	}
+
+	/* **** */
+	/* Selection */
+	/* **** */
+
+	::selection {
+	  color: #FFFFFF;
+	  background-color: #11587C;
+	}
+
+	::-moz-selection {
+	  color: #FFFFFF;
+	  background-color: #11587C;
+	}
+
+			
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	.woocommerce div.product div.summary span.price,
+	.woocommerce-page div.product div.summary span.price,
+	.woocommerce div.product div.summary p.price,
+	.woocommerce-page div.product div.summary p.price,
+	.woocommerce table.shop_table th,
+	.woocommerce-page table.shop_table th,
+	.woocommerce .cart-collaterals .cart_totals h2,
+	.woocommerce-page .cart-collaterals .cart_totals h2,
+	.woocommerce .coupon label,
+	.woocommerce-page .coupon label,
+	.woocommerce .shipping-calculator-button,
+	.woocommerce-page .shipping-calculator-button {
+		color: #3A4653;
+	}
+
+	.sidebar .widget.widget_tag_cloud a {
+		color: #3A4653;
+		border-color: #3A4653;
+	}
+
+			
+	h1, h2, h3, h4, h5, h6,
+	.iv-layout.header .woo-cart .total,
+	.iv-layout.header .woo-cart .cart_list li a,
+	.iv-layout.header .login-ajax .lwa .lwa-title,
+	.iv-layout.header .login-ajax .lwa .lwa-info li,
+	.header .mega_main_menu .mega_main_menu_ul > li,
+	.iv-layout.footer .widget .widget-title,
+	.dynamic-footer .wpb_widgetised_column .widget .widget-title,
+	.iv-layout.bottom-footer,
+	.iv-layout.title-wrapper h2,
+	.woocommerce table.shop_table th,
+	.woocommerce-page table.shop_table th,
+	.woocommerce .cart-collaterals .cart_totals h2,
+	.woocommerce-page .cart-collaterals .cart_totals h2,
+	.woocommerce .coupon label,
+	.woocommerce-page .coupon label,
+	.woocommerce .shipping-calculator-button,
+	.woocommerce-page .shipping-calculator-button,
+	.woocommerce .woo-sorting-options .woocommerce-ordering label,
+	.woocommerce-page .woo-sorting-options .woocommerce-ordering label {
+		font-weight: 500;
+	}
+
+			
+	.post .entry-title,
+	.sidebar .widget .widget-title {
+		font-weight: 500;
+	}
+
+			.iv-layout.header,
+		.iv-layout.header a,
+		.iv-layout.header a:hover,
+		.iv-layout.header a:visited,
+		.iv-layout.header .woo-cart .basket-wrapper .basket,
+		.iv-layout.header .woo-cart:hover .top,
+		.iv-layout.header .woo-cart:hover .basket,
+		.iv-layout.header .woo-cart:hover .cart-total .amount,
+		.iv-layout.header .mega_main_menu .mega_main_menu_ul > li > .item_link,
+		.iv-layout.header .mega_main_menu .mega_main_menu_ul > li > .item_link:hover,
+		.iv-layout.header .mega_main_menu .mega_main_menu_ul > li > .item_link:visited,
+		.iv-layout.header .mega_main_menu .mega_main_menu_ul > li > .item_link span.description_text,
+		.iv-layout.header .mega_main_menu .mega_main_menu_ul > li.current-menu-ancestor > .item_link,
+		.iv-layout.header .mega_main_menu .mega_main_menu_ul > li.current-menu-item > .item_link,
+		.iv-layout.header .mega_main_menu .mega_main_menu_ul > li:hover > .item_link,
+		.iv-layout.header .mega_main_menu .mega_main_menu_ul > li.highlight_style > .item_link,
+		.iv-layout.header .mega_main_menu .mega_main_menu_ul > li.highlight_style > .item_link:hover,
+		.iv-layout.header .mega_main_menu.direction-horizontal .mega_main_menu_ul > li.button_style > .item_link > .item_link_content,
+		.iv-layout.header .mega_main_menu.direction-horizontal .mega_main_menu_ul > li.button_style > .item_link:hover > .item_link_content {
+			color: #595959;
+		}
+
+		.iv-layout.header .iv-module:after,
+		.iv-layout.header .custom-text .iv-separator,
+		.iv-layout.header .woo-cart .basket-wrapper .top,
+		.iv-layout.header .woo-cart .basket-wrapper .basket,
+		.iv-layout.header .woo-cart:hover .top,
+		.iv-layout.header .woo-cart:hover .basket,
+		.iv-layout.header .woo-cart:hover .cart-total .amount,
+		.iv-layout.header .mega_main_menu.direction-horizontal .mega_main_menu_ul > li.button_style > .item_link > .item_link_content,
+		.iv-layout.header .mega_main_menu.direction-horizontal .mega_main_menu_ul > li.button_style > .item_link:hover > .item_link_content {
+			border-color: #595959;
+		}
+		
+			.title-wrapper-divider {
+			  background: #ffffff;
+			}
+
+			
+				.iv-layout.header.simple-left-right .mega_main_menu .mega_main_menu_ul > li > .item_link,
+				.classic-right-area .menu-area-wrapper,
+				.classic-logo-centered .menu-area-wrapper {
+				  border-color: rgba(0, 0, 0, 0.1);
+				}
+
+			
+		
+			.iv-layout.header .inner-form,
+			.header .mega_main_menu .default_dropdown > ul,
+			.header .mega_main_menu .default_dropdown li > ul,
+			.header .mega_main_menu .multicolumn_dropdown > ul,
+			.header .mega_main_menu .widgets_dropdown > ul {
+			  background: #ffffff;
+			}
+
+				.iv-layout.header input[type="text"],
+		.iv-layout.header input[type="email"],
+		.iv-layout.header input[type="password"],
+		.iv-layout.header input[type="search"],
+		.iv-layout.header textarea,
+		.iv-layout.header input[type="submit"],
+		.iv-layout.header .inner-form,
+		.iv-layout.header .inner-form a,
+		.iv-layout.header .inner-form a:visited,
+		.iv-layout.header .woo-cart .cart_list span,
+		.iv-layout.header .woo-cart .cart_list dl dt,
+		.iv-layout.header .woo-cart .buttons a,
+		.iv-layout.header.dark .inner-form a, 
+		.iv-layout.header.light .inner-form a,
+		.iv-layout.header.dark .inner-form a:hover, 
+		.iv-layout.header.light .inner-form a:hover,
+		.iv-layout.header .login-ajax .lwa input[type="submit"],
+		.header .mega_main_menu .default_dropdown > ul,
+		.header .mega_main_menu .default_dropdown li > ul,
+		.header .mega_main_menu .multicolumn_dropdown > ul,
+		.header .mega_main_menu .widgets_dropdown > ul,
+		.header .mega_main_menu .default_dropdown > ul a,
+		.header .mega_main_menu .default_dropdown li > ul a,
+		.header .mega_main_menu .multicolumn_dropdown > ul a,
+		.header .mega_main_menu .widgets_dropdown > ul a,
+		.header .mega_main_menu .default_dropdown > ul .item_link,
+		.header .mega_main_menu .default_dropdown li > ul .item_link,
+		.header .mega_main_menu .multicolumn_dropdown > ul .item_link,
+		.header .mega_main_menu .widgets_dropdown > ul .item_link,
+		.iv-layout.header input[type="text"]:focus,
+		.iv-layout.header input[type="email"]:focus,
+		.iv-layout.header input[type="password"]:focus,
+		.iv-layout.header input[type="search"]:focus,
+		.iv-layout.header textarea:focus,
+		.iv-layout.header .inner-form a:hover,
+		.iv-layout.header .live-search .submit-form,
+		.iv-layout.header .login-ajax .lwa .lwa-field .fa,
+		.header .mega_main_menu .default_dropdown > ul a:hover,
+		.header .mega_main_menu .default_dropdown li > ul a:hover,
+		.header .mega_main_menu .multicolumn_dropdown > ul a:hover,
+		.header .mega_main_menu .widgets_dropdown > ul a:hover,
+		.header .mega_main_menu .default_dropdown > ul .item_link:hover,
+		.header .mega_main_menu .default_dropdown li > ul .item_link:hover,
+		.header .mega_main_menu .multicolumn_dropdown > ul .item_link:hover,
+		.header .mega_main_menu .widgets_dropdown > ul .item_link:hover,
+		.header .mega_main_menu .default_dropdown > ul li.current-menu-item > .item_link,
+		.header .mega_main_menu .default_dropdown li > ul li.current-menu-item > .item_link,
+		.header .mega_main_menu .multicolumn_dropdown > ul li.current-menu-item > .item_link,
+		.header .mega_main_menu .widgets_dropdown > ul li.current-menu-item > .item_link,
+		.header .mega_main_menu .default_dropdown > ul .widgettitle,
+		.header .mega_main_menu .default_dropdown li > ul .widgettitle,
+		.header .mega_main_menu .multicolumn_dropdown > ul .widgettitle,
+		.header .mega_main_menu .widgets_dropdown > ul .widgettitle,
+		.header .mega_main_menu .default_dropdown > ul li.section_header_style > .item_link,
+		.header .mega_main_menu .default_dropdown li > ul li.section_header_style > .item_link,
+		.header .mega_main_menu .multicolumn_dropdown > ul li.section_header_style > .item_link,
+		.header .mega_main_menu .widgets_dropdown > ul li.section_header_style > .item_link {
+			color: #3a4653;
+		}
+
+		.iv-layout.header input[type="text"],
+		.iv-layout.header input[type="email"],
+		.iv-layout.header input[type="password"],
+		.iv-layout.header input[type="search"],
+		.iv-layout.header textarea,
+		.iv-layout.header input[type="submit"],
+		.iv-layout.header .live-search input[type="search"]:focus,
+		.iv-layout.header .woo-cart .cart_list img,
+		.iv-layout.header .woo-cart .buttons a,
+		.iv-layout.header .login-ajax .lwa input:focus,
+		.iv-layout.header .login-ajax .lwa input[type="submit"],
+		.iv-layout.header input[type="text"]:focus,
+		.iv-layout.header input[type="email"]:focus,
+		.iv-layout.header input[type="password"]:focus,
+		.iv-layout.header input[type="search"]:focus,
+		.iv-layout.header textarea:focus,
+		.iv-layout.header .live-search .submit-form,
+		.iv-layout.header .custom-text .iv-separator,
+		.iv-layout.header .woo-cart .total,
+		.iv-layout.header .login-ajax .lwa .lwa-field .fa,
+		.iv-layout.header .login-ajax .lwa .lwa-info li {
+			border-color: #475360;
+		}
+	</style><style type="text/css" data-type="vc_custom-css">/*Home Page Styling*/
+.wp_search_home{position:relative; top:120px;}
+.quick_links_ul{list-style-type:square;color:#fff!important; line-height:5px;}
+.quick_links_ul li {margin-bottom:15px;}
+.quick_links_ul li a{  font-size:16px; color: #fff;margin-bottom:10px;}
+.quick_links_ul li a:hover{text-decoration:underline;}
+.slide2_shadow{     -webkit-box-shadow: 1px 1px 5px 1px #5e5e5e;    -moz-box-shadow: 1px 1px 5px 1px #5e5e5e;	box-shadow: 1px 1px 5px 1px #5e5e5e;}
+.slide3_shadow{    -webkit-box-shadow: 0px 0px 4px 0px #e1e1e1;    -moz-box-shadow: 0px 0px 4px 0px #e1e1e1;	box-shadow: 0px 0px 10px 0px #e1e1e1;
+    
+}.hs-btn{ padding-left:0px!important;}
+
+
+.fancy-underline a {
+  text-decoration:underline;
+  font-size: 1.1em; /*text-align: center;*/
+  color:white;
+  display:inline;
+  width:0 auto;
+  padding: 0 5px;
+
+}
+
+    @media only screen and (max-device-width:480px){
+       /* styles for mobile browsers smaller than 480px; (iPhone) */
+       .fancy-underline a {font-size: 1.0em!important; display:block;
+    }
+
+.fancy-underline a:hover {
+  /*text-decoration-line: underline;*/
+ /* font-size: 1.1em;*/
+  color:yellow!important;
+}
+
+/*a.search {color:white; padding:5px;}*/
+
+.btn-text a  {
+  font-size: 1.1em; 
+  text-align: center;
+  display:block;
+  padding: 3px 8px;}
+
+.btn-text a:hover  {
+  font-size: 1.1em; 
+  text-align: center; }
+    }
+    
+.uvc-main-heading h1 {font-size:22px; color:#828282;}
+
+.complaint-btn {}</style><style type="text/css" data-type="vc_shortcodes-custom-css">.vc_custom_1621972534722{margin-top: 0px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1742921124118{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: -10px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;background-color: #ffe11a !important;}.vc_custom_1528294485891{margin-top: 0px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1657205590504{margin-bottom: 0px !important;padding-top: 32px !important;padding-bottom: 0px !important;background-color: #0e5390 !important;}.vc_custom_1736871389638{margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;background-color: #0e5390 !important;}.vc_custom_1736871397314{margin-bottom: 0px !important;padding-top: 32px !important;padding-bottom: 0px !important;background-color: #0e5390 !important;}.vc_custom_1657305156352{margin-bottom: 0px !important;padding-top: 32px !important;padding-bottom: 0px !important;background-color: #0e5390 !important;}.vc_custom_1618344370268{margin-bottom: 0px !important;padding-top: 32px !important;padding-bottom: 5px !important;background-color: #0e5390 !important;}.vc_custom_1736871406917{margin-top: 0px !important;margin-bottom: 0px !important;padding-bottom: 15px !important;background-color: #0e5390 !important;}.vc_custom_1486764674360{margin-top: 0px !important;margin-bottom: 0px !important;padding-bottom: 35px !important;}.vc_custom_1626894462008{margin-top: 0px !important;margin-bottom: 0px !important;padding-bottom: 35px !important;}.vc_custom_1736871416722{margin-bottom: 0px !important;padding-bottom: 40px !important;background-color: #0e5390 !important;}.vc_custom_1577711782206{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1528918335003{margin-top: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1626895893501{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;border-radius: 3px !important;}.vc_custom_1626895909522{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;border-radius: 3px !important;}.vc_custom_1626895927153{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1626895941082{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1631108727587{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1626894392335{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1649786654517{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1649786666667{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1657305386173{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;border-radius: 3px !important;}.vc_custom_1773171061447{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1626895893501{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;border-radius: 3px !important;}.vc_custom_1626895909522{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;border-radius: 3px !important;}.vc_custom_1626895927153{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1626895941082{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1730833249551{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1730837129213{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1730837134294{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1730837139294{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1730837147798{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1730837279744{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1626895893501{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;border-radius: 3px !important;}.vc_custom_1626895909522{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;border-radius: 3px !important;}.vc_custom_1626895927153{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1626895941082{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1657205955907{margin-top: 5px !important;margin-bottom: 5px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1631108727587{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1626894392335{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1657208335775{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1649786654517{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1649786666667{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1601476031343{padding-top: 0px !important;padding-bottom: 0px !important;border-radius: 3px !important;}.vc_custom_1601476044128{padding-top: 0px !important;padding-bottom: 0px !important;border-radius: 3px !important;}.vc_custom_1601476056136{padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1533569328072{margin-top: 0px !important;margin-bottom: 0px !important;padding-top: 0px !important;padding-bottom: 0px !important;}.vc_custom_1601479482646{margin-top: 0px !important;margin-bottom: 0px !important;padding-bottom: 3px !important;}.vc_custom_1509042455346{margin-right: 0px !important;margin-left: 0px !important;padding-right: 0px !important;padding-left: 0px !important;}.vc_custom_1534251413540{padding-top: 3px !important;}.vc_custom_1574453093310{padding-top: 3px !important;}.vc_custom_1680710823216{padding-top: 0px !important;}.vc_custom_1680710833680{padding-top: 0px !important;}.vc_custom_1509042455346{margin-right: 0px !important;margin-left: 0px !important;padding-right: 0px !important;padding-left: 0px !important;}.vc_custom_1485268399424{margin-top: 0px !important;margin-bottom: 10px !important;}.vc_custom_1509047053350{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1731008718222{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1713279226992{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1509047221948{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1626894680478{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1734528878188{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1733839935357{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1731008755721{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1731008768483{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1509042455346{margin-right: 0px !important;margin-left: 0px !important;padding-right: 0px !important;padding-left: 0px !important;}.vc_custom_1485268399424{margin-top: 0px !important;margin-bottom: 10px !important;}.vc_custom_1532372058519{margin-right: 0px !important;margin-left: 0px !important;padding-top: 25px !important;padding-right: 0px !important;padding-left: 0px !important;}.vc_custom_1509047053350{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1509047698056{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1509047544140{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1624977309939{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1713279239856{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1509047221948{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1733839946029{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1509047389892{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1512060534438{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1509047608998{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1509047618871{margin-top: 35px !important;margin-right: 0px !important;margin-bottom: 0px !important;margin-left: 0px !important;padding-top: 0px !important;padding-right: 0px !important;padding-bottom: 0px !important;padding-left: 0px !important;}.vc_custom_1509045682391{margin-top: 0px !important;margin-bottom: 0px !important;}.vc_custom_1719319444745{margin-top: 0px !important;margin-bottom: 0px !important;padding-bottom: 3px !important;}.vc_custom_1719319402370{margin-top: 0px !important;margin-bottom: 0px !important;padding-bottom: 3px !important;}.vc_custom_1719319426177{margin-top: 0px !important;margin-bottom: 0px !important;padding-bottom: 3px !important;}</style><noscript><style> .wpb_animate_when_almost_visible { opacity: 1; }</style></noscript>
+
+  
+  
+</head>
+
+<body class="home wp-singular page-template-default page page-id-3051 wp-theme-ivan-matty wide vc_being_used group-blog wpb-js-composer js-comp-ver-6.5.0 vc_responsive ivan-main-layout-normal">
+
+
+
+<div id="all-site-wrapper" class="hfeed site">
+
+	<a href="#" id="back-top" aria-label="Back to top of page">
+		<i class="fa fa-angle-up " style=""></i>
+	</a>
+
+	
+
+<div class="iv-layout top-header two-columns ">
+	<div class="container">
+		<div class="row">
+
+			<div class="col-xs-6 col-sm-6 col-md-7 top-header-left-area">
+
+				
+				
+		<div class="iv-module custom-text hidden-xs hidden-sm">
+			<div class="centered">
+				<a style="font-size: 18px;" title="Connect On Twitter" href="https://twitter.com/FloridaDBPR" target="_blank" rel="noopener noreferrer" aria-label="Connect on Twitter"><i class="fa fa-twitter  iv-icon"></i></a> <a style="font-size: 18px;" title="Connect On LinkedIn" href="https://www.linkedin.com/company/department-of-business-and-professional-regulation?trk=hb_tab_compy_id_3020449" target="_blank" rel="noopener noreferrer" aria-label="Connect on LinkedIn"><i class="fa fa-linkedin  iv-icon"></i></a> <a style="font-size: 18px;" title="Connect On Facebook" href="https://www.facebook.com/pages/Florida-Department-of-Business-and-Professional-Regulation/119644237869" target="_blank" rel="noopener noreferrer" aria-label="Connect on Facebook"><i class="fa fa-facebook  iv-icon"></i></a> <a style="font-size: 18px;" title="Connect On Instagram" href="https://www.instagram.com/florida.dbpr/" target="_blank" rel="noopener noreferrer" aria-label="Connect on Instagram"><i class="fa fa-instagram  iv-icon"></i></a> <a style="font-size: 18px;" title="Connect On YouTube" href="https://www.youtube.com/user/FloridaDBPR/" target="_blank" rel="noopener noreferrer" aria-label="Connect on YouTube"><i class="fa fa-youtube  iv-icon"></i></a>  <a style="font-size: 18px;" title="DBPR News Room" href="https://www2.myfloridalicense.com/news-room/" aria-label="DBPR News Room"><i class="fa fa-newspaper-o  iv-icon"></i></a>			</div>
+		</div>
+
+		
+				
+												
+			</div>
+			
+			<div class="col-xs-6 col-sm-6 col-md-5 top-header-right-area">
+
+				
+				
+								
+				
+				
+		<div class="iv-module responsive-menu hidden-lg hidden-md">
+			<div class="centered">
+				<a class="mobile-menu-trigger" href="#" data-selector=".top-header" data-id="top-header-menu-wrap"><span class="resp-menu-icon ivan-icon ivan-menu-icon"></span></a>
+			</div>
+		</div>
+
+		
+				
+<!-- UberMenu [Configuration:main] [Theme Loc:secondary] [Integration:auto] -->
+<nav id="ubermenu-main-6-secondary" class="ubermenu ubermenu-nojs ubermenu-main ubermenu-menu-6 ubermenu-loc-secondary ubermenu-responsive-nocollapse ubermenu-horizontal ubermenu-transition-shift ubermenu-trigger-hover_intent ubermenu-skin-white  ubermenu-bar-align-right ubermenu-items-align-left ubermenu-bound ubermenu-disable-submenu-scroll ubermenu-invert ubermenu-sub-indicators ubermenu-retractors-responsive"><ul id="ubermenu-nav-main-6-secondary" class="ubermenu-nav"><li class="topweight ubermenu-item ubermenu-item-type-custom ubermenu-item-object-custom ubermenu-item-6353 ubermenu-item-level-0 ubermenu-column ubermenu-column-auto" ><a class="ubermenu-target ubermenu-item-layout-default ubermenu-item-layout-text_only" title="Ask Us" href="http://myfloridalicense.custhelp.com/" tabindex="0"><span class="ubermenu-target-title ubermenu-target-text">Ask Us</span></a></li><li class="topweight ubermenu-item ubermenu-item-type-custom ubermenu-item-object-custom ubermenu-item-4271 ubermenu-item-level-0 ubermenu-column ubermenu-column-auto" ><a class="ubermenu-target ubermenu-item-layout-default ubermenu-item-layout-text_only" title="Contact Us" href="https://www2.myfloridalicense.com/contact-us/" tabindex="0"><span class="ubermenu-target-title ubermenu-target-text">Contact Us</span></a></li><li class="top-menu-btn ubermenu-item ubermenu-item-type-custom ubermenu-item-object-custom ubermenu-item-292 ubermenu-item-level-0 ubermenu-column ubermenu-column-auto" ><a class="ubermenu-target ubermenu-item-layout-default ubermenu-item-layout-text_only" title="My Account" target="_blank" href="https://www.myfloridalicense.com/datamart/mainMenuFLDBPR.do" tabindex="0"><span class="ubermenu-target-title ubermenu-target-text">My Account</span></a></li></ul></nav>
+<!-- End UberMenu -->
+			</div>
+
+		</div>					
+	</div>
+</div>
+		
+
+<div class="iv-layout header simple-right-menu apply-height  header-fixed">
+	<div class="container">
+		<div class="row">
+
+			<div class="col-xs-8 col-sm-4 col-md-4 col-lg-3 header-left-area">
+				<a href="https://www2.myfloridalicense.com/" class="logo" style=""><img class="sd-res logo-normal" src="https://www2.myfloridalicense.com/wp-content/uploads/2016/07/logo.png" width="610" height="120" alt="MyFloridaLicense.com" /></a>			</div>
+			
+			<div class="col-xs-4 col-sm-8 col-md-8 col-lg-9  header-right-area">
+
+				
+				
+				
+				
+				
+				
+				
+		<div class="iv-module responsive-menu hidden-lg hidden-md">
+			<div class="centered">
+				<a class="mobile-menu-trigger" href="#" data-selector=".header .primary" data-id="header-menu-wrap"><span class="resp-menu-icon ivan-icon ivan-menu-icon"></span></a>
+			</div>
+		</div>
+
+		
+				<div class="mega_main_menu nav_menu primary icons-left first-lvl-align-left first-lvl-separator-none direction-horizontal responsive-enable mobile_minimized-enable dropdowns_animation-anim_2 hidden-xs hidden-sm iv-module-menu menu-wrapper"><ul id="mega_main_menu_ul" class="mega_main_menu_ul  with-arrow menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-3051 current_page_item menu-item-3483 default_dropdown  drop_to_right  submenu_default_width columns"><a href="https://www2.myfloridalicense.com/" class="item_link  disable_icon"><span class="item_link_content"><span class="link_text">HOME</span></span></a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-52619 default_dropdown  drop_to_right  submenu_default_width columns"><a href="https://www2.myfloridalicense.com/licensing-and-regulation/" class="item_link  disable_icon"><span class="item_link_content"><span class="link_text">LICENSING &#038; REGULATION</span></span></a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-9461 default_dropdown  drop_to_right  submenu_default_width columns"><a href="https://www2.myfloridalicense.com/online-services/" class="item_link  disable_icon"><span class="item_link_content"><span class="link_text">ONLINE SERVICES</span></span></a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-3159 default_dropdown  drop_to_right  submenu_default_width columns"><a href="#" class="item_link  disable_icon"><span class="item_link_content"><span class="link_text">ABOUT US</span></span></a>
+<ul class="mega_dropdown">
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-50012     submenu_default_width columns"><a href="https://www2.myfloridalicense.com/about-us/departments-secretary/" class="item_link  disable_icon"><span class="link_text">Department Secretary</span></a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3160     submenu_default_width columns"><a href="https://www2.myfloridalicense.com/about-us/department-overview/" class="item_link  disable_icon"><span class="link_text">Department Overview</span></a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13474     submenu_default_width columns"><a href="https://www2.myfloridalicense.com/about-us/department-divisions/" class="item_link  disable_icon"><span class="link_text">Divisions &#038; Offices</span></a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4572     submenu_default_width columns"><a href="https://www2.myfloridalicense.com/annual-regulatory-plans/" class="item_link  disable_icon"><span class="link_text">Annual Regulatory Plans</span></a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5554     submenu_default_width columns"><a href="https://www2.myfloridalicense.com/reports-and-publications/" class="item_link  disable_icon"><span class="link_text">Reports and Publications</span></a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-10624     submenu_default_width columns"><a href="https://www2.myfloridalicense.com/open-government/" class="item_link  disable_icon"><span class="link_text">Open Government</span></a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25498     submenu_default_width columns"><a href="https://www2.myfloridalicense.com/news-room/" class="item_link  disable_icon"><span class="link_text">News Room</span></a></li>
+
+</ul></li>
+</ul><!-- /class="mega_main_menu_ul  with-arrow menu" --></div>			</div>
+
+		</div>					
+	</div>
+</div>		<div class="negative-push"></div>
+		
+		
+	<div class="title-wrapper-divider blog-version"></div>		
+		
+	<div class="iv-layout content-wrapper content-full  no-title-wrapper">
+		<div class="container">
+
+			
+				<div class="row">
+
+					<div class="col-xs-12 col-sm-12 col-md-12 site-main" role="main">
+
+						
+	
+		
+		
+<article id="post-3051" class="post-3051 page type-page status-publish hentry no-thumbnail">
+	<div class="entry-content">
+      
+		<div data-vc-full-width="true" data-vc-full-width-init="false" data-vc-stretch-content="true" class="vc_row wpb_row vc_row-fluid vc_custom_1742921124118 vc_row-has-fill vc_row-o-equal-height vc_row-flex"><div class="wpb_column vc_column_container vc_col-sm-4"><div class="vc_column-inner"><div class="wpb_wrapper">
+	<div class="wpb_text_column wpb_content_element " >
+		<div class="wpb_wrapper">
+			<p style="text-align: center;"><strong>➢ UPDATE: Florida’s 2023 Protection of Children Act (Senate Bill 1438)</strong> &#8211; <a title="SB 1438 Compliance Notice. Opens in new window. (pdf)" href="https://www2.myfloridalicense.com/documents/SB1438-Notice.pdf" target="_blank" rel="noopener"><u><strong>Compliance Notice</strong></u></a></p>
+
+		</div>
+	</div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-4"><div class="vc_column-inner"><div class="wpb_wrapper">
+	<div class="wpb_text_column wpb_content_element " >
+		<div class="wpb_wrapper">
+			<p style="text-align: center;"><strong>➢ Condo Information and Resources </strong> &#8211; <a href="https://condos.myfloridalicense.com/"><u><strong>Learn More</strong></u></a></p>
+
+		</div>
+	</div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-4"><div class="vc_column-inner"><div class="wpb_wrapper">
+	<div class="wpb_text_column wpb_content_element " >
+		<div class="wpb_wrapper">
+			<p style="text-align: center;"><strong>➢ Condominium Complaint Search </strong> &#8211; <a href="https://www2.myfloridalicense.com/lsc/Licensee-Detail-Instructions.pdf" target="_blank" rel="noopener"><u><strong>User Guide</strong></u></a></p>
+
+		</div>
+	</div>
+</div></div></div></div><div class="vc_row-full-width vc_clearfix"></div><div data-vc-full-width="true" data-vc-full-width-init="false" data-vc-stretch-content="true" data-vc-parallax="1.5" class="vc_row wpb_row vc_row-fluid home-intro vc_custom_1528294485891 vc_row-has-fill vc_row-no-padding vc_general vc_parallax vc_parallax-content-moving"><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"></div></div></div><div class="wpb_column vc_column_container vc_col-sm-6"><div class="vc_column-inner vc_custom_1528918335003"><div class="wpb_wrapper"><div  class="vc_wp_search wpb_content_element wp_search_home"><div class="widget widget_search"><form class="form-wrapper cf" id="search-form" method="get" action="https://www2.myfloridalicense.com/./page/1/?s" >
+  	<input id="st-search-input" type="text" title="Type search term here"  class="search-field typed"  style="padding:0 5px 0 10px; margin: 10px 5px 5px 0; font-size:22px" placeholder="I want to..." value="" name="s">
+      <button type="submit">Search</button>
+	      <p><strong>Popular Search Terms:</strong>    <a style=" margin-left:10px; font-weight:600" href="https://www2.myfloridalicense.com/page/1/?s=renew+my+license" arial-label="Renew My License Results"> Renew My License</a> | <a style="font-weight:600"  href="https://www2.myfloridalicense.com/page/1/?s=Real+Estate" arial-label="Real-Estate-Results">Real Estate</a> | <a style="font-weight:600" href="https://www2.myfloridalicense.com/page/1/?s=Change+My+Address" arial-label="Change My Address Results">Change My Address</a></p>
+</form>
+
+
+
+</div></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"></div></div></div></div><div class="vc_row-full-width vc_clearfix"></div><div class="vc_row wpb_row vc_row-fluid slide1_shadow vc_custom_1736871389638 vc_row-has-fill vc_row-o-content-middle vc_row-flex"><div class="wpb_column vc_column_container vc_col-sm-4 vc_col-has-fill"><div class="vc_column-inner vc_custom_1657305386173"><div class="wpb_wrapper"></div></div></div><div class="wpb_column vc_column_container vc_col-sm-4"><div class="vc_column-inner"><div class="wpb_wrapper"><div class=" vc_custom_1773171061447 ubtn-ctn-center btn-text"><a class="ubtn-link ult-adjust-bottom-margin ubtn-center ubtn-block btn-text" href="https://www2.myfloridalicense.com/emergency/" ><button type="button" id="ubtn-4882"  class="ubtn ult-adjust-bottom-margin ult-responsive ubtn-block ubtn-no-hover-bg  none  ubtn-sep-icon ubtn-sep-icon-left  ubtn-center   tooltip-69d7f7a3a1734 ubtn-block"  data-hover="#000000" data-border-color="#6dab3c" data-bg="#6dab3c" data-hover-bg="#ffffff" data-border-hover="#86ce48" data-shadow-hover="" data-shadow-click="none" data-shadow="" data-shd-shadow=""  data-ultimate-target='#ubtn-4882'  data-responsive-json-new='{"font-size":"desktop:14px;","line-height":""}'  style="font-weight:bold;border-radius:5px;border-width:0px;border-color:#6dab3c;border-style:solid;background: #6dab3c;color: #000000;"><span class="ubtn-data ubtn-icon"><i class="Defaults-sun-o" style="font-size:30px;color:#fcd54d;"></i></span><span class="ubtn-hover" style="background-color:#ffffff"></span><span class="ubtn-data ubtn-text " >EMERGENCY UPDATES</span></button></a></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-4"><div class="vc_column-inner"><div class="wpb_wrapper"></div></div></div></div><div class="vc_row wpb_row vc_row-fluid slide1_shadow vc_custom_1736871397314 vc_row-has-fill vc_row-o-content-middle vc_row-flex"><div class="wpb_column vc_column_container vc_col-sm-1/5 vc_col-has-fill"><div class="vc_column-inner vc_custom_1626895893501"><div class="wpb_wrapper"><div class=" vc_custom_1730837129213 ubtn-ctn-center btn-text"><a class="ubtn-link ult-adjust-bottom-margin ubtn-center ubtn-block btn-text" href="./licensing-and-regulation/" ><button type="button" id="ubtn-7632"  class="ubtn ult-adjust-bottom-margin ult-responsive ubtn-block ubtn-no-hover-bg  none  ubtn-center   tooltip-69d7f7a3a19c4 ubtn-block"  data-hover="#000000" data-border-color="#ffcc1a" data-bg="#ffcc1a" data-hover-bg="#fcd54d" data-border-hover="#fdce2a" data-shadow-hover="" data-shadow-click="none" data-shadow="" data-shd-shadow=""  data-ultimate-target='#ubtn-7632'  data-responsive-json-new='{"font-size":"desktop:14px;","line-height":""}'  style="font-weight:bold;border-radius:5px;border-width:0px;border-color:#ffcc1a;border-style:solid;background: #ffcc1a;color: #000000;"><span class="ubtn-data ubtn-icon"><i class="none" style="font-size:20px;color:;"></i></span><span class="ubtn-hover" style="background-color:#fcd54d"></span><span class="ubtn-data ubtn-text " >APPLY OR MANAGE MY LICENSE</span></button></a></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5 vc_col-sm-offset-0 vc_col-has-fill"><div class="vc_column-inner vc_custom_1626895909522"><div class="wpb_wrapper"><div class=" vc_custom_1730837134294 ubtn-ctn-center btn-text"><a class="ubtn-link ult-adjust-bottom-margin ubtn-center ubtn-block btn-text" href="https://www.myfloridalicense.com/wl11.asp?mode=0&SID=" target="_blank" rel="noopener" ><button type="button" id="ubtn-8998"  class="ubtn ult-adjust-bottom-margin ult-responsive ubtn-block ubtn-no-hover-bg  none  ubtn-center   tooltip-69d7f7a3a1ad7 ubtn-block"  data-hover="#000000" data-border-color="#ffcc1a" data-bg="#ffcc1a" data-hover-bg="#fcd54d" data-border-hover="#ffe11a" data-shadow-hover="" data-shadow-click="none" data-shadow="" data-shd-shadow=""  data-ultimate-target='#ubtn-8998'  data-responsive-json-new='{"font-size":"desktop:14px;","line-height":""}'  style="font-weight:bold;border-radius:5px;border-width:0px;border-color:#ffcc1a;border-style:solid;background: #ffcc1a;color: #000000;"><span class="ubtn-data ubtn-icon"><i class="none" style="font-size:20px;color:;"></i></span><span class="ubtn-hover" style="background-color:#fcd54d"></span><span class="ubtn-data ubtn-text " >Verify a License</span></button></a></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner vc_custom_1626895927153"><div class="wpb_wrapper"><div class=" vc_custom_1730837139294 ubtn-ctn-center btn-text"><a class="ubtn-link ult-adjust-bottom-margin ubtn-center ubtn-block btn-text" href="https://www.dcnonline.org/" target="_blank" rel="noopener" ><button type="button" id="ubtn-2111"  class="ubtn ult-adjust-bottom-margin ult-responsive ubtn-block ubtn-no-hover-bg  none  ubtn-center   tooltip-69d7f7a3a1bd1 ubtn-block"  data-hover="#000000" data-border-color="#ffcc1a" data-bg="#ffcc1a" data-hover-bg="#fcd54d" data-border-hover="#ffe11a" data-shadow-hover="" data-shadow-click="none" data-shadow="" data-shd-shadow=""  data-ultimate-target='#ubtn-2111'  data-responsive-json-new='{"font-size":"desktop:14px;","line-height":""}'  style="font-weight:bold;border-radius:5px;border-width:0px;border-color:#ffcc1a;border-style:solid;background: #ffcc1a;color: #000000;"><span class="ubtn-data ubtn-icon"><i class="none" style="font-size:20px;color:;"></i></span><span class="ubtn-hover" style="background-color:#fcd54d"></span><span class="ubtn-data ubtn-text " >Find a Licensed Contractor</span></button></a></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner vc_custom_1626895941082"><div class="wpb_wrapper"><div class=" vc_custom_1730837147798 ubtn-ctn-center btn-text complaint-btn"><a class="ubtn-link ult-adjust-bottom-margin ubtn-center ubtn-block btn-text complaint-btn" href="./file-a-complaint/" target="_blank" rel="noopener" ><button type="button" id="ubtn-2275"  class="ubtn ult-adjust-bottom-margin ult-responsive ubtn-block ubtn-no-hover-bg  none  ubtn-center   tooltip-69d7f7a3a1cd0 ubtn-block"  data-hover="#000000" data-border-color="#ffcc1a" data-bg="#ffcc1a" data-hover-bg="#fcd54d" data-border-hover="#ffe11a" data-shadow-hover="" data-shadow-click="none" data-shadow="" data-shd-shadow=""  data-ultimate-target='#ubtn-2275'  data-responsive-json-new='{"font-size":"desktop:14px;","line-height":""}'  style="font-weight:bold;border-radius:5px;border-width:0px;border-color:#ffcc1a;border-style:solid;background: #ffcc1a;color: #000000;"><span class="ubtn-data ubtn-icon"><i class="none" style="font-size:20px;color:;"></i></span><span class="ubtn-hover" style="background-color:#fcd54d"></span><span class="ubtn-data ubtn-text " >File a Complaint</span></button></a></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner vc_custom_1730833249551"><div class="wpb_wrapper"><div class=" vc_custom_1730837279744 ubtn-ctn-center btn-text"><a class="ubtn-link ult-adjust-bottom-margin ubtn-center ubtn-block btn-text" href="./unlicensed-activity/" target="_blank" rel="noopener" ><button type="button" id="ubtn-2745"  class="ubtn ult-adjust-bottom-margin ult-responsive ubtn-block ubtn-no-hover-bg  none  ubtn-center   tooltip-69d7f7a3a1dbe ubtn-block"  data-hover="#000000" data-border-color="#ffcc1a" data-bg="#ffcc1a" data-hover-bg="#fcd54d" data-border-hover="#ffe11a" data-shadow-hover="" data-shadow-click="none" data-shadow="" data-shd-shadow=""  data-ultimate-target='#ubtn-2745'  data-responsive-json-new='{"font-size":"desktop:14px;","line-height":""}'  style="font-weight:bold;border-radius:5px;border-width:0px;border-color:#ffcc1a;border-style:solid;background: #ffcc1a;color: #000000;"><span class="ubtn-data ubtn-icon"><i class="none" style="font-size:20px;color:;"></i></span><span class="ubtn-hover" style="background-color:#fcd54d"></span><span class="ubtn-data ubtn-text " >Unlicensed Activity Resources</span></button></a></div></div></div></div></div><div class="vc_row wpb_row vc_row-fluid vc_custom_1736871406917 vc_row-has-fill vc_row-o-equal-height vc_row-flex"><div class="wpb_column vc_column_container vc_col-sm-1"><div class="vc_column-inner vc_custom_1509042455346"><div class="wpb_wrapper"></div></div></div><div class="wpb_column vc_column_container vc_col-sm-2"><div class="vc_column-inner"><div class="wpb_wrapper"><span id="creative-link-wrap-7863" class="ult_main_cl ult-adjust-bottom-margin  " >
+	 			<span class="  ult_crlink" >
+					<a  data-ultimate-target='#creative-link-wrap-7863 .ult_colorlink'  data-responsive-json-new='{"font-size":"desktop:18px;tablet:17px;tablet_portrait:17px;mobile_landscape:17px;mobile:17px;","line-height":""}'  href="./services-requiring-a-dbpr-license/"  class="ult_colorlink ult-responsive  vc_custom_1534251413540" style="text-decoration:underline;font-weight:normal; "  data-textcolor="#ffffff" data-texthover="#eeee22"data-style="">
+						
+						<span data-hover="Do I Need a License?" style="color:#ffffff;;;" class="ult_btn10_span   ">Do I Need a License?</span>
+						
+					</a>
+				</span>
+			</span></div></div></div><div class="wpb_column vc_column_container vc_col-sm-2"><div class="vc_column-inner"><div class="wpb_wrapper"><span id="creative-link-wrap-9048" class="ult_main_cl ult-adjust-bottom-margin  " >
+	 			<span class="  ult_crlink" >
+					<a  data-ultimate-target='#creative-link-wrap-9048 .ult_colorlink'  data-responsive-json-new='{"font-size":"desktop:18px;tablet:17px;tablet_portrait:17px;mobile_landscape:17px;mobile:17px;","line-height":""}'  href="https://www.myfloridalicense.com/viewapps.asp?SID" target="_blank" rel="noopener"  class="ult_colorlink ult-responsive  vc_custom_1574453093310" style="text-decoration:underline;font-weight:normal; "  data-textcolor="#ffffff" data-texthover="#eeee22"data-style="">
+						
+						<span data-hover="Check Your Application Status" style="color:#ffffff;;;" class="ult_btn10_span   ">Check Your Application Status</span>
+						
+					</a>
+				</span>
+			</span></div></div></div><div class="wpb_column vc_column_container vc_col-sm-2"><div class="vc_column-inner"><div class="wpb_wrapper"><span id="creative-link-wrap-1761" class="ult_main_cl ult-adjust-bottom-margin  " >
+	 			<span class="  ult_crlink" >
+					<a  data-ultimate-target='#creative-link-wrap-1761 .ult_colorlink'  data-responsive-json-new='{"font-size":"desktop:18px;tablet:17px;tablet_portrait:17px;mobile_landscape:17px;mobile:17px;","line-height":""}'  href="https://www.youtube.com/watch?v=vSWQ9Zk8cV8&feature=youtu.be" target="_blank" rel="noopener"  class="ult_colorlink ult-responsive " style="text-decoration:underline;font-weight:normal; "  data-textcolor="#ffffff" data-texthover="#eeee22"data-style="">
+						
+						<span data-hover="Create an Account" style="color:#ffffff;;;" class="ult_btn10_span   ">Create an Account</span>
+						
+					</a>
+				</span>
+			</span><span id="creative-link-wrap-9910" class="ult_main_cl ult-adjust-bottom-margin  " >
+	 			<span class="  ult_crlink" >
+					<a  data-ultimate-target='#creative-link-wrap-9910 .ult_colorlink'  data-responsive-json-new='{"font-size":"desktop:18px;tablet:17px;tablet_portrait:17px;mobile_landscape:17px;mobile:17px;","line-height":""}'  href="https://www.youtube.com/watch?v=TPIHn4Go8o4&feature=youtu.be" title="Crea una cuenta" target="_blank" rel="noopener"  class="ult_colorlink ult-responsive " style="text-decoration:underline;font-weight:normal; "  data-textcolor="#ffffff" data-texthover="#eeee22"data-style="">
+						
+						<span data-hover="(Español)" style="color:#ffffff;;;" class="ult_btn10_span   ">(Español)</span>
+						
+					</a>
+				</span>
+			</span></div></div></div><div class="wpb_column vc_column_container vc_col-sm-2"><div class="vc_column-inner"><div class="wpb_wrapper"><span id="creative-link-wrap-4992" class="ult_main_cl ult-adjust-bottom-margin  " >
+	 			<span class="  ult_crlink" >
+					<a  data-ultimate-target='#creative-link-wrap-4992 .ult_colorlink'  data-responsive-json-new='{"font-size":"desktop:18px;tablet:17px;tablet_portrait:17px;mobile_landscape:17px;mobile:17px;","line-height":""}'  href="https://www.youtube.com/watch?v=whe9WjFmZzs&feature=youtu.be" target="_blank" rel="noopener"  class="ult_colorlink ult-responsive " style="text-decoration:underline;font-weight:normal; "  data-textcolor="#ffffff" data-texthover="#eeee22"data-style="">
+						
+						<span data-hover="Link a License" style="color:#ffffff;;;" class="ult_btn10_span   ">Link a License</span>
+						
+					</a>
+				</span>
+			</span><span id="creative-link-wrap-7342" class="ult_main_cl ult-adjust-bottom-margin  " >
+	 			<span class="  ult_crlink" >
+					<a  data-ultimate-target='#creative-link-wrap-7342 .ult_colorlink'  data-responsive-json-new='{"font-size":"desktop:18px;tablet:17px;tablet_portrait:17px;mobile_landscape:17px;mobile:17px;","line-height":""}'  href="https://www.youtube.com/watch?v=kcanMNPrMwQ&feature=youtu.be" title="Vincular una licencia" target="_blank" rel="noopener"  class="ult_colorlink ult-responsive  vc_custom_1680710823216" style="text-decoration:underline;font-weight:normal; "  data-textcolor="#ffffff" data-texthover="#eeee22"data-style="">
+						
+						<span data-hover="(Español)" style="color:#ffffff;;;" class="ult_btn10_span   ">(Español)</span>
+						
+					</a>
+				</span>
+			</span></div></div></div><div class="wpb_column vc_column_container vc_col-sm-2"><div class="vc_column-inner"><div class="wpb_wrapper"><span id="creative-link-wrap-5688" class="ult_main_cl ult-adjust-bottom-margin  " >
+	 			<span class="  ult_crlink" >
+					<a  data-ultimate-target='#creative-link-wrap-5688 .ult_colorlink'  data-responsive-json-new='{"font-size":"desktop:18px;tablet:17px;tablet_portrait:17px;mobile_landscape:17px;mobile:17px;","line-height":""}'  href="https://www.youtube.com/watch?v=_EpVCHZDEKI" target="_blank" rel="noopener"  class="ult_colorlink ult-responsive " style="text-decoration:underline;font-weight:normal; "  data-textcolor="#ffffff" data-texthover="#eeee22"data-style="">
+						
+						<span data-hover="Self-Print License" style="color:#ffffff;;;" class="ult_btn10_span   ">Self-Print License</span>
+						
+					</a>
+				</span>
+			</span><span id="creative-link-wrap-9124" class="ult_main_cl ult-adjust-bottom-margin  " >
+	 			<span class="  ult_crlink" >
+					<a  data-ultimate-target='#creative-link-wrap-9124 .ult_colorlink'  data-responsive-json-new='{"font-size":"desktop:18px;tablet:17px;tablet_portrait:17px;mobile_landscape:17px;mobile:17px;","line-height":""}'  href="https://www.youtube.com/watch?v=7vfb2EZ8prU" title="licencia de autoimpresión" target="_blank" rel="noopener"  class="ult_colorlink ult-responsive  vc_custom_1680710833680" style="text-decoration:underline;font-weight:normal; "  data-textcolor="#ffffff" data-texthover="#eeee22"data-style="">
+						
+						<span data-hover="(Español)" style="color:#ffffff;;;" class="ult_btn10_span   ">(Español)</span>
+						
+					</a>
+				</span>
+			</span></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1"><div class="vc_column-inner"><div class="wpb_wrapper"></div></div></div></div><div class="vc_row wpb_row vc_row-fluid vc_custom_1486764674360"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner vc_custom_1509042455346"><div class="wpb_wrapper"><div class="vc_row wpb_row vc_inner vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-12 vc_hidden-sm vc_hidden-xs"><div class="vc_column-inner"><div class="wpb_wrapper"><div id="ultimate-heading-655469d7f7a3a2a6b" class="uvc-heading ult-adjust-bottom-margin ultimate-heading-655469d7f7a3a2a6b uvc-9618 header" data-hspacer="no_spacer"  data-halign="left" style="text-align:left"><div class="uvc-heading-spacer no_spacer" style="top"></div><div class="uvc-main-heading ult-responsive"  data-ultimate-target='.uvc-heading.ultimate-heading-655469d7f7a3a2a6b h1'  data-responsive-json-new='{"font-size":"desktop:26px;tablet:24px;tablet_portrait:24px;mobile_landscape:24px;mobile:24px;","line-height":""}' ><h1 style="font-weight:normal;color:#544f50;">POPULAR SERVICES</h1></div></div></div></div></div></div><div class="vc_row wpb_row vc_inner vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-12 vc_hidden-lg vc_hidden-md"><div class="vc_column-inner"><div class="wpb_wrapper"><div id="ultimate-heading-538069d7f7a3a2c3d" class="uvc-heading ult-adjust-bottom-margin ultimate-heading-538069d7f7a3a2c3d uvc-4131 header" data-hspacer="no_spacer"  data-halign="center" style="text-align:center"><div class="uvc-heading-spacer no_spacer" style="top"></div><div class="uvc-main-heading ult-responsive"  data-ultimate-target='.uvc-heading.ultimate-heading-538069d7f7a3a2c3d h1'  data-responsive-json-new='{"font-size":"desktop:26px;tablet:24px;tablet_portrait:24px;mobile_landscape:24px;mobile:24px;","line-height":""}' ><h1 style="font-weight:normal;color:#544f50;">POPULAR SERVICES</h1></div></div></div></div></div></div><div class="vc_separator wpb_content_element vc_separator_align_center vc_sep_width_100 vc_sep_pos_align_center vc_separator_no_text vc_sep_color_grey vc_custom_1485268399424  vc_custom_1485268399424" ><span class="vc_sep_holder vc_sep_holder_l"><span  class="vc_sep_line"></span></span><span class="vc_sep_holder vc_sep_holder_r"><span  class="vc_sep_line"></span></span>
+</div><div class="vc_row wpb_row vc_inner vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="aio-icon-component  vc_custom_1509047053350   style_1"><a class="aio-icon-box-link" href="https://www.myfloridalicense.com/wl11.asp?mode=0&#038;SID=&#038;brd=H" target="_blank" rel="noopener" ><div id="Info-box-wrap-4478" class="aio-icon-box top-icon" style=""  ><div class="aio-icon-top"><div class="ult-just-icon-wrapper  "><div class="align-icon" style="text-align:center;">
+<div class="aio-icon none "  style="color:#989697;font-size:96px;display:inline-block;">
+	<i class="Defaults-bed hotel"></i>
+</div></div></div></div><div class="aio-icon-header" ><h4 class="aio-icon-title ult-responsive"  data-ultimate-target='#Info-box-wrap-4478 .aio-icon-title'  data-responsive-json-new='{"font-size":"desktop:16px;mobile_landscape:14px;mobile:14px;","line-height":""}'  style="">Food &amp; Lodging Inspections</h4></div> <!-- header --></div> <!-- aio-icon-box --></a></div> <!-- aio-icon-component --></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="aio-icon-component  vc_custom_1731008718222   style_1"><a class="aio-icon-box-link" href="/instant-public-records/" target="_blank" rel="noopener" ><div id="Info-box-wrap-8591" class="aio-icon-box top-icon" style=""  ><div class="aio-icon-top"><div class="ult-just-icon-wrapper  "><div class="align-icon" style="text-align:center;">
+<div class="aio-icon none "  style="color:#989697;font-size:96px;display:inline-block;">
+	<i class="Defaults-file-code-o"></i>
+</div></div></div></div><div class="aio-icon-header" ><h4 class="aio-icon-title ult-responsive"  data-ultimate-target='#Info-box-wrap-8591 .aio-icon-title'  data-responsive-json-new='{"font-size":"desktop:16px;mobile_landscape:14px;mobile:14px;","line-height":""}'  style="">Instant Public Records</h4></div> <!-- header --></div> <!-- aio-icon-box --></a></div> <!-- aio-icon-component --></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="aio-icon-component  vc_custom_1713279226992   style_1"><a class="aio-icon-box-link" href="https://openmyfloridabusiness.gov/" rel="nofollow" ><div id="Info-box-wrap-2595" class="aio-icon-box top-icon" style=""  ><div class="aio-icon-top"><div class="ult-just-icon-wrapper  "><div class="align-icon" style="text-align:center;">
+<div class="aio-icon none "  style="color:#989697;font-size:96px;display:inline-block;">
+	<i class="external-icons-Open-svg-icon"></i>
+</div></div></div></div><div class="aio-icon-header" ><h4 class="aio-icon-title ult-responsive"  data-ultimate-target='#Info-box-wrap-2595 .aio-icon-title'  data-responsive-json-new='{"font-size":"desktop:16px;mobile_landscape:14px;mobile:14px;","line-height":""}'  style="">Open MyFlorida Business</h4></div> <!-- header --></div> <!-- aio-icon-box --></a></div> <!-- aio-icon-component --></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="aio-icon-component  vc_custom_1509047221948   style_1"><a class="aio-icon-box-link" href="https://www2.myfloridalicense.com/documents/RefundRequest.pdf" target="_blank" rel="noopener" ><div id="Info-box-wrap-8319" class="aio-icon-box top-icon" style=""  ><div class="aio-icon-top"><div class="ult-just-icon-wrapper  "><div class="align-icon" style="text-align:center;">
+<div class="aio-icon none "  style="color:#989697;font-size:96px;display:inline-block;">
+	<i class="Defaults-money"></i>
+</div></div></div></div><div class="aio-icon-header" ><h4 class="aio-icon-title ult-responsive"  data-ultimate-target='#Info-box-wrap-8319 .aio-icon-title'  data-responsive-json-new='{"font-size":"desktop:16px;mobile_landscape:14px;mobile:14px;","line-height":""}'  style="">Request a Refund</h4></div> <!-- header --></div> <!-- aio-icon-box --></a></div> <!-- aio-icon-component --></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="aio-icon-component  vc_custom_1626894680478   style_1"><a class="aio-icon-box-link" href="https://www.myfloridalicense.com/CESearch.asp?SID=" target="_blank" rel="noopener" ><div id="Info-box-wrap-2129" class="aio-icon-box top-icon" style=""  ><div class="aio-icon-top"><div class="ult-just-icon-wrapper  "><div class="align-icon" style="text-align:center;">
+<div class="aio-icon none "  style="color:#989697;font-size:96px;display:inline-block;">
+	<i class="Defaults-graduation-cap mortar-board"></i>
+</div></div></div></div><div class="aio-icon-header" ><h4 class="aio-icon-title ult-responsive"  data-ultimate-target='#Info-box-wrap-2129 .aio-icon-title'  data-responsive-json-new='{"font-size":"desktop:16px;mobile_landscape:14px;mobile:14px;","line-height":""}'  style="">Find a Continuing Education Course</h4></div> <!-- header --></div> <!-- aio-icon-box --></a></div> <!-- aio-icon-component --></div></div></div></div><div class="vc_row wpb_row vc_inner vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="aio-icon-component  vc_custom_1734528878188   style_1"><a class="aio-icon-box-link" href="https://www2.myfloridalicense.com/public-notices/" target="_blank" rel="noopener" ><div id="Info-box-wrap-8259" class="aio-icon-box top-icon" style=""  ><div class="aio-icon-top"><div class="ult-just-icon-wrapper  "><div class="align-icon" style="text-align:center;">
+<div class="aio-icon none "  style="color:#989697;font-size:96px;display:inline-block;">
+	<i class="Defaults-file-o"></i>
+</div></div></div></div><div class="aio-icon-header" ><h4 class="aio-icon-title ult-responsive"  data-ultimate-target='#Info-box-wrap-8259 .aio-icon-title'  data-responsive-json-new='{"font-size":"desktop:16px;mobile_landscape:14px;mobile:14px;","line-height":""}'  style="">Public Notices</h4></div> <!-- header --></div> <!-- aio-icon-box --></a></div> <!-- aio-icon-component --></div></div></div><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="aio-icon-component  vc_custom_1733839935357   style_1"><a class="aio-icon-box-link" href="https://www2.myfloridalicense.com/unlicensed-activity-hearings/" target="_blank" rel="noopener" ><div id="Info-box-wrap-3197" class="aio-icon-box top-icon" style=""  ><div class="aio-icon-top"><div class="ult-just-icon-wrapper  "><div class="align-icon" style="text-align:center;">
+<div class="aio-icon none "  style="color:#989697;font-size:96px;display:inline-block;">
+	<i class="Defaults-gavel legal"></i>
+</div></div></div></div><div class="aio-icon-header" ><h4 class="aio-icon-title ult-responsive"  data-ultimate-target='#Info-box-wrap-3197 .aio-icon-title'  data-responsive-json-new='{"font-size":"desktop:16px;mobile_landscape:14px;mobile:14px;","line-height":""}'  style="">Unlicensed Activity Hearings</h4></div> <!-- header --></div> <!-- aio-icon-box --></a></div> <!-- aio-icon-component --></div></div></div><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="aio-icon-component  vc_custom_1731008755721   style_1"><a class="aio-icon-box-link" href="/military-services/" target="_blank" rel="noopener" ><div id="Info-box-wrap-9134" class="aio-icon-box top-icon" style=""  ><div class="aio-icon-top"><div class="ult-just-icon-wrapper  "><div class="align-icon" style="text-align:center;">
+<div class="aio-icon none "  style="color:#989697;font-size:102px;display:inline-block;">
+	<i class="military-military"></i>
+</div></div></div></div><div class="aio-icon-header" ><h4 class="aio-icon-title ult-responsive"  data-ultimate-target='#Info-box-wrap-9134 .aio-icon-title'  data-responsive-json-new='{"font-size":"desktop:16px;mobile_landscape:14px;mobile:14px;","line-height":""}'  style="">Military Services</h4></div> <!-- header --></div> <!-- aio-icon-box --></a></div> <!-- aio-icon-component --></div></div></div><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="aio-icon-component  vc_custom_1731008768483   style_1"><a class="aio-icon-box-link" href="/mobile-app/" target="_blank" rel="noopener" ><div id="Info-box-wrap-5038" class="aio-icon-box top-icon" style=""  ><div class="aio-icon-top"><div class="ult-just-icon-wrapper  "><div class="align-icon" style="text-align:center;">
+<div class="aio-icon none "  style="color:#989697;font-size:96px;display:inline-block;">
+	<i class="Defaults-mobile mobile-phone"></i>
+</div></div></div></div><div class="aio-icon-header" ><h4 class="aio-icon-title ult-responsive"  data-ultimate-target='#Info-box-wrap-5038 .aio-icon-title'  data-responsive-json-new='{"font-size":"desktop:16px;mobile_landscape:14px;mobile:14px;","line-height":""}'  style="">Mobile App</h4></div> <!-- header --></div> <!-- aio-icon-box --></a></div> <!-- aio-icon-component --></div></div></div></div></div></div></div></div><div class="vc_row wpb_row vc_row-fluid slide2_shadow vc_custom_1736871416722 vc_row-has-fill"><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner vc_custom_1509045682391"><div class="wpb_wrapper"></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner"><div class="wpb_wrapper"><div class=" vc_custom_1719319444745 ubtn-ctn-center "><a class="ubtn-link ult-adjust-bottom-margin ubtn-center ubtn-block " href="https://www2.myfloridalicense.com/about-us/success-stories/" ><button type="button" id="ubtn-2539"  class="ubtn ult-adjust-bottom-margin ult-responsive ubtn-block ubtn-no-hover-bg  none  ubtn-center   tooltip-69d7f7a3a3f47 ubtn-block"  data-hover="#000000" data-border-color="#fcd54d" data-bg="#ffcc1a" data-hover-bg="#fcd54d" data-border-hover="#ffe11a" data-shadow-hover="" data-shadow-click="none" data-shadow="" data-shd-shadow=""  data-ultimate-target='#ubtn-2539'  data-responsive-json-new='{"font-size":"desktop:14px;","line-height":""}'  style="font-weight:bold;border-radius:5px;border-width:0px;border-color:#fcd54d;border-style:solid;background: #ffcc1a;color: #000000;"><span class="ubtn-hover" style="background-color:#fcd54d"></span><span class="ubtn-data ubtn-text " >Submit Your Success Story</span></button></a></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner"><div class="wpb_wrapper"><div class=" vc_custom_1719319402370 ubtn-ctn-center "><a class="ubtn-link ult-adjust-bottom-margin ubtn-center ubtn-block " href="https://www2.myfloridalicense.com/custodian-public-records/" ><button type="button" id="ubtn-5815"  class="ubtn ult-adjust-bottom-margin ult-responsive ubtn-block ubtn-no-hover-bg  none  ubtn-center   tooltip-69d7f7a3a404f ubtn-block"  data-hover="#000000" data-border-color="#fcd54d" data-bg="#ffcc1a" data-hover-bg="#fcd54d" data-border-hover="#ffe11a" data-shadow-hover="" data-shadow-click="none" data-shadow="" data-shd-shadow=""  data-ultimate-target='#ubtn-5815'  data-responsive-json-new='{"font-size":"desktop:14px;","line-height":""}'  style="font-weight:bold;border-radius:5px;border-width:0px;border-color:#fcd54d;border-style:solid;background: #ffcc1a;color: #000000;"><span class="ubtn-hover" style="background-color:#fcd54d"></span><span class="ubtn-data ubtn-text " >Custodian of Public Records Contact Information</span></button></a></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner"><div class="wpb_wrapper"><div class=" vc_custom_1719319426177 ubtn-ctn-center "><a class="ubtn-link ult-adjust-bottom-margin ubtn-center ubtn-block " href="https://www2.myfloridalicense.com/press-releases/" ><button type="button" id="ubtn-8490"  class="ubtn ult-adjust-bottom-margin ult-responsive ubtn-block ubtn-no-hover-bg  none  ubtn-center   tooltip-69d7f7a3a4149 ubtn-block"  data-hover="#000000" data-border-color="#fcd54d" data-bg="#ffcc1a" data-hover-bg="#fcd54d" data-border-hover="#ffe11a" data-shadow-hover="" data-shadow-click="none" data-shadow="" data-shd-shadow=""  data-ultimate-target='#ubtn-8490'  data-responsive-json-new='{"font-size":"desktop:14px;","line-height":""}'  style="font-weight:bold;border-radius:5px;border-width:0px;border-color:#fcd54d;border-style:solid;background: #ffcc1a;color: #000000;"><span class="ubtn-hover" style="background-color:#fcd54d"></span><span class="ubtn-data ubtn-text " >Press Releases</span></button></a></div></div></div></div><div class="wpb_column vc_column_container vc_col-sm-1/5"><div class="vc_column-inner"><div class="wpb_wrapper"></div></div></div></div>
+		       
+	</div><!-- .entry-content -->
+</article><!-- #post-## -->
+		
+		
+	
+                                                
+					</div>
+
+				</div>
+
+			
+		</div>
+	</div>
+
+			
+		
+
+		
+
+
+	<div role="navigation" class="iv-layout footer footer-normal  standard">
+		<div class="container">
+			<div class="row">
+
+									<div class="col-xs-12 col-sm-2 col-md-2 widget-col widget-col-1">
+						<div id="custom_html-3" class="widget_text widget widget_custom_html"><h3 class="widget-title">Resources</h3><div class="textwidget custom-html-widget"><ul><li><a href="https://openmyfloridabusiness.gov/eguide/" target="_blank" rel="noopener">Open MyFlorida Business eGuide</a></li>
+<li><a
+href="https://csapp.fdacs.gov/CSPublicApp/AZGuide/AZGuideSearch.aspx" target="_blank" rel="noopener">FDACS A to Z Resource Guide</a></li>
+<li><a 
+href="https://floridacommerce.my.site.com/RebuildFloridaBusinessLoanFund/s/" target="_blank" rel="noopener">Emergency Bridge Loan</a></li>
+<li><a href="https://www2.myfloridalicense.com/disclaimer/" target="_blank" rel="noopener">Disclaimer</a></li>
+<li><a href="https://www2.myfloridalicense.com/accessibility/" target="_blank" rel="noopener">Americans With Disabilities (ADA)</a></li>
+<li><a href="https://www2.myfloridalicense.com/privacy-policy/" target="_blank" rel="noopener">Privacy Statement</a></li>
+<li><a href="https://www2.myfloridalicense.com/emergency/" target="_blank" rel="noopener">Hurricane Resources</a></li>
+</ul></div></div>					</div>
+				
+									<div class="col-xs-12 col-sm-3 col-md-3 widget-col widget-col-2">
+						<div id="text-10" class="widget widget_text"><h3 class="widget-title">RESOURCES</h3>			<div class="textwidget"><ul>
+<li><a href="https://www.myflorida.com/" target="_blank">MyFlorida.gov</a></li>
+<li><a href="https://jobs.myflorida.com/go/Department-of-Business-and-Professional-Regulation/2815000/
+" target="_blank" rel="noopener">Job Opportunities</a></li>
+<li><a href="https://floridahasarighttoknow.myflorida.com/" target="_blank" rel="noopener">Florida Has a Right To Know</a></li>
+<li><a href="https://www.flgov.com/eog/info/report" target="_blank" rel="noopener">Report State Fraud Waste & Abuse</a></li>
+<li><a href="https://www.employflorida.com/vosnet/Default.aspx" target="_blank" rel="noopener">Employ Florida</a></li>
+<li><a href="https://www.myflfamilies.com/services/abuse/abuse-hotline/how-report-abuse" target="_blank" rel="noopener">Florida Child Abuse Hotline</a></li>
+<li><a href="https://www.myflfamilies.com/HT" target="_blank" rel="noopener">Human Trafficking</a></li>
+<li><a href="https://www.floridadisaster.org/planprepare/" target="_blank" rel="noopener">Florida Disaster</a></li>
+</ul>
+</div>
+		</div>					</div>
+				
+									<div class="col-xs-12 col-sm-4 col-md-4 widget-col widget-col-3">
+						<div id="text-5" class="widget widget_text"><h3 class="widget-title">MOBILE</h3>			<div class="textwidget"><p><a href="https://www2.myfloridalicense.com/mobile-app/"><img src="https://www2.myfloridalicense.com/wp-content/uploads/2016/10/dbpr-mobile-gray.png" alt="DBPR Mobile App" style="width:124px; height:48px;"></a></p>
+<p class="footer2">Search DBPR records for businesses and professionals licensed by the department. Users can verify licenses by name or license number. </p>
+<p class="footer2">
+Copyright &copy; 2026 Department of Business and Professional Regulation - State of Florida</p>
+</div>
+		</div>					</div>
+				
+									<div class="col-xs-12 col-sm-3 col-md-3 widget-col widget-col-4">
+						<div id="text-4" class="widget widget_text"><h3 class="widget-title">Get in Touch</h3>			<div class="textwidget"><p class="footer"><strong >Customer Contact Center</strong><br />
+2601 Blair Stone Road<br />
+Tallahassee, FL 32399</p>
+<p class="footer">Phone: (850) 487-1395<br />
+TTY:  (800) 955-8771<br />
+Submit Request: <a   href="https://www2.myfloridalicense.com/contact-us/">Customer Contact Assistance</a></p>
+<p class="footer">"License Efficiently, Regulate Fairly"</p>
+</div>
+		</div>					</div>
+				
+			</div>					
+		</div>
+	</div>
+
+
+
+
+
+
+
+	
+</div><!-- #all-site-wrapper -->
+
+
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/ivan-matty/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/wp-acf-vc-bridge/assets/js/vc-acf-field-picker-google-map.js?ver=1.2.7" id="vc-acf-field-picker-google-map-js"></script>
+<script type="text/javascript" id="gforms_recaptcha_recaptcha-js-extra">
+/* <![CDATA[ */
+var gforms_recaptcha_recaptcha_strings = {"nonce":"5e844a7b14","disconnect":"Disconnecting","change_connection_type":"Resetting","spinner":"https://www2.myfloridalicense.com/wp-content/plugins/gravityforms/images/spinner.svg","connection_type":"classic","disable_badge":"","change_connection_type_title":"Change Connection Type","change_connection_type_message":"Changing the connection type will delete your current settings.  Do you want to proceed?","disconnect_title":"Disconnect","disconnect_message":"Disconnecting from reCAPTCHA will delete your current settings.  Do you want to proceed?","site_key":"6Ld5F8YpAAAAAOBMJVsg_eLkiVaycOX4frB1H_B6"};
+//# sourceURL=gforms_recaptcha_recaptcha-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=6Ld5F8YpAAAAAOBMJVsg_eLkiVaycOX4frB1H_B6&amp;ver=2.1.0" id="gforms_recaptcha_recaptcha-js" defer="defer" data-wp-strategy="defer"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/gravityformsrecaptcha/js/frontend.min.js?ver=2.1.0" id="gforms_recaptcha_frontend-js" defer="defer" data-wp-strategy="defer"></script>
+<script type="text/javascript" id="ubermenu-js-extra">
+/* <![CDATA[ */
+var ubermenu_data = {"remove_conflicts":"on","reposition_on_load":"off","intent_delay":"300","intent_interval":"100","intent_threshold":"7","scrollto_offset":"50","scrollto_duration":"1000","responsive_breakpoint":"959","accessible":"on","retractor_display_strategy":"responsive","touch_off_close":"on","collapse_after_scroll":"on","v":"3.2.7","configurations":["internalpage","main"],"ajax_url":"https://www2.myfloridalicense.com/wp-admin/admin-ajax.php","plugin_url":"https://www2.myfloridalicense.com/wp-content/plugins/ubermenu/"};
+//# sourceURL=ubermenu-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/ubermenu/assets/js/ubermenu.min.js?ver=3.2.7" id="ubermenu-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/Ultimate_VC_Addons/assets/min-js/info-box.min.js?ver=3.21.3" id="ultimate-vc-addons-info_box_js-js"></script>
+<script type="text/javascript" id="ivan-theme-scripts-js-extra">
+/* <![CDATA[ */
+var ivan_theme_scripts = {"ajaxurl":"https://www2.myfloridalicense.com/wp-admin/admin-ajax.php","hidescroll":"0","nonce":"8d4dd93393","preload":""};
+//# sourceURL=ivan-theme-scripts-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/themes/ivan-matty/js/theme-scripts.min.js?ver=1" id="ivan-theme-scripts-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/js_composer/assets/js/dist/js_composer_front.min.js?ver=6.5.0" id="wpb_composer_front_js-js"></script>
+<script type="text/javascript" src="https://www2.myfloridalicense.com/wp-content/plugins/js_composer/assets/lib/bower/skrollr/dist/skrollr.min.js?ver=6.5.0" id="vc_jquery_skrollr_js-js"></script>
+<script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://www2.myfloridalicense.com/wp-includes/js/wp-emoji-release.min.js?ver=6.9"}}
+</script>
+<script type="module">
+/* <![CDATA[ */
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://www2.myfloridalicense.com/wp-includes/js/wp-emoji-loader.min.js
+/* ]]> */
+</script>
+<script type="text/javascript">
+function randomImage(){
+  var images = [
+   'https://www2.myfloridalicense.com/wp-content/uploads/2017/09/1.jpg',
+   'https://www2.myfloridalicense.com/wp-content/uploads/2017/09/2.jpg',
+   'https://www2.myfloridalicense.com/wp-content/uploads/2017/09/3.jpg',
+   'https://www2.myfloridalicense.com/wp-content/uploads/2017/09/4.jpg',
+   'https://www2.myfloridalicense.com/wp-content/uploads/2017/09/5.jpg',
+   'https://www2.myfloridalicense.com/wp-content/uploads/2017/09/6.jpg',
+   'https://www2.myfloridalicense.com/wp-content/uploads/2017/09/7.jpg',
+   'https://www2.myfloridalicense.com/wp-content/uploads/2017/09/8.jpg',
+   'https://www2.myfloridalicense.com/wp-content/uploads/2017/09/9.jpg'];
+  var size = images.length;
+  var x = Math.floor(size * Math.random());
+  console.log(x);
+  var element = document.getElementsByClassName('home-intro');
+  console.log(element);
+  element[0].style["background-image"] = "url("+ images[x] + ")";
+}
+
+document.addEventListener("DOMContentLoaded", randomImage);</script>
+	
+
+</body>
+</html>

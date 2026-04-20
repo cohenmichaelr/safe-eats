@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Safe Eats USA - Restaurant Health Search</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #1a73e8;
+            --primary-dark: #1765cc;
             --secondary: #5f6368;
             --success: #1e8e3e;
             --warning: #f9ab00;
@@ -15,9 +18,10 @@
             --background: #ffffff;
             --surface: #ffffff;
             --text: #202124;
+            --text-secondary: #70757a;
             --border: #dadce0;
-            --header-height: 56px;
             --shadow: 0 1px 2px rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            --sidebar-width: 400px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -40,251 +44,475 @@
             overflow: hidden;
         }
 
-        /* Sidebar / Bottom Sheet behavior */
+        /* Sidebar Container */
         .sidebar {
-            width: 400px;
+            width: var(--sidebar-width);
             background-color: var(--surface);
-            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            z-index: 10;
-            transition: transform 0.3s ease;
-            box-shadow: 2px 0 6px rgba(0,0,0,0.05);
-        }
-
-        .search-area-floating {
-            position: absolute;
-            top: 12px;
-            left: 12px;
             z-index: 100;
-            width: 376px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
         }
 
-        .search-form { display: flex; gap: 8px; }
+        /* Floating Search Area - Unified with Sidebar */
+        .search-container {
+            padding: 12px;
+            background: white;
+            z-index: 110;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 2px 8px 2px 16px;
+            border: 1px solid transparent;
+            transition: box-shadow 0.2s;
+        }
+
+        .search-box:focus-within {
+            box-shadow: 0 1px 2px rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+        }
+
+        .search-icon { color: var(--secondary); margin-right: 12px; font-size: 1.2rem; }
+
+        .search-input-group { flex: 1; display: flex; align-items: center; }
 
         input[type="text"] {
-            padding: 12px;
-            border: 1px solid transparent;
-            background: #f1f3f4;
-            border-radius: 8px;
+            border: none;
+            background: transparent;
             font-size: 1rem;
+            padding: 12px 0;
             width: 100%;
             outline: none;
-            transition: background 0.2s, border 0.2s;
+            font-family: inherit;
         }
-        input[type="text"]:focus { background: white; border-color: var(--primary); }
 
-        .btn { padding: 8px 16px; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover { background-color: #1765cc; }
+        .search-divider { width: 1px; height: 24px; background: var(--border); margin: 0 12px; }
 
-        .results-list { flex: 1; overflow-y: auto; }
+        .search-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            padding: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .search-btn:hover { background-color: #f1f3f4; }
+
+        /* Category Chips */
+        .chips-container {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .chips-container::-webkit-scrollbar { display: none; }
+
+        .chip {
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text);
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chip:hover { background-color: #f1f3f4; }
+        .chip.active {
+            background-color: #e8f0fe;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Results List */
+        .results-list {
+            flex: 1;
+            overflow-y: auto;
+            border-top: 1px solid var(--border);
+        }
+
         .restaurant-card {
             padding: 16px;
             border-bottom: 1px solid var(--border);
             cursor: pointer;
             display: flex;
-            gap: 12px;
+            gap: 16px;
             transition: background 0.2s;
         }
         .restaurant-card:hover { background-color: #f8f9fa; }
         .restaurant-card.active { background-color: #e8f0fe; }
         
-        .card-info { flex: 1; }
-        .card-name { font-size: 1rem; font-weight: 500; margin-bottom: 2px; }
-        .card-rating { display: flex; align-items: center; gap: 4px; font-size: 0.85rem; color: #70757a; margin-bottom: 4px; }
-        .card-address { font-size: 0.85rem; color: #70757a; }
-        .card-meta { font-size: 0.85rem; margin-top: 4px; display: flex; gap: 8px; }
-        .card-photo { width: 80px; height: 80px; border-radius: 8px; background-size: cover; background-position: center; background-color: #f1f3f4; }
+        .card-info { flex: 1; min-width: 0; }
+        .card-name { font-size: 1.1rem; font-weight: 500; margin-bottom: 4px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card-rating { display: flex; align-items: center; gap: 4px; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .card-address { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .card-meta { font-size: 0.85rem; color: var(--text-secondary); display: flex; gap: 6px; align-items: center; }
+        .card-photo { width: 84px; height: 84px; border-radius: 8px; background-size: cover; background-position: center; background-color: #f1f3f4; flex-shrink: 0; }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+        .status-satisfactory { background-color: #e6f4ea; color: var(--success); }
+        .status-warning { background-color: #fef7e0; color: #b05e00; }
+        .status-fail { background-color: #fce8e6; color: var(--danger); }
+        .status-unknown { background-color: #f1f3f4; color: var(--secondary); }
 
         /* Map Area */
         .map-area { flex: 1; position: relative; width: 100%; height: 100%; }
         #map-canvas { width: 100%; height: 100%; }
 
-        /* Floating Search Area Button */
-        .search-area-btn {
-            position: absolute; top: 110px; left: 50%; transform: translateX(-50%); z-index: 20;
-            background-color: white; color: var(--primary); border: none;
-            padding: 8px 16px; border-radius: 999px; font-size: 0.9rem; font-weight: 500;
-            box-shadow: var(--shadow); cursor: pointer; display: none;
+        /* Floating Controls on Map */
+        .map-controls {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 50;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
+        .map-controls > * { pointer-events: auto; }
+
+        .search-area-btn {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            background-color: white;
+            color: var(--primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-area-btn:hover { background-color: #f8f9fa; }
+
+        #locateBtn {
+            position: absolute;
+            bottom: 32px;
+            right: 16px;
+            z-index: 50;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+        #locateBtn:hover { background-color: #f1f3f4; color: var(--primary); }
 
         /* Full Screen Detail Sheet */
         .details-sheet {
-            position: absolute; top: 0; left: 0; width: 400px; height: 100%;
-            background-color: var(--surface); box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-            z-index: 110; display: none; flex-direction: column; overflow-y: auto;
-            transition: transform 0.3s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100%;
+            background-color: var(--surface);
+            z-index: 150;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
         }
 
-        .place-photo { width: 100%; height: 240px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
-        .close-btn {
-            position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%;
-            background-color: white; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 120;
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
         }
 
-        .place-content { padding: 20px; }
-        .place-title { font-size: 1.5rem; font-weight: 400; margin-bottom: 4px; }
-        .place-rating { display: flex; align-items: center; gap: 4px; color: #70757a; font-size: 0.9rem; margin-bottom: 16px; }
-        .stars { color: #f9ab00; }
-
-        .details-tabs { display: flex; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: white; z-index: 10; }
-        .tab { flex: 1; text-align: center; padding: 12px 0; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary); border-bottom: 3px solid transparent; }
-        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .place-header { position: relative; width: 100%; flex-shrink: 0; }
+        .place-photo { width: 100%; height: 260px; background-size: cover; background-position: center; background-color: #f1f3f4; }
         
-        .tab-content { display: none; padding-top: 16px; }
-        .tab-content.active { display: block; }
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 160;
+            font-size: 1.2rem;
+            color: var(--secondary);
+        }
+        .close-btn:hover { background-color: #f1f3f4; }
 
-        .place-actions { display: flex; gap: 8px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 16px; overflow-x: auto; }
-        .action-item { 
-            display: flex; flex-direction: column; align-items: center; gap: 6px; 
-            color: var(--primary); text-decoration: none; font-size: 0.75rem; font-weight: 500;
-            min-width: 64px;
-        }
-        .action-icon-circle { 
-            width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; 
-        }
+        .place-content { padding: 24px; }
+        .place-title { font-size: 1.75rem; font-weight: 400; margin-bottom: 8px; color: var(--text); }
+        .place-rating-row { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
+        .stars { color: #f9ab00; letter-spacing: 1px; }
 
-        .health-section { background-color: #f8f9fa; border-radius: 12px; padding: 16px; margin-top: 16px; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-        .badge-success { background-color: #e6f4ea; color: var(--success); }
-        .badge-warning { background-color: #fef7e0; color: #b05e00; }
-        .badge-danger { background-color: #fce8e6; color: var(--danger); }
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+            padding: 16px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: background 0.2s;
+        }
+        .action-btn:hover .action-icon { background-color: #f1f3f4; }
 
-        .custom-pin {
-            position: relative; width: 32px; height: 32px;
-            background-color: white; border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg); display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 2px solid white;
+        .info-row { display: flex; gap: 16px; padding: 12px 0; align-items: flex-start; border-bottom: 1px solid #f1f3f4; }
+        .info-icon { color: var(--primary); font-size: 1.25rem; width: 24px; text-align: center; }
+        .info-text { font-size: 0.95rem; color: var(--text); line-height: 1.4; }
+
+        /* Health & Safety Section */
+        .health-card {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            border: 1px solid var(--border);
         }
-        .custom-pin::after {
-            content: ""; width: 24px; height: 24px; border-radius: 50%;
-            background-color: var(--primary); display: block;
+        .health-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .health-label { font-size: 0.75rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .inspection-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e8eaed;
         }
-        .custom-pin i { transform: rotate(45deg); color: white; position: absolute; font-size: 14px; }
+        .inspection-item:last-child { border-bottom: none; }
+        .inspection-meta { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.9rem; }
+        .inspection-date { font-weight: 500; }
+        .inspection-status { font-weight: 500; }
+        .inspection-type { font-size: 0.8rem; color: var(--secondary); }
+
+        /* Custom Markers */
+        .custom-marker {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .custom-marker:hover { transform: scale(1.1); z-index: 1000; }
 
         /* Mobile Adjustments */
         @media (max-width: 768px) {
             .sidebar {
-                position: absolute; bottom: 0; left: 0; width: 100%; height: 400px;
-                border-right: none; border-top: 1px solid var(--border);
-                transform: translateY(0); border-radius: 24px 24px 0 0;
-                box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 350px;
+                border-top: 1px solid var(--border);
+                transform: translateY(0);
+                border-radius: 24px 24px 0 0;
+                overflow: hidden;
             }
-            .search-area-floating { width: calc(100% - 24px); }
-            
             .details-sheet {
-                width: 100%; height: 95%; border-radius: 24px 24px 0 0;
-                left: 0; top: auto; bottom: 0;
+                width: 100%;
+                height: 95%;
+                border-radius: 24px 24px 0 0;
+                left: 0;
+                top: auto;
+                bottom: 0;
             }
+            .search-container { padding: 8px; }
+            .search-box { border-radius: 12px; }
+            .chips-container { padding: 8px; }
         }
     </style>
 </head>
 <body>
 
 <div class="main-container">
+    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <div style="padding: 110px 0 0 0; display: flex; flex-direction: column; height: 100%;">
-            <div class="results-list" id="resultsList">
-                <div style="padding: 40px; text-align: center; color: var(--secondary);">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🍔</div>
-                    <h3>Safe Eats USA</h3>
-                    <p>Search for restaurants to see health safety ratings</p>
+        <!-- Unified Search Area -->
+        <div class="search-container">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <div class="search-input-group">
+                    <form id="searchForm" style="width: 100%; display: flex;">
+                        <input type="text" id="term" placeholder="Search restaurants..." autocomplete="off">
+                        <div class="search-divider"></div>
+                        <input type="text" id="location" placeholder="Near me" autocomplete="off">
+                        <button type="submit" class="search-btn" id="searchBtn">➔</button>
+                    </form>
                 </div>
             </div>
-            <div style="padding: 12px; border-top: 1px solid var(--border); text-align: center;">
-                <a href="/all-restaurants.html" style="font-size: 0.8rem; color: var(--primary); text-decoration: none; font-weight: 500;">
-                    🗄️ Browse Full Local Database
-                </a>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="chips-container">
+            <div class="chip" onclick="applyFilter('restaurants')">🍴 Restaurants</div>
+            <div class="chip" onclick="applyFilter('top-rated')">⭐ Top Rated</div>
+            <div class="chip" onclick="applyFilter('safe')">🛡️ Health Pass</div>
+            <div class="chip" onclick="applyFilter('open')">🕒 Open Now</div>
+            <div class="chip" onclick="triggerRebuild()">🔄 Sync Data</div>
+        </div>
+
+        <!-- Results List -->
+        <div class="results-list" id="resultsList">
+            <div style="padding: 60px 40px; text-align: center; color: var(--secondary);">
+                <div style="font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.8;">📍</div>
+                <h3 style="font-weight: 500; color: var(--text); margin-bottom: 0.5rem;">Safe Eats USA</h3>
+                <p style="font-size: 0.9rem;">Find restaurants with real-time health inspection records.</p>
             </div>
+        </div>
+
+        <div style="padding: 16px; border-top: 1px solid var(--border); text-align: center;">
+            <a href="/restaurant-list.html" style="font-size: 0.85rem; color: var(--primary); text-decoration: none; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>📊</span> View Sortable Restaurant List
+            </a>
         </div>
     </aside>
 
+    <!-- Map Area -->
     <main class="map-area">
-        <div class="search-area-floating">
-            <form class="search-form" id="searchForm">
-                <input type="text" id="term" placeholder="Search restaurants...">
-                <input type="text" id="location" placeholder="Near me">
-                <button type="submit" class="btn btn-primary" id="searchBtn">Search</button>
-            </form>
-            <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-                <button class="btn" style="background:none; color:var(--secondary); font-size: 0.7rem; padding: 2px 8px;" onclick="triggerRebuild()" id="rebuildBtn">🔄 Update Database</button>
-            </div>
-        </div>
-        <button class="search-area-btn" id="searchAreaBtn" onclick="searchCurrentArea()">Search this area</button>
-        <button id="locateBtn" style="position: absolute; bottom: 24px; right: 12px; z-index: 20; width: 40px; height: 40px; border-radius: 50%; background: white; border: none; box-shadow: var(--shadow); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🎯</button>
+        <button class="search-area-btn" id="searchAreaBtn" onclick="searchCurrentArea()">
+            <span>🔍</span> Search this area
+        </button>
+        
+        <button id="locateBtn" title="Show my location">🎯</button>
+        
         <div id="map-canvas"></div>
     </main>
 
+    <!-- Detail Sheet -->
     <div class="details-sheet" id="detailsSheet">
-        <button class="close-btn" onclick="closeDetails()">✕</button>
-        <div class="place-photo" id="placePhoto"></div>
+        <div class="place-header">
+            <button class="close-btn" onclick="closeDetails()">✕</button>
+            <div class="place-photo" id="placePhoto"></div>
+        </div>
+        
         <div class="place-content">
-            <h2 class="place-title" id="placeTitle">Name</h2>
-            <div class="place-rating" id="placeRating">
-                <span class="stars">★★★★★</span>
-                <span id="ratingValue">0.0</span> 
+            <h2 class="place-title" id="placeTitle">Restaurant Name</h2>
+            <div class="place-rating-row" id="placeRating">
+                <span style="font-weight: 500; color: var(--text);" id="ratingValue">0.0</span>
+                <span class="stars" id="ratingStars">★★★★★</span>
                 <span id="reviewCount">(0)</span>
             </div>
             
-            <div class="place-actions">
-                <a href="#" class="action-item" id="btnDirections" target="_blank">
-                    <div class="action-icon-circle">🚗</div><span>Directions</span>
+            <div class="action-buttons">
+                <a href="#" class="action-btn" id="btnDirections" target="_blank">
+                    <div class="action-icon">🚗</div><span>Directions</span>
                 </a>
-                <a href="#" class="action-item" id="btnCall">
-                    <div class="action-icon-circle">📞</div><span>Call</span>
+                <a href="#" class="action-btn" id="btnCall">
+                    <div class="action-icon">📞</div><span>Call</span>
                 </a>
-                <a href="#" class="action-item" id="btnWebsite" target="_blank">
-                    <div class="action-icon-circle">🌐</div><span>Website</span>
+                <a href="#" class="action-btn" id="btnWebsite" target="_blank">
+                    <div class="action-icon">🌐</div><span>Website</span>
                 </a>
-                <div class="action-item" style="cursor: pointer;" onclick="copyAddress()">
-                    <div class="action-icon-circle">📋</div><span>Copy</span>
+                <div class="action-btn" onclick="copyAddress()">
+                    <div class="action-icon">📋</div><span>Copy</span>
                 </div>
             </div>
 
-            <div class="details-tabs">
-                <div class="tab active" onclick="switchTab('overview')">Overview</div>
-                <div class="tab" onclick="switchTab('history')">Safety</div>
+            <div class="info-row">
+                <div class="info-icon">📍</div>
+                <div class="info-text" id="txtAddress">...</div>
             </div>
-            
-            <div id="overviewTab" class="tab-content active">
-                <div id="placeAddress" style="display:flex; gap:12px; margin-bottom:16px; color:#3c4043; font-size:0.9rem;">
-                    <span>📍</span> <span id="txtAddress">...</span>
-                </div>
-                <div id="placeHours" style="display:flex; gap:12px; margin-bottom:16px; color:#3c4043; font-size:0.9rem;">
-                    <span>🕒</span> <span id="txtHours">...</span>
+            <div class="info-row">
+                <div class="info-icon">🕒</div>
+                <div class="info-text" id="txtHours">...</div>
+            </div>
+            <div class="info-row" id="phoneRow">
+                <div class="info-icon">📞</div>
+                <div class="info-text" id="txtPhone">...</div>
+            </div>
+
+            <!-- Health Section -->
+            <div class="health-card">
+                <div class="health-header">
+                    <span class="health-label">Florida Health Safety</span>
+                    <span id="healthBadge" class="status-pill">Loading...</span>
                 </div>
                 
-                <div class="health-section">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <span style="font-size:0.75rem; color:var(--secondary); font-weight:700;">FLORIDA HEALTH DEPT STATUS</span>
-                        <span class="badge" id="healthBadge">...</span>
-                    </div>
-                    <div id="healthSummary" style="font-size:0.9rem; line-height:1.4;">Searching local health records...</div>
+                <div id="healthSummary" style="font-size: 0.95rem; line-height: 1.5; color: var(--text);">
+                    Searching local health inspection records...
                 </div>
-            </div>
-            
-            <div id="historyTab" class="tab-content">
-                <div id="historyContainer" style="font-size: 0.9rem;"></div>
+
+                <div id="inspectionHistory" style="margin-top: 20px;">
+                    <!-- History items injected here -->
+                </div>
+
+                <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
+                    <a href="#" id="officialReportLink" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        <span>📄</span> View Official Report
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let map, markers = [], config = { googleMapsKey: null }, mapMoved = false, currentResults = [];
+    let map, markers = [], config = { googleMapsKey: null }, currentResults = [];
     let AdvancedMarkerElement, PinElement;
-    const searchForm = document.getElementById('searchForm'), resultsList = document.getElementById('resultsList');
-    const detailsSheet = document.getElementById('detailsSheet'), sidebar = document.getElementById('sidebar');
+    
+    const searchForm = document.getElementById('searchForm');
+    const resultsList = document.getElementById('resultsList');
+    const detailsSheet = document.getElementById('detailsSheet');
+    const sidebar = document.getElementById('sidebar');
 
     async function fetchConfig() {
         try {
@@ -312,18 +540,16 @@
                 zoom: 14, 
                 disableDefaultUI: true, 
                 zoomControl: true,
-                mapId: 'DEMO_MAP_ID'
+                mapId: '4504f8b373a3c317' // Example Map ID for styling
             });
 
+            // Autocomplete for location
             const locInput = document.getElementById('location');
-            if (locInput) {
-                const autocomplete = new google.maps.places.Autocomplete(locInput);
-                autocomplete.bindTo('bounds', map);
-            }
+            const autocomplete = new google.maps.places.Autocomplete(locInput);
+            autocomplete.bindTo('bounds', map);
 
             map.addListener('dragend', () => { 
-                mapMoved = true; 
-                document.getElementById('searchAreaBtn').style.display = 'block'; 
+                document.getElementById('searchAreaBtn').style.display = 'flex'; 
             });
 
             document.getElementById('locateBtn').addEventListener('click', () => {
@@ -336,10 +562,14 @@
                     });
                 }
             });
+            
+            // Initial load if keywords present
+            if (document.getElementById('term').value) performSearch();
+
         } catch (e) { console.error('Map init failed', e); }
     };
 
-    searchForm.addEventListener('submit', async (e) => {
+    searchForm.addEventListener('submit', (e) => {
         e.preventDefault();
         performSearch();
     });
@@ -348,7 +578,9 @@
         const term = document.getElementById('term').value || 'Restaurants';
         const loc = document.getElementById('location').value;
         const searchBtn = document.getElementById('searchBtn');
-        searchBtn.innerText = '...';
+        
+        searchBtn.innerText = '⏳';
+        document.getElementById('searchAreaBtn').style.display = 'none';
         
         let url = `/map?query=${encodeURIComponent(term)}`;
         if (loc) url += ` in ${encodeURIComponent(loc)}`;
@@ -363,18 +595,17 @@
         } catch (err) {
             console.error('Search failed', err);
         } finally {
-            searchBtn.innerText = 'Search';
+            searchBtn.innerText = '➔';
         }
     }
 
     async function searchCurrentArea() {
-        document.getElementById('searchAreaBtn').style.display = 'none';
         performSearch();
     }
 
     function displayResults(data) {
         if (!data || !data.length) {
-            resultsList.innerHTML = '<div style="padding: 20px; text-align: center;">No results found.</div>';
+            resultsList.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--secondary);">No results found in this area.</div>';
             return;
         }
 
@@ -387,18 +618,18 @@
             const priceLevel = r.price_level ? '$'.repeat({PRICE_LEVEL_INEXPENSIVE:1, PRICE_LEVEL_MODERATE:2, PRICE_LEVEL_EXPENSIVE:3}[r.price_level] || 1) : '';
             
             const hStatus = (r.healthStatus || 'Unknown');
-            let statusClass = 'secondary';
-            if (hStatus.toLowerCase().includes('satisfactory')) statusClass = 'success';
+            let statusClass = 'unknown';
+            if (hStatus.toLowerCase().includes('satisfactory')) statusClass = 'satisfactory';
             else if (hStatus.toLowerCase().includes('warning')) statusClass = 'warning';
-            else if (hStatus.toLowerCase().includes('fail')) statusClass = 'danger';
+            else if (hStatus.toLowerCase().includes('fail')) statusClass = 'fail';
 
             return `
                 <div class="restaurant-card" onclick="showDetails('${r.place_id}', ${index})" onmouseenter="highlightMarker(${index})" onmouseleave="unhighlightMarker(${index})">
                     <div class="card-info">
                         <div class="card-name">${r.name}</div>
                         <div class="card-rating">
-                            <span style="color:#f9ab00;">${r.rating || '0.0'}</span>
-                            <span style="color:#f9ab00;">${ratingStars}</span>
+                            <span style="font-weight: 500; color: var(--text);">${r.rating || '0.0'}</span>
+                            <span class="stars">${ratingStars}</span>
                             <span>(${r.user_ratings_total || 0})</span>
                         </div>
                         <div class="card-address">${(r.formatted_address || '').split(',')[0]}</div>
@@ -406,10 +637,8 @@
                             ${priceLevel ? `<span>${priceLevel}</span> • ` : ''}
                             <span>${(r.types?.[0] || 'Restaurant').replace(/_/g, ' ')}</span>
                         </div>
-                        <div style="margin-top: 8px;">
-                            <span class="badge badge-${statusClass}" style="font-size: 0.65rem;">
-                                ${hStatus}
-                            </span>
+                        <div class="status-pill status-${statusClass}">
+                            ${hStatus}
                         </div>
                     </div>
                     ${photoUrl ? `<div class="card-photo" style="background-image: url('${photoUrl}')"></div>` : '<div class="card-photo"></div>'}
@@ -421,23 +650,18 @@
     async function updateMapMarkers(data, fit) {
         if (!AdvancedMarkerElement) return;
 
-        // Clear existing markers
         markers.forEach(m => m.setMap(null));
         markers = [];
         
         const b = new google.maps.LatLngBounds();
 
         data.forEach((r, index) => {
-            let color = '#1a73e8'; // Default Blue (No Result)
+            let color = '#1a73e8'; // Default Blue
             const status = (r.healthStatus || '').toLowerCase();
             
-            if (status.includes('fail')) {
-                color = '#d93025'; // Red
-            } else if (status.includes('warning')) {
-                color = '#f9ab00'; // Yellow
-            } else if (status.includes('satisfactory')) {
-                color = '#1e8e3e'; // Green
-            }
+            if (status.includes('fail')) color = '#d93025';
+            else if (status.includes('warning')) color = '#f9ab00';
+            else if (status.includes('satisfactory')) color = '#1e8e3e';
 
             const pin = new PinElement({
                 background: color,
@@ -456,21 +680,42 @@
             marker.addListener('click', () => showDetails(r.place_id, index));
             markers.push(marker);
             b.extend(r.geometry.location);
+
+            // CALL HOME: If we matched a DB record but it didn't have coordinates, save them now
+            if (r.id && !r.db_coords && r.geometry && r.geometry.location) {
+                saveLocationToDB(r.id, r.geometry.location, r.source);
+            }
         });
 
         if (fit && data.length) map.fitBounds(b);
     }
 
+    async function saveLocationToDB(id, location, source) {
+        try {
+            await fetch('/api/database/update-location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: id,
+                    lat: location.lat,
+                    lng: location.lng,
+                    source: source || 'DBPR'
+                })
+            });
+            console.log(`Saved coordinates for ${id}`);
+        } catch (e) { console.error('Failed to save location', e); }
+    }
+
     function highlightMarker(index) {
         if (markers[index] && markers[index].content) {
-            markers[index].content.style.transform = 'scale(1.3)';
+            markers[index].content.style.transform = 'scale(1.3) translateY(-4px)';
             markers[index].zIndex = 1000;
         }
     }
 
     function unhighlightMarker(index) {
         if (markers[index] && markers[index].content) {
-            markers[index].content.style.transform = 'scale(1.0)';
+            markers[index].content.style.transform = 'scale(1.0) translateY(0)';
             markers[index].zIndex = null;
         }
     }
@@ -478,7 +723,6 @@
     async function showDetails(id, index) {
         if (!id) return;
         detailsSheet.style.display = 'flex';
-        switchTab('overview');
         
         document.querySelectorAll('.restaurant-card').forEach((c, i) => {
             if (i === index) c.classList.add('active');
@@ -501,7 +745,7 @@
             document.getElementById('reviewCount').innerText = `(${p.user_ratings_total || 0})`;
             
             const stars = '★'.repeat(Math.round(p.rating || 0)) + '☆'.repeat(5 - Math.round(p.rating || 0));
-            document.querySelector('.stars').innerText = stars;
+            document.getElementById('ratingStars').innerText = stars;
 
             if (p.photos?.length) {
                 const photoUrl = `https://places.googleapis.com/v1/${p.photos[0].photo_reference}/media?maxHeightPx=600&maxWidthPx=1000&key=${config.googleMapsKey}`;
@@ -514,8 +758,16 @@
             document.getElementById('txtAddress').innerText = p.formatted_address || 'Address unknown';
             document.getElementById('txtHours').innerText = p.opening_hours?.open_now ? 'Open Now' : 'Closed';
             
+            if (p.formatted_phone_number) {
+                document.getElementById('txtPhone').innerText = p.formatted_phone_number;
+                document.getElementById('phoneRow').style.display = 'flex';
+                document.getElementById('btnCall').href = `tel:${p.formatted_phone_number}`;
+            } else {
+                document.getElementById('phoneRow').style.display = 'none';
+                document.getElementById('btnCall').href = '#';
+            }
+
             document.getElementById('btnDirections').href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.formatted_address || '')}`;
-            document.getElementById('btnCall').href = p.formatted_phone_number ? `tel:${p.formatted_phone_number}` : '#';
             document.getElementById('btnWebsite').href = p.website || '#';
 
             fetchHealth(p.name, p.formatted_address, index, id, p.county);
@@ -525,15 +777,12 @@
     async function fetchHealth(name, addr, markerIndex, placeId, county) {
         const badge = document.getElementById('healthBadge');
         const summary = document.getElementById('healthSummary');
-        const history = document.getElementById('historyContainer');
+        const historyList = document.getElementById('inspectionHistory');
         
-        badge.innerText = '...';
-        badge.className = 'badge';
-        summary.innerHTML = 'Searching local health records...';
-        history.innerHTML = 'Loading history...';
-
-        const threeMonthsAgo = new Date();
-        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        badge.innerText = 'Scanning...';
+        badge.className = 'status-pill status-unknown';
+        summary.innerHTML = 'Retrieving Florida health records...';
+        historyList.innerHTML = '';
 
         try {
             let url = `/health?name=${encodeURIComponent(name)}&address=${encodeURIComponent(addr)}`;
@@ -547,97 +796,65 @@
                 const sixMonthsAgo = new Date();
                 sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-                let mostSevereStatus = 'satisfactory';
                 let totalRecentViolations = 0;
                 let hadClosure = false;
-                let hasRecentInspections = false;
 
                 data.history.forEach(h => {
-                    let hDate = new Date(0);
-                    if (h.date && h.date.includes('/')) {
-                        const [m, d, y] = h.date.split('/');
-                        hDate = new Date(y, m - 1, d);
-                    } else if (h.date) {
-                        hDate = new Date(h.date);
-                    }
-
+                    let hDate = new Date(h.date);
                     if (hDate >= sixMonthsAgo) {
-                        hasRecentInspections = true;
-                        const sLower = (h.status || '').toLowerCase();
-                        
-                        // Rule: Red if temporarily closed in past 6 months
-                        if (sLower.includes('closed') || sLower.includes('emergency order')) {
-                            hadClosure = true;
-                        }
-                        
+                        if ((h.status || '').toLowerCase().includes('closed')) hadClosure = true;
                         totalRecentViolations += (h.violations || 0);
                     }
                 });
 
-                let color = '#1e8e3e'; // Green
-                let bClass = 'success';
-                let statusText = data.history[0].status;
+                let bClass = 'satisfactory';
+                let statusText = 'PASS';
 
                 if (hadClosure) {
-                    color = '#d93025'; // Red
-                    bClass = 'danger';
+                    bClass = 'fail';
                     statusText = 'CLOSED (RECENT)';
                 } else if (totalRecentViolations > 5) {
-                    color = '#f57c00'; // Orange
-                    bClass = 'alert';
-                    statusText = `HIGH VIOLATIONS (${totalRecentViolations})`;
-                } else if (totalRecentViolations > 0) {
-                    color = '#f9ab00'; // Yellow
                     bClass = 'warning';
-                    statusText = `VIOLATIONS FOUND (${totalRecentViolations})`;
-                } else if (!hasRecentInspections) {
-                    // Fallback to latest known if none in last 6 months
-                    const latestStatus = data.history[0].status.toLowerCase();
-                    if (latestStatus.includes('fail')) {
-                        color = '#d93025'; bClass = 'danger';
-                    } else if (latestStatus.includes('warning')) {
-                        color = '#f9ab00'; bClass = 'warning';
-                    }
+                    statusText = 'HIGH VIOLATIONS';
+                } else if (totalRecentViolations > 0) {
+                    bClass = 'warning';
+                    statusText = 'WARNING';
                 }
 
-                updateMarkerColor(markerIndex, color);
                 badge.innerText = statusText;
-                badge.className = `badge badge-${bClass}`;
-                if (bClass === 'alert') {
-                    badge.style.backgroundColor = '#fff3e0';
-                    badge.style.color = 'var(--alert)';
-                } else {
-                    badge.style.backgroundColor = '';
-                    badge.style.color = '';
-                }
+                badge.className = `status-pill status-${bClass}`;
                 
                 summary.innerHTML = `
-                    <div style="font-weight: 500; margin-bottom: 4px;">Latest Inspection: ${data.history[0].date}</div>
-                    <div style="color: var(--secondary); margin-bottom: 4px;">Total Violations (6mo): ${totalRecentViolations}</div>
-                    <div style="color: var(--secondary); margin-bottom: 12px;">Result: ${data.history[0].status}</div>
-                    <a href="${data.profileUrl}" target="_blank" style="color:var(--primary); font-weight:500; text-decoration:none; display:flex; align-items:center; gap:4px;">
-                        <span>📄 View Full Official Report</span>
-                    </a>
+                    <div style="font-weight: 500; margin-bottom: 8px;">Latest Inspection: ${data.history[0].date}</div>
+                    <div style="margin-bottom: 4px;">Result: <strong>${data.history[0].status}</strong></div>
+                    <div style="color: var(--secondary);">Total Violations (6mo): ${totalRecentViolations}</div>
                 `;
 
-                history.innerHTML = data.history.map(h => `
-                    <div style="padding: 12px 0; border-bottom: 1px solid var(--border);">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                            <span style="font-weight:500;">${h.date}</span>
-                            <span style="color:${(h.status.toLowerCase().includes('satisfactory') || h.status.toLowerCase().includes('met')) ? 'var(--success)' : 'var(--danger)'}">${h.status}</span>
+                historyList.innerHTML = data.history.slice(0, 5).map(h => `
+                    <div class="inspection-item">
+                        <div class="inspection-meta">
+                            <span class="inspection-date">${h.date}</span>
+                            <span class="inspection-status" style="color: ${h.status.toLowerCase().includes('satisfactory') ? 'var(--success)' : 'var(--danger)'}">${h.status}</span>
                         </div>
-                        <div style="font-size: 0.8rem; color: var(--secondary);">${h.type}</div>
+                        <div class="inspection-type">${h.type} • ${h.violations || 0} violations</div>
                     </div>
                 `).join('');
+
+                document.getElementById('officialReportLink').href = data.profileUrl || '#';
+                
+                // Update marker color if possible
+                const color = bClass === 'satisfactory' ? '#1e8e3e' : (bClass === 'fail' ? '#d93025' : '#f9ab00');
+                updateMarkerColor(markerIndex, color);
+
             } else {
-                badge.innerText = 'NOT FOUND';
-                badge.className = 'badge badge-danger';
-                summary.innerHTML = 'No matching health records found for this location in our Florida database.';
-                history.innerHTML = 'History not found.';
+                badge.innerText = 'NO RECORD';
+                badge.className = 'status-pill status-unknown';
+                summary.innerHTML = 'No matching Florida health inspection records were found for this location.';
+                document.getElementById('officialReportLink').style.display = 'none';
             }
         } catch (err) {
             console.error('Health fetch failed', err);
-            summary.innerHTML = 'Error loading health data.';
+            summary.innerHTML = 'Error communicating with the health database.';
         }
     }
 
@@ -652,14 +869,6 @@
         markers[index].content = pin.element;
     }
 
-    function switchTab(t) {
-        document.querySelectorAll('.tab, .tab-content').forEach(el => el.classList.remove('active'));
-        const tabEl = document.querySelector(`.tab[onclick*="${t}"]`);
-        if (tabEl) tabEl.classList.add('active');
-        const contEl = document.getElementById(`${t}Tab`);
-        if (contEl) contEl.classList.add('active');
-    }
-
     function closeDetails() {
         detailsSheet.style.display = 'none';
         document.querySelectorAll('.restaurant-card').forEach(c => c.classList.remove('active'));
@@ -671,20 +880,33 @@
         alert('Address copied to clipboard');
     }
 
+    async function applyFilter(filter) {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        if (filter === 'restaurants') {
+            document.getElementById('term').value = 'Restaurants';
+            performSearch();
+        } else if (filter === 'top-rated') {
+            document.getElementById('term').value = 'Top rated restaurants';
+            performSearch();
+        } else if (filter === 'safe') {
+            // This is a UI filter on current results
+            const safeResults = currentResults.filter(r => (r.healthStatus || '').toLowerCase().includes('satisfactory'));
+            displayResults(safeResults);
+        } else if (filter === 'open') {
+            document.getElementById('term').value = 'Restaurants open now';
+            performSearch();
+        }
+    }
+
     async function triggerRebuild() { 
-        if(confirm('Update local health database? This may take a minute.')) {
-            const btn = document.getElementById('rebuildBtn');
-            const originalText = btn.innerText;
-            btn.innerText = '⏳ Updating...';
-            btn.disabled = true;
+        if(confirm('Sync with Florida Health Database? This may take a moment.')) {
             try {
                 await fetch('/admin/rebuild-db', {method:'POST'});
-                alert('Database update started in background.');
+                alert('Database synchronization started.');
             } catch (err) {
-                alert('Failed to start update.');
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
+                alert('Sync failed to start.');
             }
         }
     }
