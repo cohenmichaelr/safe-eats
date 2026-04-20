@@ -47,7 +47,10 @@ async function initDB() {
 
 async function scrapeCounty(db, county) {
     console.log(`\n--- Starting Headless Crawl for ${county.toUpperCase()} ---`);
-    const browser = await puppeteer.launch({ headless: "new" });
+    const browser = await puppeteer.launch({ 
+        headless: "new",
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
     
     await page.setRequestInterception(true);
