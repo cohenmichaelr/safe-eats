@@ -12,6 +12,8 @@ data/
 # Build artifacts — the database is rebuilt by `npm run ingest`
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
 *.sqlite
 
 # Stray downloads (v1 committed an HTML error page as inspect.csv — AUD F1/F10)
