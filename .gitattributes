@@ -1,0 +1,10 @@
+# Git hooks and shell scripts must keep LF endings. A CRLF shebang line makes
+# sh fail with "bad interpreter", which would silently disable the commit gate
+# on a Windows checkout.
+.githooks/** text eol=lf
+*.sh        text eol=lf
+
+# Source extracts are data, not diffable text.
+*.csv       -diff
+*.db        binary
+*.sqlite    binary

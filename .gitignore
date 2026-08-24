@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# Data — raw source extracts and archived fetches
+data/
+!data/.gitkeep
+
+# Build artifacts — the database is rebuilt by `npm run ingest`
+*.db
+*.db-journal
+*.sqlite
+
+# Stray downloads (v1 committed an HTML error page as inspect.csv — AUD F1/F10)
+/*.csv
+
+# OS
+.DS_Store
+Thumbs.db

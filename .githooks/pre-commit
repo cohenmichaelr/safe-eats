@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Safe Eats pre-commit gate — MVP-SE-001 §7.
+#
+# Installed by `npm install` (scripts/install-hooks.js sets core.hooksPath=.githooks),
+# so the hook is version-controlled and every clone gets it. Hooks living in
+# .git/hooks are not committed and are therefore never actually enforced.
+#
+# Bypassing this gate requires `git commit --no-verify`, which is a deliberate act.
+
+fail=0
+
+printf '\n[pre-commit] scanning staged content for credentials...\n'
+node scripts/scan-secrets.js --staged || fail=1
+
+printf '\n[pre-commit] checking staged SQL targets...\n'
+node scripts/guard-sql.js --staged || fail=1
+
+if [ "$fail" -ne 0 ]; then
+  printf '\n[pre-commit] COMMIT REJECTED.\n\n'
+  exit 1
+fi
+
+printf '\n[pre-commit] ok\n\n'
+exit 0

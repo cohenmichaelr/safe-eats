@@ -1,0 +1,25 @@
+{
+  "name": "safe-eats",
+  "version": "2.0.0",
+  "description": "Florida restaurant health inspections on a map — Palm Beach County",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "ingest": "node src/ingest.js",
+    "geocode": "node src/geocode.js",
+    "start": "node src/server.js",
+    "test": "node --test",
+    "prepare": "node scripts/install-hooks.js",
+    "scan:secrets": "node scripts/scan-secrets.js --tracked",
+    "guard:sql": "node scripts/guard-sql.js --tracked",
+    "verify:hooks": "node scripts/verify-hooks.js"
+  },
+  "author": "Michael Cohen",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "csv-parse": "^5.6.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1"
+  }
+}
