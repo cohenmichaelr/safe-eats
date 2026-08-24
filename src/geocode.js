@@ -3,10 +3,16 @@
 /**
  * Batch geocoder — FR-201, FR-203, FR-205.
  *
+ * Two tiers, in cost order.
+ *
  * Tier 1 is the US Census Bureau batch geocoder: free, no key, and well suited to
- * the ZIP+4 US addresses the DBPR extract carries. A paid tier is deliberately NOT
- * wired here — decision OPEN-2 makes it conditional on Census coverage landing
- * under 95%, and that number does not exist until this has run.
+ * the ZIP+4 US addresses the DBPR extract carries. It resolved 92.82%.
+ *
+ * Tier 2 is the Google Geocoding API, gated behind decision OPEN-2 ("only if
+ * Census coverage lands under 95%"). That condition fired, so it is wired — but it
+ * runs ONLY over what tier 1 could not resolve, and only when asked with
+ * --fallback. It took coverage to 98.86%. Re-running tier 1 costs nothing;
+ * re-running tier 2 costs money, which is why it is not part of the default path.
  *
  * Two invariants from CLAUDE.md are structural here:
  *
@@ -20,6 +26,7 @@
  *   node src/geocode.js            geocode every uncached address
  *   node src/geocode.js --limit N  stop after N addresses (smoke test)
  *   node src/geocode.js --retry    also retry addresses cached as unmatched
+ *   node src/geocode.js --fallback tier 2 over tier-1 failures (COSTS MONEY)
  */
 
 const { open } = require('./db');
@@ -171,6 +178,153 @@ function projectOntoEstablishments(db) {
   return result.changes;
 }
 
+/* ─────────────────────────────── tier 2: paid fallback (OPEN-2) ─────────── */
+
+/**
+ * Google Geocoding API, run only over addresses Census could not resolve.
+ *
+ * Enabled by decision OPEN-2, whose trigger condition ("Census coverage under
+ * 95%") fired at 92.82%.
+ *
+ * ACCEPTED   ROOFTOP, RANGE_INTERPOLATED
+ * REJECTED   GEOMETRIC_CENTER, APPROXIMATE
+ *
+ * The rejection is the important half. Google always returns *something*; for an
+ * address it cannot place it falls back to a street, locality or postcode
+ * centroid, which can sit kilometres from the establishment. For a lookup tool
+ * that is harmless. For a proximity tool measured by a 50 m gate it is worse than
+ * no pin at all, because a missing pin is visibly missing whereas a centroid pin
+ * looks authoritative. Coarse results are cached with their quality recorded and
+ * lat/lng left null, so they count as uncovered rather than as bad coordinates.
+ */
+const PAID_ENDPOINT = 'https://maps.googleapis.com/maps/api/geocode/json';
+const ACCEPTED_LOCATION_TYPES = new Set(['ROOFTOP', 'RANGE_INTERPOLATED']);
+const PAID_CONCURRENCY = 5;
+
+/** Google echoes the key in the request URL; never let it reach a log. */
+function redactKey(text) {
+  return String(text).replace(/([?&]key=)[^&\s]+/gi, '$1[REDACTED]');
+}
+
+async function geocodeOnePaid(address, apiKey) {
+  const url = new URL(PAID_ENDPOINT);
+  url.searchParams.set('address', address);
+  url.searchParams.set('components', 'country:US|administrative_area:FL');
+  url.searchParams.set('key', apiKey);
+
+  const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const body = await res.json();
+
+  if (body.status === 'OVER_QUERY_LIMIT') {
+    const err = new Error('OVER_QUERY_LIMIT');
+    err.retryable = true;
+    throw err;
+  }
+  if (body.status === 'REQUEST_DENIED') {
+    throw new Error(`REQUEST_DENIED — ${redactKey(body.error_message || 'check that the Geocoding API is enabled for this key')}`);
+  }
+  if (body.status === 'ZERO_RESULTS') return { matched: false, reason: 'google:ZERO_RESULTS' };
+  if (body.status !== 'OK') {
+    throw new Error(`${body.status}${body.error_message ? ` — ${redactKey(body.error_message)}` : ''}`);
+  }
+
+  const top = body.results?.[0];
+  const locationType = top?.geometry?.location_type || 'UNKNOWN';
+
+  if (!ACCEPTED_LOCATION_TYPES.has(locationType)) {
+    // Deliberately not a coordinate. See the comment above.
+    return { matched: false, reason: `google:${locationType}-too-coarse` };
+  }
+  return {
+    matched: true,
+    lat: top.geometry.location.lat,
+    lng: top.geometry.location.lng,
+    quality: `google:${locationType}`,
+  };
+}
+
+/** Addresses Census left unresolved, with components re-derived from establishment. */
+function unresolvedAddresses(db) {
+  return db.prepare(`
+    SELECT c.normalized_address AS key,
+           MIN(e.address) AS street,
+           MIN(e.city)    AS city,
+           MIN(e.zip)     AS zip
+      FROM geocode_cache c
+      JOIN establishment e ON e.normalized_address = c.normalized_address
+     WHERE c.lat IS NULL
+     GROUP BY c.normalized_address
+     ORDER BY c.normalized_address
+  `).all();
+}
+
+async function runPaidFallback(db, { limit = 0 } = {}) {
+  require('dotenv').config({ quiet: true });
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    throw new Error('GOOGLE_MAPS_API_KEY is not set — cannot run the paid fallback');
+  }
+
+  const all = unresolvedAddresses(db);
+  const pending = limit > 0 ? all.slice(0, limit) : all;
+  log(`tier 2 (Google Geocoding): ${pending.length} unresolved address(es)`);
+  log(`  accepting ${[...ACCEPTED_LOCATION_TYPES].join(', ')}; coarser results are recorded as uncovered`);
+  if (pending.length === 0) return { matched: 0, coarse: 0, zero: 0 };
+
+  const resolvedAt = new Date().toISOString();
+  const stats = { matched: 0, coarse: 0, zero: 0, failed: 0 };
+  const cacheRows = [];
+  let cursor = 0;
+
+  async function worker() {
+    while (cursor < pending.length) {
+      const row = pending[cursor];
+      cursor += 1;
+      const address = `${row.street}, ${row.city}, FL ${String(row.zip || '').slice(0, 5)}`;
+
+      let result;
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+        try {
+          result = await geocodeOnePaid(address, apiKey);
+          break;
+        } catch (err) {
+          if (!err.retryable || attempt === MAX_ATTEMPTS) {
+            if (!err.retryable) throw err; // config errors must stop the run
+            stats.failed += 1;
+            result = { matched: false, reason: 'google:OVER_QUERY_LIMIT' };
+            break;
+          }
+          await new Promise((r) => setTimeout(r, 1000 * attempt));
+        }
+      }
+
+      if (result.matched) {
+        stats.matched += 1;
+        cacheRows.push({
+          normalized_address: row.key,
+          lat: result.lat, lng: result.lng,
+          quality: result.quality, source: 'google', resolved_at: resolvedAt,
+        });
+      } else {
+        if (result.reason.includes('too-coarse')) stats.coarse += 1;
+        else stats.zero += 1;
+        cacheRows.push({
+          normalized_address: row.key,
+          lat: null, lng: null,
+          quality: result.reason, source: 'google', resolved_at: resolvedAt,
+        });
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: PAID_CONCURRENCY }, worker));
+  writeCache(db, cacheRows);
+
+  log(`tier 2 result — matched ${stats.matched}, too coarse ${stats.coarse}, no result ${stats.zero}`);
+  return stats;
+}
+
 function coverage(db) {
   const total = db.prepare('SELECT COUNT(*) n FROM establishment').get().n;
   const done = db.prepare('SELECT COUNT(*) n FROM establishment WHERE lat IS NOT NULL').get().n;
@@ -184,6 +338,17 @@ async function main() {
   const limit = limitFlag >= 0 ? Number(argv[limitFlag + 1]) || 0 : 0;
 
   const db = open();
+
+  // Tier 2 runs on its own: it only ever touches what tier 1 failed to resolve.
+  if (argv.includes('--fallback')) {
+    await runPaidFallback(db, { limit });
+    const updated = projectOntoEstablishments(db);
+    const c = coverage(db);
+    log(`establishment rows updated: ${updated}`);
+    log(`coverage: ${c.done}/${c.total} (${c.pct.toFixed(2)}%) — Gate 1 bar is 95%`);
+    return;
+  }
+
   const pending = pendingAddresses(db, { retry, limit });
   log(`${pending.length} address(es) to resolve (tier 1: Census ${BENCHMARK})`);
 
@@ -251,4 +416,7 @@ if (require.main === module) {
   });
 }
 
-module.exports = { parseCensusResponse, toBatchCsv, pendingAddresses, coverage };
+module.exports = {
+  parseCensusResponse, toBatchCsv, pendingAddresses, coverage,
+  redactKey, ACCEPTED_LOCATION_TYPES,
+};

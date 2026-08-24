@@ -151,3 +151,45 @@ test('unsure is treated like off — it needs measurement, not benefit of the do
   })]);
   assert.equal(measured.evaluated[0].within, false);
 });
+
+/* ------------------------------------------------ the seeded draw --------- */
+
+const { rng, sample } = require('../scripts/draw-sample.js');
+
+test('rng — the same seed produces the same stream', () => {
+  const a = Array.from({ length: 8 }, rng('seed-A'));
+  const b = Array.from({ length: 8 }, rng('seed-A'));
+  const c = Array.from({ length: 8 }, rng('seed-B'));
+  assert.deepEqual(a, b, 'the draw must be reproducible from its seed');
+  assert.notDeepEqual(a, c, 'a different seed must give a different stream');
+  for (const v of a) assert.ok(v >= 0 && v < 1);
+});
+
+test('sample — deterministic, correctly sized, and a real subset', () => {
+  const population = Array.from({ length: 500 }, (_, i) => `E${i}`);
+
+  const first = sample(population, 100, rng('fixed'));
+  const again = sample(population, 100, rng('fixed'));
+  assert.deepEqual(first, again, 'redrawing with the same seed must not reshuffle');
+
+  assert.equal(first.length, 100);
+  assert.equal(new Set(first).size, 100, 'no duplicates');
+  for (const item of first) assert.ok(population.includes(item));
+});
+
+test('sample — a different seed draws a materially different sample', () => {
+  const population = Array.from({ length: 500 }, (_, i) => `E${i}`);
+  const a = sample(population, 100, rng('seed-A'));
+  const b = sample(population, 100, rng('seed-B'));
+  const overlap = a.filter((x) => b.includes(x)).length;
+  // Two independent 100-of-500 draws overlap ~20 by chance; anything near 100
+  // would mean the seed is not actually driving the shuffle.
+  assert.ok(overlap < 45, `overlap ${overlap} is too high — seed may be ignored`);
+});
+
+test('sample — does not mutate the population it was given', () => {
+  const population = Array.from({ length: 50 }, (_, i) => `E${i}`);
+  const snapshot = population.slice();
+  sample(population, 10, rng('x'));
+  assert.deepEqual(population, snapshot);
+});

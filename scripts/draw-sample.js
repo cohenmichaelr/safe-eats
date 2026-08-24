@@ -60,10 +60,52 @@ const csvEscape = (v) => {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
+const HISTORY_PATH = path.join(ROOT, 'docs', '07-draw-history.json');
+
+/**
+ * How many rows of an existing worksheet already carry a verdict.
+ *
+ * This is the number that separates a legitimate redraw from the reroll the PRD
+ * forbids. Redrawing before anyone has looked at imagery changes nothing about
+ * the outcome; redrawing after verdicts exist discards evidence and is exactly
+ * how a failing gate gets turned into a passing one.
+ */
+function existingVerdictCount() {
+  if (!fs.existsSync(CSV_PATH)) return null;
+  const { parse } = require('csv-parse/sync');
+  const rows = parse(fs.readFileSync(CSV_PATH), { columns: true, bom: true, skip_empty_lines: true });
+  return rows.filter((r) => String(r.verdict ?? '').trim() !== '').length;
+}
+
+function appendHistory(entry) {
+  const history = fs.existsSync(HISTORY_PATH)
+    ? JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf8'))
+    : [];
+  history.push(entry);
+  fs.writeFileSync(HISTORY_PATH, `${JSON.stringify(history, null, 2)}\n`);
+  return history;
+}
+
 function main() {
   const argv = process.argv.slice(2);
   const seedFlag = argv.indexOf('--seed');
   const seed = seedFlag >= 0 ? argv[seedFlag + 1] : DEFAULT_SEED;
+  const force = argv.includes('--force');
+
+  const verdictsSoFar = existingVerdictCount();
+  if (verdictsSoFar !== null && verdictsSoFar > 0 && !force) {
+    console.error('');
+    console.error(`  REFUSING TO REDRAW — the existing worksheet has ${verdictsSoFar} recorded verdict(s).`);
+    console.error('');
+    console.error('  The PRD forbids redrawing the sample to obtain a better result. Discarding');
+    console.error('  verification work already done is precisely that, whatever the intent.');
+    console.error('');
+    console.error('  If the population genuinely changed and the sample must be redrawn, do it');
+    console.error('  deliberately with --force. The draw history records that it happened, how');
+    console.error('  many verdicts were discarded, and when.');
+    console.error('');
+    process.exit(1);
+  }
 
   const db = open({ readonly: true });
 
@@ -114,6 +156,17 @@ function main() {
 
   fs.writeFileSync(CSV_PATH, `${lines.join('\n')}\n`);
 
+  const drawnAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const history = appendHistory({
+    drawnAt,
+    seed,
+    populationSize: population.length,
+    populationFingerprint: fingerprint,
+    sampleSize: SAMPLE_SIZE,
+    verdictsDiscarded: verdictsSoFar ?? 0,
+    forced: force,
+  });
+
   const doc = `# Accuracy gate — AC-E2-GATE
 
 **Status: sample drawn, verification NOT started.**
@@ -134,7 +187,8 @@ Charter O3 / M3, PRD §4. The decision rule:
 | Population | ${population.length} geocoded of ${total} Palm Beach establishments |
 | Population fingerprint | \`${fingerprint}\` |
 | Sample size | ${SAMPLE_SIZE} |
-| Drawn at | ${new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')} |
+| Drawn at | ${drawnAt} |
+| Draw number | ${history.length} — full history in [\`07-draw-history.json\`](07-draw-history.json) |
 | Worksheet | [\`07-accuracy-sample.csv\`](07-accuracy-sample.csv) |
 
 Re-running \`node scripts/draw-sample.js\` with this seed against this population

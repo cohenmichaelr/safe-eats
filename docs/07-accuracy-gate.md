@@ -15,17 +15,18 @@ Charter O3 / M3, PRD §4. The decision rule:
 | | |
 | --- | --- |
 | Seed | `safe-eats/AC-E2-GATE/2026-08-24` |
-| Population | 3996 geocoded of 4305 Palm Beach establishments |
-| Population fingerprint | `0d3e45e7225bba03` |
+| Population | 4256 geocoded of 4305 Palm Beach establishments |
+| Population fingerprint | `21c1adf00333ed53` |
 | Sample size | 100 |
-| Drawn at | 2026-08-24T03:04:00Z |
+| Drawn at | 2026-08-24T12:17:33Z |
+| Draw number | 1 — full history in [`07-draw-history.json`](07-draw-history.json) |
 | Worksheet | [`07-accuracy-sample.csv`](07-accuracy-sample.csv) |
 
 Re-running `node scripts/draw-sample.js` with this seed against this population
 reproduces this exact sample. If the fingerprint changes, the population changed
 and any new draw is a **different sample** — say so rather than replacing this one.
 
-Establishments without coordinates (309 of 4305) are excluded:
+Establishments without coordinates (49 of 4305) are excluded:
 AC-E2-GATE measures displayed pins. Missing pins are a coverage question under
 NFR-07 and Gate 1, and are tracked there.
 
