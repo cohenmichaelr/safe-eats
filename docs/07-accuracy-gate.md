@@ -1,6 +1,22 @@
 # Accuracy gate — AC-E2-GATE
 
-**Status: sample drawn, verification NOT started.**
+> **Amended 24 Aug 2026 — draw 1 is superseded before any verification took place.**
+>
+> **DEC-009** narrowed the displayed universe to licence type 2010, so the population
+> is now 3,618 geocoded establishments, not 4,256. Fifteen of the 100 rows in the
+> worksheet below are types the product no longer displays — 13 mobile vendors, 1
+> caterer, 1 vending operator. The population fingerprint therefore changes, and by
+> this document's own rule any new draw is a **different sample**, recorded as draw 2.
+>
+> This is not a redraw to obtain a better result. **Zero of the 100 rows had been
+> verified** when DEC-009 was taken, so no information about the outcome existed and
+> none can have influenced it. Draw 1 remains in `07-draw-history.json` as the record
+> of what was drawn and discarded, and why.
+>
+> **Do not verify against the worksheet below.** Re-run `node scripts/draw-sample.js`
+> against the 2010-only population first; that draw supersedes this section.
+
+**Status: draw 1 superseded by DEC-009; draw 2 not yet taken; verification NOT started.**
 
 Charter O3 / M3, PRD §4. The decision rule:
 

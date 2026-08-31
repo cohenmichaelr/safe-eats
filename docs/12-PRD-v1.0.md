@@ -459,13 +459,23 @@ Binding per charter §4.2. Recorded to prevent relitigation.
 
 ## 13. Dependencies on unresolved decisions
 
-| Decision | Blocks | Needed by |
-|---|---|---|
-| D-001 Letter grade or factual statement | E3 implementation, FR-602 | Phase 3, Week 7 |
-| D-002 Map provider | E4 implementation, NFR-12 | Gate 0, Week 1 |
-| D-003 Confidence threshold value | FR-205, AC-E2-GATE | Phase 2, Week 5 |
-| D-004 Establishment types included | FR-104, coverage denominator | Gate 0, Week 1 |
-| D-005 Historical backfill depth | FR-111 | Phase 1, Week 3 |
+| Decision | Blocks | Needed by | Status |
+|---|---|---|---|
+| D-001 Letter grade or factual statement | E3 implementation, FR-602 | Phase 3, Week 7 | Open |
+| D-002 Map provider | E4 implementation, NFR-12 | Gate 0, Week 1 | **Closed — DEC-008**, 24 Aug 2026 |
+| D-003 Confidence threshold value | FR-205, AC-E2-GATE | Phase 2, Week 5 | Open |
+| D-004 Establishment types included | FR-104, coverage denominator | Gate 0, Week 1 | **Closed — DEC-009**, 24 Aug 2026 |
+| D-005 Historical backfill depth | FR-111 | Phase 1, Week 3 | **Open — escalated**, see DEC-009 consequences |
+| D-006 Proceed without demand validation | Charter O1 | Gate 0 | Closed — recorded in discovery brief §2 |
+| D-010 Establishment identity key | FR-104, FR-108, schema | Gate 0 | **Closed — DEC-006**, 24 Aug 2026 |
+| D-011 Inspection primary key | FR-105, FR-301, schema | Gate 0 | **Closed — DEC-007**, 24 Aug 2026 |
+| D-012 Violation severity display | E5, Task 10 | Phase 3 | Open — two of six source severity columns are 100% empty |
+
+D-010, D-011 and D-012 were added on 24 Aug 2026. The first two record schema decisions
+that had already been taken in `src/db.js` and implemented, but never written down —
+the schema comments cited a "DEC-006" that did not exist. D-012 was surfaced by
+`docs/08-data-profile.md`. Numbering resumes at D-010 to leave D-007…D-009 free rather
+than interleave new entries into the original Gate 0 block.
 
 Full analysis in [Decision Log](14-decision-log.md).
 
