@@ -7,5 +7,14 @@
     "sampleSize": 100,
     "verdictsDiscarded": 0,
     "forced": false
+  },
+  {
+    "drawnAt": "2026-08-31T16:10:12Z",
+    "seed": "safe-eats/AC-E2-GATE/2026-08-24",
+    "populationSize": 3618,
+    "populationFingerprint": "da7b5b4397e4ceca",
+    "sampleSize": 100,
+    "verdictsDiscarded": 0,
+    "forced": false
   }
 ]

@@ -12,10 +12,15 @@
  *      draw is repeated, the recorded fingerprint no longer matches and the new
  *      sample is visibly a different sample rather than a quiet substitution.
  *
- * AC-E2-GATE samples "map-displayed establishments", so the population is rows
- * that actually carry coordinates. Establishments with no pin are a COVERAGE
- * question (NFR-07, Gate 1) — a pin that does not exist cannot be 50 m off, and
- * folding the two together would let a coverage failure masquerade as accuracy.
+ * AC-E2-GATE samples "map-displayed establishments". That phrase carries two
+ * filters and both are load-bearing:
+ *
+ *   displayed — licence type 2010 only, per DEC-009. Drawing from the full
+ *     licensed universe is what voided draw 1.
+ *   map       — rows that actually carry coordinates. Establishments with no pin
+ *     are a COVERAGE question (NFR-07, Gate 1); a pin that does not exist cannot
+ *     be 50 m off, and folding the two together would let a coverage failure
+ *     masquerade as accuracy.
  *
  *   node scripts/draw-sample.js            draw and write the worksheet
  *   node scripts/draw-sample.js --seed X   use a different seed (records it)
@@ -33,6 +38,16 @@ const DOC_PATH = path.join(ROOT, 'docs', '07-accuracy-gate.md');
 
 const SAMPLE_SIZE = 100;
 const DEFAULT_SEED = 'safe-eats/AC-E2-GATE/2026-08-24';
+
+/**
+ * DEC-009 — the product displays permanent food service (2010) only. Mobile
+ * vendors, caterers, temporary events and vending operators are licensed at a
+ * commissary, base or home address, so their coordinate is not a claim the
+ * product makes and must not be measured as one. The population here is the
+ * DISPLAYED population, which is what AC-E2-GATE says it samples; drawing from
+ * the full licensed universe is what voided draw 1.
+ */
+const DISPLAYED_LICENSE_TYPE = '2010';
 
 /** mulberry32 — small, deterministic, adequate for drawing a sample. */
 function rng(seedText) {
@@ -114,12 +129,15 @@ function main() {
            geocode_source, geocode_quality
       FROM establishment
      WHERE county_code = '60'
+       AND license_type_code = ?
        AND lat IS NOT NULL
        AND lng IS NOT NULL
      ORDER BY establishment_id
-  `).all();
+  `).all(DISPLAYED_LICENSE_TYPE);
 
-  const total = db.prepare(`SELECT COUNT(*) n FROM establishment WHERE county_code = '60'`).get().n;
+  const total = db.prepare(
+    `SELECT COUNT(*) n FROM establishment WHERE county_code = '60' AND license_type_code = ?`
+  ).get(DISPLAYED_LICENSE_TYPE).n;
 
   if (population.length < SAMPLE_SIZE) {
     console.error(`Population is ${population.length}, smaller than the ${SAMPLE_SIZE}-row sample.`);
@@ -167,6 +185,21 @@ function main() {
     forced: force,
   });
 
+  // A superseded draw stays part of the record. This document is regenerated on
+  // every draw, so without this the previous one would survive only in the
+  // history JSON. Why it was superseded belongs in the decision log; this says
+  // that it was, and what population it came from.
+  const superseded = history.slice(0, -1);
+  const supersededSection = superseded.length
+    ? `\n### Superseded draws\n\n${superseded
+        .map(
+          (d, i) =>
+            `${i + 1}. Drawn ${d.drawnAt} from a population of ${d.populationSize}, ` +
+            `fingerprint \`${d.populationFingerprint}\` — ${d.verdictsDiscarded} verdict(s) discarded.`
+        )
+        .join('\n')}\n\nA different population is a different sample. The decision that changed it is in\n[\`14-decision-log.md\`](14-decision-log.md).\n`
+    : '';
+
   const doc = `# Accuracy gate — AC-E2-GATE
 
 **Status: sample drawn, verification NOT started.**
@@ -184,13 +217,14 @@ Charter O3 / M3, PRD §4. The decision rule:
 | | |
 | --- | --- |
 | Seed | \`${seed}\` |
-| Population | ${population.length} geocoded of ${total} Palm Beach establishments |
+| Population | ${population.length} geocoded of ${total} displayed Palm Beach establishments |
+| Population filter | county 60 · licence type ${DISPLAYED_LICENSE_TYPE} (DEC-009) · geocoded |
 | Population fingerprint | \`${fingerprint}\` |
 | Sample size | ${SAMPLE_SIZE} |
 | Drawn at | ${drawnAt} |
 | Draw number | ${history.length} — full history in [\`07-draw-history.json\`](07-draw-history.json) |
 | Worksheet | [\`07-accuracy-sample.csv\`](07-accuracy-sample.csv) |
-
+${supersededSection}
 Re-running \`node scripts/draw-sample.js\` with this seed against this population
 reproduces this exact sample. If the fingerprint changes, the population changed
 and any new draw is a **different sample** — say so rather than replacing this one.
