@@ -12,11 +12,12 @@ The application described below is **v1, which is being replaced**. Its data fro
 
 These encode audit findings. Breaking one silently reproduces a v1 failure.
 
-1. **Ingest never writes `lat`/`lng`.** Coordinates come only from `geocode.js` via the `geocode_cache` table, joined on normalized address. v1 lost every accumulated coordinate on each import because `INSERT OR REPLACE` deletes and reinserts rows (AUD F4).
+1. **Ingest never writes `lat`/`lng`.** Coordinates come only from `geocode.js` via the `geocode_cache` table, joined on normalized address. v1 lost every accumulated coordinate on each import because `INSERT OR REPLACE` deletes and reinserts rows (AUD F4). **Since SE-101 this is enforced by the database**, not by convention: triggers `IFC-1a` (a position must match a `geocode_cache` row for that normalized address), `IFC-1b` (a set coordinate may never be nulled) and `IFC-1c` (no statement writes both identity and position columns) abort the write. See `migrations/005_ifc1_boundary.sql`.
 2. **Never use `INSERT OR REPLACE`.** Use `INSERT ... ON CONFLICT DO UPDATE` with an explicit column list.
-3. **Ingest aborts; it does not warn.** A non-`text/csv` content type, a payload starting with `<!DOCTYPE`, or a post-filter row count below 3,000 must throw and exit non-zero, leaving prior data and its as-of date untouched. This is AUD F1/F2, the defining v1 failure.
-4. **No external calls at request time.** No Google Places, no Puppeteer, no scraping. A request touches SQLite only.
-5. **Unknown inspection dispositions fail the build.** Do not default them to a passing signal. The complete mapping is in `docs/40-mvp-plan.md` §5.
+3. **Schema changes are numbered migrations, never inline DDL.** Add a file to `migrations/` as `NNN_lower_snake_case.sql` and run `npm run migrate` (`npm run migrate:status` to inspect). An applied migration is history: its checksum is recorded and editing it makes the runner refuse to start. `src/db.js` no longer carries a `SCHEMA` constant.
+4. **Ingest aborts; it does not warn.** A non-`text/csv` content type, a payload starting with `<!DOCTYPE`, or a post-filter row count below 3,000 must throw and exit non-zero, leaving prior data and its as-of date untouched. This is AUD F1/F2, the defining v1 failure.
+5. **No external calls at request time.** No Google Places, no Puppeteer, no scraping. A request touches SQLite only.
+6. **Unknown inspection dispositions fail the build.** Do not default them to a passing signal. The complete mapping is in `docs/40-mvp-plan.md` §5.
 
 ### Authoritative data sources
 
