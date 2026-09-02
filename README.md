@@ -145,6 +145,7 @@ page cannot drift from the code.
 | `node src/geocode.js --fallback` | Tier 2, paid. Costs money. Needs `GOOGLE_MAPS_API_KEY` |
 | `npm run probe:window` | Re-check the inspection window without writing anything |
 | `npm run verify:sources` | Probe every source and diff its header against the pinned layout |
+| `npm run check:basemap` | Basemap canary. Exits 2 when a tile changed and needs human eyes |
 | `npm test` | 176 tests, `node --test` |
 | `npm run scan:secrets` / `guard:sql` | Commit gates, also installed as pre-commit hooks |
 
