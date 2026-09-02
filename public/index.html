@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Safe Eats — Palm Beach County food inspections</title>
+  <meta name="description" content="Florida health inspection results for licensed food service establishments in Palm Beach County, from the state's own published records.">
+
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="/vendor/markercluster/MarkerCluster.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#results">Skip to results list</a>
+
+  <header class="bar">
+    <h1>Safe&nbsp;Eats <span class="bar__where">Palm Beach County</span></h1>
+    <p class="bar__asof" id="asof" aria-live="polite">Loading…</p>
+  </header>
+
+  <!--
+    The disclaimer sits above the map, in normal flow, so it is visible without
+    scrolling on a 375px phone — Gate 2 requires exactly that. It is not a
+    dismissible banner: an inspection result is a snapshot of one visit, and a
+    reader who never sees that caveat has been misled by omission.
+  -->
+  <p class="disclaimer">
+    Inspection results describe <strong>one visit on one day</strong> — not the kitchen today.
+    Published by the Florida Department of Business &amp; Professional Regulation.
+  </p>
+
+  <main>
+    <div id="map" role="application" aria-label="Map of inspected food establishments in Palm Beach County"></div>
+
+    <button type="button" id="search-area" class="search-area" hidden>
+      Search this area
+    </button>
+
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </main>
+
+  <!--
+    Every marker is mirrored here as a real link. The map is a canvas of
+    positioned <div>s; this list is what a screen reader, a keyboard, and a
+    search engine can actually traverse. It is not a fallback — it is the same
+    result set in the form some people need.
+  -->
+  <section id="results" class="results" aria-labelledby="results-heading">
+    <h2 id="results-heading">Establishments in view</h2>
+    <ol class="results__list" id="results-list"></ol>
+  </section>
+
+  <footer class="foot">
+    <p>
+      Data: <a href="https://www2.myfloridalicense.com/sto/file_download/extracts/" rel="noopener">Florida DBPR public extracts</a>.
+      Map: © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> contributors, © <a href="https://carto.com/attributions" rel="noopener">CARTO</a>.
+    </p>
+    <p id="legend-note" class="foot__note"></p>
+  </footer>
+
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/vendor/markercluster/leaflet.markercluster.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

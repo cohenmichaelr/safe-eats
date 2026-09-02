@@ -394,4 +394,4 @@ async function main() {
 
 if (require.main === module) main();
 
-module.exports = { normalizeAddress, toIsoDate, SOURCES, COUNTY_CODE, DISTRICT };
+module.exports = { normalizeAddress, toIsoDate, licenseKey, SOURCES, COUNTY_CODE, DISTRICT };

@@ -1,0 +1,290 @@
+/*
+ * Safe Eats — Task 9 (FR-403, FR-404, FR-408, NFR-13).
+ *
+ * Two rules drive the whole sheet:
+ *
+ * 1. The basemap is greyscale (CARTO Positron, DEC-008), so the pins own the
+ *    only colour on the page. Nothing in the chrome may compete for that
+ *    channel — the header, buttons and list are ink on paper, deliberately.
+ * 2. Colour is never the only carrier of the signal. Each state also has a
+ *    shape, and the list mirrors it as a word. That survives greyscale printing,
+ *    colour-blindness, and a phone in bright sun.
+ */
+
+:root {
+  --ink:        #1c1e21;
+  --ink-soft:   #5b6169;
+  --rule:       #d8dade;
+  --paper:      #ffffff;
+  --paper-soft: #f5f6f7;
+  --focus:      #0b57d0;
+
+  /* Signal colours are served by /api/meta and applied inline, so the palette
+     has exactly one definition (src/signal.js). These are here only for the
+     legend swatch borders, which need a neutral. */
+  --swatch-edge: rgba(0, 0, 0, .35);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--focus); }
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1000;
+  padding: .6rem 1rem;
+  background: var(--paper);
+  border: 2px solid var(--focus);
+}
+.skip-link:focus { left: .5rem; top: .5rem; }
+
+/* ------------------------------------------------------------------ bar --- */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25rem .75rem;
+  padding: .6rem .9rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.bar h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.bar__where {
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.bar__asof {
+  margin: 0;
+  margin-left: auto;
+  font-size: .8rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The caveat is chrome, not an alert: a red warning box every visit teaches
+   people to stop reading it. Quiet and always present beats loud and dismissed. */
+.disclaimer {
+  margin: 0;
+  padding: .5rem .9rem;
+  background: var(--paper-soft);
+  border-bottom: 1px solid var(--rule);
+  font-size: .82rem;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+.disclaimer strong { color: var(--ink); }
+
+/* ------------------------------------------------------------------ map --- */
+
+main {
+  position: relative;
+  flex: 1 1 auto;
+  /* The map must be usable without scrolling on a 375x667 phone while the
+     disclaimer above it stays visible. 55vh leaves both on screen. */
+  min-height: 55vh;
+}
+
+#map {
+  position: absolute;
+  inset: 0;
+  background: var(--paper-soft);
+}
+
+/* Positioned above Leaflet's own controls (z-index 400-1000). */
+.search-area {
+  position: absolute;
+  z-index: 1001;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 1.25rem;
+  padding: .7rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .18);
+  cursor: pointer;
+}
+.search-area:hover { background: var(--paper-soft); }
+
+.status {
+  position: absolute;
+  z-index: 1001;
+  left: .75rem;
+  top: .75rem;
+  max-width: min(22rem, calc(100% - 1.5rem));
+  padding: .4rem .65rem;
+  border: 1px solid var(--rule);
+  border-radius: .35rem;
+  background: rgba(255, 255, 255, .94);
+  font-size: .8rem;
+  color: var(--ink-soft);
+}
+.status:empty { display: none; }
+.status[data-tone="error"] {
+  border-color: #cf222e;
+  color: #8a1119;
+}
+
+/* ---------------------------------------------------------------- pins ---- */
+
+/* Leaflet wraps a divIcon in .leaflet-marker-icon; the SVG inside carries the
+   shape and the fill. No background or border here — the shape IS the mark. */
+.pin { display: block; }
+.pin svg { display: block; overflow: visible; }
+
+.leaflet-marker-icon:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 1px;
+}
+
+/* Cluster bubbles stay neutral. Colouring a cluster by the worst signal inside
+   it would state something the data does not: that the area is unsafe. */
+.cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  border: 2px solid #4b5158;
+  color: var(--ink);
+  font-size: .78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------- popup ---- */
+
+.card { min-width: 13rem; }
+.card__name {
+  margin: 0 0 .15rem;
+  font-size: .95rem;
+  font-weight: 700;
+}
+.card__addr {
+  margin: 0 0 .5rem;
+  font-size: .82rem;
+  color: var(--ink-soft);
+}
+.card__signal {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 0 0 .2rem;
+  font-size: .87rem;
+  font-weight: 600;
+}
+.card__plain {
+  margin: .35rem 0 0;
+  font-size: .8rem;
+  color: var(--ink-soft);
+}
+
+/* -------------------------------------------------------------- results --- */
+
+.results {
+  padding: 1rem .9rem 1.5rem;
+  border-top: 1px solid var(--rule);
+}
+.results h2 {
+  margin: 0 0 .6rem;
+  font-size: .95rem;
+}
+.results__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: .1rem;
+}
+.results__list li { border-bottom: 1px solid var(--paper-soft); }
+.results__list a {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  padding: .5rem .1rem;
+  color: inherit;
+  text-decoration: none;
+}
+.results__list a:hover { background: var(--paper-soft); }
+.results__name { font-weight: 600; font-size: .9rem; }
+.results__meta {
+  margin-left: auto;
+  font-size: .78rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- legend --- */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .9rem;
+  margin: .5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: .78rem;
+  color: var(--ink-soft);
+}
+.legend li { display: flex; align-items: center; gap: .35rem; }
+.legend svg { display: block; }
+
+/* ----------------------------------------------------------------- foot --- */
+
+.foot {
+  padding: .8rem .9rem calc(.8rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--rule);
+  background: var(--paper-soft);
+  font-size: .75rem;
+  color: var(--ink-soft);
+}
+.foot p { margin: 0 0 .3rem; }
+.foot__note { font-style: italic; }
+
+/* -------------------------------------------------------------- wide ------ */
+
+@media (min-width: 60rem) {
+  main { min-height: 0; flex: 1 1 auto; }
+  body { height: 100vh; }
+  .results {
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+}

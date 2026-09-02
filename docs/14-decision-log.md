@@ -196,12 +196,44 @@ The sequencing error is worth naming: D-004 was scheduled as a **Gate 0** decisi
 
 ---
 
+## DEC-010 — No history backfill: the extract accumulates, so history accrues by running
+
+**Date:** 1 Sep 2026 · **Status:** Accepted · **Resolves:** D-005 · **Traces:** FR-111, FR-301, FR-305, E7 task 12 · Evidence: `scripts/probe-window.js`
+
+**Context.** `docs/08-data-profile.md` found every one of the 1,305 loaded inspection visits inside 2026-07-01 → 2026-08-20, a 51-day window, leaving 74.2% of displayable establishments with no signal at all. `src/signal.js` assumes a 24-month horizon the data did not supply. Two explanations fit one pull equally well — a rolling recent-activity feed, or a fiscal-year-to-date file that is simply young — and they imply opposite plans. The first makes history something you must capture before it falls out; the second makes it something that arrives on its own.
+
+**Evidence — a second observation, 11 days later.** `node scripts/probe-window.js` re-fetched `2fdinspi.csv` on 1 Sep 2026 and compared it against what is loaded. It writes nothing: the AC-E2-GATE population is pinned to a sample awaiting hand verification, and an ingest would move it.
+
+| | 21 Aug 2026 | 1 Sep 2026 |
+|---|---|---|
+| Window | 2026-07-01 → 2026-08-20 | 2026-07-01 → 2026-08-31 |
+| County-60 visits in file | 1,305 | 1,550 |
+| Held visits missing from the file | — | **0 of 1,305** |
+| Displayed establishments with ≥1 visit | 943 (25.8%) | 1,105 (30.2%) |
+
+The start date did not move and nothing fell out. **The extract is fiscal-year-to-date and accumulating** — Florida's fiscal year begins 1 July, which is exactly where the window starts. It was not a 51-day feed; it was a 51-day-old file.
+
+**Decision.** **No backfill.** Ship on the current window and let history accrue through the scheduled weekly ingest. FR-111 (FY2016+ backfill) stays deferred, now for a measured reason rather than an assumed one.
+
+**Why.** There is nothing to backfill *from*. Eight candidate prior-fiscal-year URLs on the DBPR host were probed on 24 Aug 2026 and all returned 301 to HTML; obtaining older data would mean a public-records request, which is weeks of calendar time for history that arrives free by waiting. Marginal coverage over the 11 days is 162 newly-covered establishments, ~14.7/day. That rate decays as the uncovered remainder shrinks, so the straight-line projection of ~174 days to full coverage is a floor, not a forecast — but Florida inspects licensed food service one to four times a year by risk level, so near-complete coverage by the close of the fiscal year on 30 June 2027 follows from the inspection schedule itself, not from the extrapolation.
+
+**Consequence — "no recent inspection" is the majority state at launch, and must be designed as one.** Roughly 70% of pins render in the fourth signal state today. That is not a defect to be hidden: it is the honest answer to *what does DBPR know about this place*, and the alternative — defaulting an uninspected establishment toward a passing signal — is precisely the failure `src/signal.js` throws to prevent. Tasks 9 and 11 therefore treat the grey state as a first-class case: the legend explains it, the methodology page states the window start date plainly, and the detail panel says "no inspection recorded since 1 July 2026" rather than showing an empty history. A user must never read a grey pin as a bad one.
+
+**Consequence — the weekly ingest is the history mechanism, not a freshness feature.** Task 12 was scoped as "keep the data current". It is more than that: once the fiscal-year file rolls over, our copy is the only place the prior year exists, because ingest upserts and never deletes. A missed run is not a stale week, it is a permanent hole.
+
+**Unverified, and worth watching.** What `2fdinspi.csv` does on 1 July 2027 has not been observed. It may reset to the new fiscal year, or it may be renamed with the year embedded. Either would look like a catastrophic row-count drop to the ingest, which is the correct response — the FR-104 floor aborts and leaves prior data intact — but it should be anticipated rather than discovered. `source-watchdog` covers the URL going dead; it does not yet cover the window resetting.
+
+**Reversal condition.** Either (a) a prior-fiscal-year extract becomes discoverable, or a public-records request is filed and returns, at which point backfill is a bulk ingest against the same loader; or (b) displayed coverage is still below ~60% by 31 Jan 2027, which would falsify the inspection-frequency reasoning above and make the grey majority a permanent product condition rather than a launch one.
+
+---
+
 ## Closed decisions
 
 | ID | Decision | Closed by | Date |
 |---|---|---|---|
 | D-002 | Map provider | DEC-008 | 24 Aug 2026 |
 | D-004 | Establishment types included | DEC-009 | 24 Aug 2026 |
+| D-005 | Historical backfill depth | DEC-010 | 1 Sep 2026 |
 | D-010 | Establishment identity key | DEC-006 | 24 Aug 2026 |
 | D-011 | Inspection primary key | DEC-007 | 24 Aug 2026 |
 
@@ -211,7 +243,7 @@ D-010 and D-011 were not in the `docs/12-PRD-v1.0.md` register, which defines D-
 
 | ID | Decision needed | By | Notes |
 |---|---|---|---|
-| **D-005** | **Historical backfill depth** | **Before Task 9** | **Escalated by the profile.** Every inspection in the extract falls in 2026-07-01 → 2026-08-20, a 51-day window, so only 943 of 3,659 displayable establishments (25.8%) carry any signal at all and 74.2% would render as "no recent inspection". `src/signal.js` assumes a 24-month horizon that the data does not supply. Eight candidate prior-fiscal-year URLs on the DBPR host were probed on 24 Aug 2026; all returned 301 to HTML. Whether the window is a sliding feed or a snapshot artefact cannot be settled from one pull — it needs repeated fetches. |
+| D-013 | Fiscal-year roll-over behaviour | Before 1 Jul 2027 | Raised by DEC-010. `2fdinspi.csv` is fiscal-year-to-date; what it does when FY2627 closes is unobserved. Extend `source-watchdog` to alert on a window reset, not only on a dead URL. |
 | D-012 | Violation severity display | Task 10 | `Number of Critical Violations` and `Number of Noncritical Violations` are blank in 100% of source rows, so `critical_violations`/`noncritical_violations` are NULL for all 1,305 inspections. Only total/high/intermediate/basic are populated. The detail panel must be built on the four that exist. |
 | OPEN-1 | Hosting target | Task 12 | Render hosted v1; static-friendly hosts are viable now that Puppeteer is gone |
 | OPEN-2 | Paid geocode fallback | — | *Effectively closed by implementation* (commit `03e6120`): tier-2 fallback raised coverage 92.82% → 98.86%. Needs a retrospective entry recording cost and provider. |

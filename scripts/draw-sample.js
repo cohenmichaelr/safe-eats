@@ -31,6 +31,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const { open } = require('../src/db');
+const { DISPLAYED_LICENSE_TYPES, displayedPredicate } = require('../src/display');
 
 const ROOT = path.join(__dirname, '..');
 const CSV_PATH = path.join(ROOT, 'docs', '07-accuracy-sample.csv');
@@ -46,8 +47,11 @@ const DEFAULT_SEED = 'safe-eats/AC-E2-GATE/2026-08-24';
  * product makes and must not be measured as one. The population here is the
  * DISPLAYED population, which is what AC-E2-GATE says it samples; drawing from
  * the full licensed universe is what voided draw 1.
+ *
+ * The predicate itself now lives in `src/display.js`, shared with the map API, so
+ * the sampled population and the rendered one cannot drift apart again.
  */
-const DISPLAYED_LICENSE_TYPE = '2010';
+const DISPLAYED_LICENSE_TYPE = DISPLAYED_LICENSE_TYPES.join(', ');
 
 /** mulberry32 — small, deterministic, adequate for drawing a sample. */
 function rng(seedText) {
@@ -124,20 +128,21 @@ function main() {
 
   const db = open({ readonly: true });
 
+  const displayed = displayedPredicate('e');
+
   const population = db.prepare(`
-    SELECT establishment_id, name, address, city, zip, lat, lng,
-           geocode_source, geocode_quality
-      FROM establishment
-     WHERE county_code = '60'
-       AND license_type_code = ?
-       AND lat IS NOT NULL
-       AND lng IS NOT NULL
-     ORDER BY establishment_id
-  `).all(DISPLAYED_LICENSE_TYPE);
+    SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.lat, e.lng,
+           e.geocode_source, e.geocode_quality
+      FROM establishment e
+     WHERE ${displayed.sql}
+       AND e.lat IS NOT NULL
+       AND e.lng IS NOT NULL
+     ORDER BY e.establishment_id
+  `).all(...displayed.params);
 
   const total = db.prepare(
-    `SELECT COUNT(*) n FROM establishment WHERE county_code = '60' AND license_type_code = ?`
-  ).get(DISPLAYED_LICENSE_TYPE).n;
+    `SELECT COUNT(*) n FROM establishment e WHERE ${displayed.sql}`
+  ).get(...displayed.params).n;
 
   if (population.length < SAMPLE_SIZE) {
     console.error(`Population is ${population.length}, smaller than the ${SAMPLE_SIZE}-row sample.`);
