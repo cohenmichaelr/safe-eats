@@ -326,7 +326,44 @@ What is genuinely lost is **scanning speed**: picking the red squares out of a v
 
 ---
 
+## DEC-014 — Host: Render, one service, refresh in-process
+
+**Date:** 2 Sep 2026 · **Status:** Accepted · **Resolves:** OPEN-1 · **Traces:** E7, FR-108, FR-109, NFR-12 · Charter C3
+
+**Context.** OPEN-1 has been open since the plan was written. v1 is already hosted on Render at `safe-eats-d8mp.onrender.com`, so the platform is settled by inertia and by the absence of a reason to move. What was *not* settled — and what turns out to matter far more — is the shape of the deployment.
+
+**The finding that decides it.** `docs/40-mvp-plan.md` task 12 says "deploy + weekly scheduled ingest". On Render the obvious home for the second half is a Cron Job service. **It cannot be**, and the reason is structural rather than a limitation to work around. From Render's documentation:
+
+> "Cron jobs can't provision or access a persistent disk."
+> "You can attach a persistent disk to a paid Render web service, private service, or background worker."
+> "A persistent disk is accessible by only a single service instance, and only at runtime."
+
+Our database is a SQLite file on a disk. A cron job is a separate service, so **it cannot see that file**. A cron job running `npm run ingest` would fetch both extracts correctly, load them into its own ephemeral filesystem, discard the result when the process exits, and report success. Every week. With no symptom anywhere.
+
+That is worth stating plainly: **the obvious implementation of task 12 is a silent no-op that reports success indefinitely** — v1's exact failure, rebuilt on new infrastructure, and undetectable from the outside.
+
+**Decision.** One Render **web service** with a persistent disk. The weekly refresh runs **in-process**, inside the service that owns the disk (`src/scheduler.js`, driving `scripts/refresh.js` as a child process). Blueprint committed as `render.yaml`.
+
+**Why in-process is not a compromise.** The measured cost is 3.3 seconds of work once a week — verify 1.2s, ingest 1.2s, geocode 0.6s, basemap 0.3s — against a service whose p95 query time is 20 ms. There is no contention worth designing around. The refresh runs as a child process so that a refresh which throws, leaks or exhausts memory cannot take the web service with it: the map staying up on last week's data is a far better failure than the map going away.
+
+**The schedule is derived from the data, not from a timer.** `setInterval(ONE_WEEK)` since boot is silently wrong on a platform that restarts services for deploys, host moves and idling — a service restarting every few days would never refresh at all while looking perfectly healthy. Instead "is a refresh due" is answered from the newest *successful* `ingest_run`, which survives restarts because it is in the database. That is the same value the UI shows as its as-of date, so "is the data stale" and "is a refresh due" have exactly one answer, and it is the one the user can see. A failed run deliberately does not reset the clock; if it did, a source outage would suppress the retries that recover from it.
+
+**The plan cannot be free, and this is the reason.** `plan: starter` is not headroom. Render's free instances have an ephemeral filesystem and a disk requires a paid instance. On a free instance:
+
+- `safe-eats.db` is destroyed on every deploy and every restart
+- `geocode_cache` goes with it — 3,840 resolved addresses, **272 of them paid Google lookups that would have to be bought again**
+- the accumulated inspection history goes too, and DEC-010 established that once the fiscal file rolls over, our copy is the only place prior years exist
+
+**That is AUD F4 — losing every accumulated coordinate on each load — recreated at the infrastructure layer.** The audit finding that `INSERT OR REPLACE` reproduced in SQL, a free instance reproduces in the filesystem. Migration 005 spends three database triggers preventing it; hosting it on an ephemeral disk would undo all of that for seven dollars a month.
+
+**Not decided here — the cutover.** This entry chooses the host and the shape. It does **not** authorise replacing the running v1 at `safe-eats-d8mp.onrender.com`. Gate 2 requires the accuracy sample to pass before v1.0 launches and it has not been verified, so deploying v2 to the public URL now would breach the project's own release gate. The blueprint therefore targets a service to be stood up alongside v1, and the cutover is a separate, deliberate act after the gate passes.
+
+**Reversal condition.** Either (a) the dataset outgrows a single-instance SQLite file, which at 4,305 establishments and 20 ms p95 is not close, and which would mean Render Postgres and a genuinely separate cron service; or (b) the refresh grows long enough to interfere with request serving, at which point it moves to a background worker sharing the disk — the same one-service-per-disk constraint permits that shape, and `scripts/refresh.js` would not change.
+
+---
+
 ## Closed decisions
+
 
 
 
@@ -337,6 +374,7 @@ What is genuinely lost is **scanning speed**: picking the red squares out of a v
 | D-005 | Historical backfill depth | DEC-010 | 1 Sep 2026 |
 | D-012 | Violation severity display | DEC-011 | 2 Sep 2026 |
 | D-015 | Watch the basemap, not just the data | `scripts/check-basemap.js` | 2 Sep 2026 |
+| OPEN-1 | Hosting target | DEC-014 | 2 Sep 2026 |
 | D-010 | Establishment identity key | DEC-006 | 24 Aug 2026 |
 | D-011 | Inspection primary key | DEC-007 | 24 Aug 2026 |
 
@@ -349,6 +387,5 @@ D-010 and D-011 were not in the `docs/12-PRD-v1.0.md` register, which defines D-
 | D-013 | Fiscal-year roll-over behaviour | Before 1 Jul 2027 | Raised by DEC-010. `2fdinspi.csv` is fiscal-year-to-date; what it does when FY2627 closes is unobserved. Extend `source-watchdog` to alert on a window reset, not only on a dead URL. |
 | D-014 | Esri basemap terms of use | Before public launch | Raised by DEC-013. The ArcGIS Online basemap services are publicly served and widely used with attribution, but their terms for unauthenticated production use have not been read. If they prohibit it, CARTO with a free key is the licensed fallback. |
 | **D-016** | **Accuracy sample vs. a growing population** | **Before scheduling the refresh** | **Measured, not hypothetical.** A refresh run against a copy of the database on 2 Sep 2026 added 14 establishments and dropped none, moving the AC-E2-GATE population fingerprint `da7b5b4397e4ceca` -> `631514c45a23a267`. All 100 drawn sample rows survived, so the draw is not destroyed — but the sample was drawn uniformly from 3,618 and the population is now 3,632, so the 14 additions had zero chance of selection. `07-accuracy-gate.md` forbids redrawing to get a better result and says a changed fingerprint means a different sample; it has no rule for the population simply *growing*, which is what a weekly ingest does by design. Once the refresh is scheduled this recurs every week and the gate needs an answer: verify against a frozen snapshot, re-draw on a stated cadence, or accept bounded drift with the fingerprint recorded per run. |
-| OPEN-1 | Hosting target | Task 12 | Render hosted v1; static-friendly hosts are viable now that Puppeteer is gone |
 | OPEN-2 | Paid geocode fallback | — | *Effectively closed by implementation* (commit `03e6120`): tier-2 fallback raised coverage 92.82% → 98.86%. Needs a retrospective entry recording cost and provider. |
 | OPEN-3 | Expand beyond Palm Beach | Post-MVP | Ingest is already district-wide; gated on the accuracy sample holding |

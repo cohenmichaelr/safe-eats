@@ -18,6 +18,7 @@ const path = require('node:path');
 
 const { open, dataAsOf } = require('./db');
 const { displayedPredicate } = require('./display');
+const { createScheduler } = require('./scheduler');
 const {
   establishmentSignal,
   SIGNAL_DISPLAY,
@@ -414,6 +415,13 @@ function main() {
     console.log(`data as of ${dataAsOf(db) ?? '(no successful ingest recorded)'}`);
   });
 
+  // The weekly refresh lives here rather than in a separate scheduled service,
+  // because on Render only the service holding the disk can see the database.
+  // See src/scheduler.js for why that is not a workaround but the only correct
+  // shape on this host.
+  const scheduler = createScheduler(db);
+  scheduler.start();
+
   // `server.close()` stops accepting connections but waits on established ones,
   // and a browser holds its keep-alive socket open — so Ctrl-C alone leaves the
   // process running until a second signal. Drop the idle sockets, then give the
@@ -421,6 +429,7 @@ function main() {
   // process alive by itself.
   for (const sig of ['SIGINT', 'SIGTERM']) {
     process.on(sig, () => {
+      scheduler.stop();
       server.close(() => { db.close(); process.exit(0); });
       server.closeIdleConnections?.();
       setTimeout(() => { db.close(); process.exit(0); }, 3000).unref();

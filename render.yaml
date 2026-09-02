@@ -1,0 +1,75 @@
+# Render blueprint — MVP-SE-001 §6 task 12, OPEN-1.
+#
+# ONE service, deliberately.
+#
+# The plan calls for a web service plus a weekly scheduled ingest, and Render
+# has a Cron Job service type that looks like the obvious home for the second
+# half. It is not, and the reason is worth stating where someone will find it
+# before they "fix" this file:
+#
+#   "Cron jobs can't provision or access a persistent disk."
+#   "A persistent disk is accessible by only a single service instance."
+#     — render.com/docs/disks
+#
+# Our database is a SQLite file on a disk. A cron job is a separate service and
+# cannot see that file. It would ingest into its own ephemeral filesystem,
+# discard the result on exit, and report success every single week — v1's
+# failure mode with new infrastructure and no symptom. So the refresh runs
+# inside the service that owns the disk (src/scheduler.js), which costs a
+# measured 3.3 seconds once a week.
+#
+# THE PLAN IS NOT FREE, AND CANNOT BE.
+#
+# `plan: starter` is not an upgrade for headroom. Render's free instances have
+# an ephemeral filesystem, and a disk requires a paid instance. On free:
+#
+#   - safe-eats.db is destroyed on every deploy and every restart
+#   - geocode_cache goes with it: 3,840 resolved addresses, 272 of which were
+#     paid Google lookups that would have to be bought again
+#   - the accumulated inspection history goes too, and DEC-010 established that
+#     our copy is the only place prior fiscal years exist
+#
+# That is AUD F4 — losing every accumulated coordinate on each load — recreated
+# at the infrastructure layer. The disk is the fix, and the disk is why this
+# costs money.
+
+services:
+  - type: web
+    name: safe-eats
+    runtime: node
+    plan: starter
+    region: ohio
+    branch: v2
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/meta
+
+    disk:
+      name: safe-eats-data
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      # The database lives on the disk, not in the repo checkout, which is
+      # replaced wholesale on every deploy.
+      - key: SAFE_EATS_DB
+        value: /var/data/safe-eats.db
+
+      # Run the weekly refresh in-process. Off by default everywhere else, so
+      # running the server locally never reaches out to DBPR on its own.
+      - key: SAFE_EATS_SCHEDULE
+        value: "1"
+
+      - key: NODE_VERSION
+        value: "22"
+
+      # Optional. Any endpoint that accepts a POST — Slack, Discord,
+      # healthchecks.io. Set in the dashboard, never here.
+      - key: SAFE_EATS_ALERT_WEBHOOK
+        sync: false
+
+      # Only used by the tier-2 paid geocoder, a manual batch job. It never
+      # reaches the browser. v1 served its key to the frontend from /config,
+      # where anyone loading the page could read it (AUD F3).
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
