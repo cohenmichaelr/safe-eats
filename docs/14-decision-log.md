@@ -336,6 +336,7 @@ What is genuinely lost is **scanning speed**: picking the red squares out of a v
 | D-004 | Establishment types included | DEC-009 | 24 Aug 2026 |
 | D-005 | Historical backfill depth | DEC-010 | 1 Sep 2026 |
 | D-012 | Violation severity display | DEC-011 | 2 Sep 2026 |
+| D-015 | Watch the basemap, not just the data | `scripts/check-basemap.js` | 2 Sep 2026 |
 | D-010 | Establishment identity key | DEC-006 | 24 Aug 2026 |
 | D-011 | Inspection primary key | DEC-007 | 24 Aug 2026 |
 
@@ -347,7 +348,7 @@ D-010 and D-011 were not in the `docs/12-PRD-v1.0.md` register, which defines D-
 |---|---|---|---|
 | D-013 | Fiscal-year roll-over behaviour | Before 1 Jul 2027 | Raised by DEC-010. `2fdinspi.csv` is fiscal-year-to-date; what it does when FY2627 closes is unobserved. Extend `source-watchdog` to alert on a window reset, not only on a dead URL. |
 | D-014 | Esri basemap terms of use | Before public launch | Raised by DEC-013. The ArcGIS Online basemap services are publicly served and widely used with attribution, but their terms for unauthenticated production use have not been read. If they prohibit it, CARTO with a free key is the licensed fallback. |
-| D-015 | Watch the basemap, not just the data | Task 12 | Raised by DEC-013. CARTO served a watermarked tile under HTTP 200 and nothing caught it. `source-watchdog` covers the DBPR extracts only. A basemap check has to compare pixels or bytes against a known-good tile, since status and content-type both pass on the failure. |
+| **D-016** | **Accuracy sample vs. a growing population** | **Before scheduling the refresh** | **Measured, not hypothetical.** A refresh run against a copy of the database on 2 Sep 2026 added 14 establishments and dropped none, moving the AC-E2-GATE population fingerprint `da7b5b4397e4ceca` -> `631514c45a23a267`. All 100 drawn sample rows survived, so the draw is not destroyed — but the sample was drawn uniformly from 3,618 and the population is now 3,632, so the 14 additions had zero chance of selection. `07-accuracy-gate.md` forbids redrawing to get a better result and says a changed fingerprint means a different sample; it has no rule for the population simply *growing*, which is what a weekly ingest does by design. Once the refresh is scheduled this recurs every week and the gate needs an answer: verify against a frozen snapshot, re-draw on a stated cadence, or accept bounded drift with the fingerprint recorded per run. |
 | OPEN-1 | Hosting target | Task 12 | Render hosted v1; static-friendly hosts are viable now that Puppeteer is gone |
 | OPEN-2 | Paid geocode fallback | — | *Effectively closed by implementation* (commit `03e6120`): tier-2 fallback raised coverage 92.82% → 98.86%. Needs a retrospective entry recording cost and provider. |
 | OPEN-3 | Expand beyond Palm Beach | Post-MVP | Ingest is already district-wide; gated on the accuracy sample holding |
