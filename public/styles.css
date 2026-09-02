@@ -591,3 +591,92 @@ main {
    it from reading as a record of a real establishment. */
 .worked td:first-child { white-space: nowrap; font-weight: 400; }
 .worked tbody tr:last-child { font-weight: 600; }
+
+/* --------------------------------------------------------------- search --- */
+
+/*
+ * Sits above the map in normal flow rather than floating over it: at 375px a
+ * floating search bar covers the thing you are searching, and the disclaimer
+ * above it has to stay visible without scrolling (Gate 2).
+ */
+.search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: .55rem .7rem;
+  padding: .7rem .9rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.search__field {
+  display: flex;
+  flex-direction: column;
+  gap: .18rem;
+  min-width: 8.5rem;
+}
+.search__field--grow { flex: 1 1 14rem; }
+
+.search label {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.search input,
+.search select {
+  font: inherit;
+  font-size: .92rem;
+  padding: .45rem .55rem;
+  border: 1px solid var(--rule);
+  border-radius: .3rem;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 2.4rem;
+}
+.search input { width: 100%; }
+
+.search__actions {
+  display: flex;
+  gap: .4rem;
+  margin-left: auto;
+}
+
+.btn {
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 600;
+  padding: .5rem .95rem;
+  min-height: 2.4rem;
+  border: 1px solid var(--rule);
+  border-radius: .3rem;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn:hover { background: var(--paper-soft); }
+.btn--primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.btn--primary:hover { background: #33383d; }
+
+/* Says what the current result set actually is, so the list below is never
+   ambiguous about whether you are looking at a search or at the viewport. */
+.scope {
+  padding: .5rem .9rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper-soft);
+  font-size: .82rem;
+  color: var(--ink-soft);
+}
+.scope:empty { display: none; }
+.scope b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 34rem) {
+  .search__actions { margin-left: 0; width: 100%; }
+  .search__actions .btn { flex: 1; }
+}

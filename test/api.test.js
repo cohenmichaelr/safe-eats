@@ -117,6 +117,7 @@ function seed(db) {
       establishment_id: '6000002|2010|200 ATLANTIC AVE, DELRAY BEACH, 33444',
       license_key: '6000002|2010',
       name: 'CALLBACK CAFE',
+      address: '200 ATLANTIC AVE',
       normalized_address: '200 ATLANTIC AVE, DELRAY BEACH, 33444',
     },
     { lat: 26.4620, lng: -80.0700 }
@@ -169,6 +170,7 @@ function seed(db) {
       license_key: '6000003|2010',
       name: 'SERIOUS GRILL',
       city: 'WEST PALM BEACH',
+      address: '300 CLEMATIS ST',
       normalized_address: '300 CLEMATIS ST, WEST PALM BEACH, 33401',
     },
     { lat: 26.7130, lng: -80.0530 }
@@ -196,6 +198,7 @@ function seed(db) {
       license_key: '6000004|2010',
       name: 'STALE SHACK',
       city: 'LANTANA',
+      address: '400 OCEAN AVE',
       normalized_address: '400 OCEAN AVE, LANTANA, 33462',
     },
     { lat: 26.5860, lng: -80.0500 }
@@ -219,6 +222,7 @@ function seed(db) {
       license_key: '6000005|2010',
       name: 'UNINSPECTED KITCHEN',
       city: 'LAKE PARK',
+      address: '500 NORTHLAKE BLVD',
       normalized_address: '500 NORTHLAKE BLVD, LAKE PARK, 33403',
     },
     { lat: 26.8080, lng: -80.0680 }
@@ -235,6 +239,7 @@ function seed(db) {
       license_type_code: '2014',
       name: 'TACO TRUCK',
       city: 'BOYNTON BEACH',
+      address: '600 DEPOT RD',
       normalized_address: '600 DEPOT RD, BOYNTON BEACH, 33426',
       seats: null,
     },
@@ -252,6 +257,7 @@ function seed(db) {
     license_key: '6000008|2010',
     name: 'UNGEOCODED PLACE',
     city: 'LAKE WORTH',
+    address: '800 HYPOLUXO RD',
     normalized_address: '800 HYPOLUXO RD, LAKE WORTH, 33463',
   });
 
@@ -347,6 +353,125 @@ test('GET /api/meta — FR-601, FR-404', async (t) => {
     const { body } = await get('/api/meta');
     assert.match(body.attribution.data, /Business & Professional Regulation/);
     assert.match(body.attribution.basemap, /OpenStreetMap/);
+  });
+});
+
+/* --------------------------------------------------------- GET /api/search -- */
+
+test('GET /api/search — FR-407', async (t) => {
+  const { get } = await fixture(t);
+
+  await t.test('finds an establishment by name', async () => {
+    const { status, body } = await get('/api/search?q=callback');
+    assert.equal(status, 200);
+    assert.deepEqual(body.establishments.map((e) => e.name), ['CALLBACK CAFE']);
+  });
+
+  await t.test('ignores punctuation the searcher did not type', async () => {
+    // The whole point of normalising: a name stored with an apostrophe has to
+    // be reachable from a query without one. Against the real data the trigram
+    // index returned 2 of 25 Wendy's for exactly this reason.
+    const { db, get: g } = await fixture(t);
+    addEstablishment(db, {
+      establishment_id: "6000009|2010|900 APOSTROPHE WAY, JUPITER, 33477",
+      license_key: '6000009|2010',
+      name: "WENDY'S",
+      address: '900 APOSTROPHE WAY',
+      city: 'JUPITER',
+      normalized_address: '900 APOSTROPHE WAY, JUPITER, 33477',
+    });
+
+    for (const q of ['wendys', "wendy's", 'WENDYS']) {
+      const { body } = await g(`/api/search?q=${encodeURIComponent(q)}`);
+      assert.equal(body.total, 1, `"${q}" should find WENDY'S`);
+    }
+  });
+
+  await t.test('matches address and city as well as name', async () => {
+    const { body } = await get('/api/search?q=clematis');
+    assert.deepEqual(body.establishments.map((e) => e.name), ['SERIOUS GRILL']);
+  });
+
+  await t.test('ranks a name match above an address match', async () => {
+    const { db, get: g } = await fixture(t);
+    addEstablishment(db, {
+      establishment_id: '6000010|2010|10 OCEAN AVE, LANTANA, 33462',
+      license_key: '6000010|2010',
+      name: 'OCEAN GRILL',
+      address: '10 OCEAN AVE',
+      city: 'LANTANA',
+      normalized_address: '10 OCEAN AVE, LANTANA, 33462',
+    });
+    // STALE SHACK lives on 400 OCEAN AVE, so both match "ocean" — but only one
+    // is called it. Someone searching a name should not be led by a street.
+    const { body } = await g('/api/search?q=ocean');
+    assert.equal(body.establishments[0].name, 'OCEAN GRILL');
+  });
+
+  await t.test('filters by city', async () => {
+    const { body } = await get('/api/search?city=WEST%20PALM%20BEACH');
+    assert.deepEqual(body.establishments.map((e) => e.name), ['SERIOUS GRILL']);
+  });
+
+  await t.test('filters by inspection result', async () => {
+    const { body } = await get('/api/search?signal=serious');
+    assert.deepEqual(body.establishments.map((e) => e.name), ['SERIOUS GRILL']);
+  });
+
+  await t.test('combines text, city and result', async () => {
+    const { body } = await get('/api/search?q=grill&city=WEST%20PALM%20BEACH&signal=serious');
+    assert.equal(body.total, 1);
+    assert.equal(body.establishments[0].name, 'SERIOUS GRILL');
+
+    const { body: none } = await get('/api/search?q=grill&city=WEST%20PALM%20BEACH&signal=pass');
+    assert.equal(none.total, 0, 'contradictory filters return nothing, not everything');
+  });
+
+  await t.test('respects the displayed population — DEC-009', async () => {
+    // The taco truck matches the text but is not a displayable establishment.
+    const { body } = await get('/api/search?q=taco');
+    assert.equal(body.total, 0);
+  });
+
+  await t.test('search is not limited to the geocoded ones', async () => {
+    // An establishment with no coordinate cannot be a pin, but it is still a
+    // real licensed restaurant and a search for it should find it.
+    const { body } = await get('/api/search?q=ungeocoded');
+    assert.equal(body.total, 1);
+    assert.equal(body.establishments[0].lat, null);
+  });
+
+  await t.test('no filters lists the displayed population', async () => {
+    const { body } = await get('/api/search');
+    assert.equal(body.total, 6);
+  });
+
+  await t.test('a query matching nothing is an empty list, not an error', async () => {
+    const { status, body } = await get('/api/search?q=zzzznothinghere');
+    assert.equal(status, 200);
+    assert.equal(body.total, 0);
+    assert.deepEqual(body.establishments, []);
+  });
+
+  await t.test('LIKE wildcards in the query do not match everything', async () => {
+    // "%" is a wildcard in LIKE. Passed through unchanged it would silently
+    // return the entire database for a nonsense query.
+    const { body } = await get('/api/search?q=%25');
+    assert.equal(body.total, 0, 'a bare wildcard should match nothing, not everything');
+  });
+
+  await t.test('rejects an unknown signal rather than ignoring it', async () => {
+    const { status, body } = await get('/api/search?signal=excellent');
+    assert.equal(status, 400);
+    assert.match(body.error, /Unknown signal/);
+  });
+
+  await t.test('reports the total separately from what it returned', async () => {
+    const { body } = await get('/api/search?limit=2');
+    assert.equal(body.total, 6);
+    assert.equal(body.count, 2);
+    assert.equal(body.truncated, true);
+    assert.equal(body.establishments.length, 2);
   });
 });
 

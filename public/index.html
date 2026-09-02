@@ -29,6 +29,37 @@
     Published by the Florida Department of Business &amp; Professional Regulation.
   </p>
 
+  <!--
+    Search — FR-407. Name/address text, city, and inspection result.
+
+    There is deliberately no cuisine filter: the state's licence extract has no
+    such column, so any "Italian / Chinese / seafood" menu here would be
+    guessed. Searching the name gets most of the way there honestly, because
+    restaurants tend to put it in their names.
+  -->
+  <form class="search" id="search" role="search">
+    <div class="search__field search__field--grow">
+      <label for="q">Search</label>
+      <input type="search" id="q" name="q" placeholder="Name or street — try pizza, or wendys"
+             autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="search__field">
+      <label for="city">City</label>
+      <select id="city" name="city"><option value="">All cities</option></select>
+    </div>
+
+    <div class="search__field">
+      <label for="signal">Result</label>
+      <select id="signal" name="signal"><option value="">Any result</option></select>
+    </div>
+
+    <div class="search__actions">
+      <button type="submit" class="btn btn--primary">Search</button>
+      <button type="button" class="btn" id="clear" hidden>Clear</button>
+    </div>
+  </form>
+
   <main>
     <div id="map" role="application" aria-label="Map of inspected food establishments in Palm Beach County"></div>
 
@@ -38,6 +69,8 @@
 
     <div class="status" id="status" role="status" aria-live="polite"></div>
   </main>
+
+  <p class="scope" id="scope" aria-live="polite"></p>
 
   <!--
     Establishment detail — E5. Opens over the map on a phone and beside it on a

@@ -78,6 +78,18 @@ const LATEST_VISIT = `
    ORDER BY x.inspection_date DESC, x.visit_number DESC
    LIMIT 1`;
 
+/**
+ * Punctuation-insensitive search text. Apostrophes and periods are dropped and
+ * hyphens become spaces, so "wendys" matches "WENDY'S" and "chick fil a"
+ * matches "CHICK-FIL-A". Restaurant names are full of punctuation that nobody
+ * types into a search box.
+ */
+const STRIP = (expr) =>
+  `UPPER(REPLACE(REPLACE(REPLACE(${expr}, CHAR(39), ''), '.', ''), '-', ' '))`;
+
+const NORMALIZED = STRIP("e.name || ' ' || COALESCE(e.address, '') || ' ' || COALESCE(e.city, '')");
+const NORMALIZED_NAME = STRIP('e.name');
+
 function prepareStatements(db) {
   const displayed = displayedPredicate('e');
 
@@ -137,6 +149,59 @@ function prepareStatements(db) {
         FROM violation
        WHERE inspection_visit_id = ?
        ORDER BY violation_code`),
+
+    /**
+     * Name, address and city search — FR-407.
+     *
+     * A normalised scan, NOT the FTS5 trigram index from migration 004. That
+     * index cannot answer this query correctly, and the reason belongs where
+     * the next person will look for it:
+     *
+     *   FTS5's trigram tokenizer indexes literal three-character sequences, so
+     *   "wendys" cannot match "WENDY'S" — the apostrophe is IN the index.
+     *   Measured against the loaded data, the trigram index returns 2 of the
+     *   25 Wendy's; this predicate returns all 25, in 3.3 ms.
+     *
+     * Migration 004's own comment offers "wendys has to find WENDY'S" as its
+     * motivating example, and the index does not do it. Its other example,
+     * Starbucks, does not appear in Palm Beach's licence data at all.
+     *
+     * Stripping punctuation is what makes this work, and a scan is affordable
+     * because the displayed population is 3,659 rows. If this ever covers the
+     * whole state, the fix is a migration that feeds FTS5 the normalised text
+     * rather than the raw name — not a cleverer scan.
+     */
+    searchByText: db.prepare(`
+      SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.lat, e.lng,
+             i.inspection_date, i.disposition, i.signal AS raw_signal,
+             i.total_violations, i.high_violations
+        FROM establishment e
+   LEFT JOIN inspection i ON i.inspection_visit_id = (${LATEST_VISIT})
+       WHERE ${displayed.sql}
+         AND ${NORMALIZED} LIKE ?
+       ORDER BY
+         -- A name match outranks an address match: someone typing "delray"
+         -- who wants Delray Beach should not be led by a shop on Delray Road.
+         CASE WHEN ${NORMALIZED_NAME} LIKE ? THEN 0 ELSE 1 END,
+         e.name`),
+
+    /** Browse with no search term — a city or signal filter on its own. */
+    searchAll: db.prepare(`
+      SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.lat, e.lng,
+             i.inspection_date, i.disposition, i.signal AS raw_signal,
+             i.total_violations, i.high_violations
+        FROM establishment e
+   LEFT JOIN inspection i ON i.inspection_visit_id = (${LATEST_VISIT})
+       WHERE ${displayed.sql}
+       ORDER BY e.name`),
+
+    /** The city list for the filter. Stable between ingests, so cached with meta. */
+    cities: db.prepare(`
+      SELECT e.city, COUNT(*) AS n
+        FROM establishment e
+       WHERE ${displayed.sql} AND e.city IS NOT NULL AND e.city <> ''
+       GROUP BY e.city
+       ORDER BY e.city`),
 
     /**
      * The start of the published window. After DEC-010 the extract is known to
@@ -289,10 +354,72 @@ function createApp(db) {
       dispositions,
       stale_after_months: STALE_AFTER_MONTHS,
       coverage: q.coverage.get(...q.displayedParams),
+      // For the search filter. 61 values, stable between ingests.
+      cities: q.cities.all(...q.displayedParams),
       attribution: {
         data: 'Florida Department of Business & Professional Regulation',
         basemap: 'Esri World Street Map — Esri, HERE, Garmin, USGS, Intermap, © OpenStreetMap contributors',
       },
+    });
+  });
+
+  /**
+   * GET /api/search?q=&city=&signal=&limit= — FR-407.
+   *
+   * Three filters, and it is worth being explicit about what is NOT here:
+   * there is no cuisine or category filter, because the DBPR licence extract
+   * has no such column — none of its 35 fields describes what kind of food an
+   * establishment serves. Searching "pizza" matches 194 establishments with
+   * PIZZA in their name, which is genuinely useful, but it is a name match and
+   * the UI says so. Inferring cuisine from a name would be inventing a fact
+   * about a named business, which is the same line DEC-011 draws over
+   * violation codes.
+   */
+  app.get('/api/search', (req, res) => {
+    const text = (req.query.q ?? '').toString().trim();
+    const city = (req.query.city ?? '').toString().trim();
+    const signal = (req.query.signal ?? '').toString().trim();
+    const limit = parseLimit(req.query.limit ?? '200');
+
+    if (signal && !SIGNAL_DISPLAY[signal]) {
+      throw new BadRequest(`Unknown signal ${JSON.stringify(signal)}`);
+    }
+
+    // Normalise the query exactly as the column is normalised, or the two
+    // never meet: a user typing "wendy's" must reach rows stored as WENDY'S.
+    const normalise = (v) => v.toUpperCase().replace(/['.]/g, '').replace(/-/g, ' ');
+
+    let rows;
+    if (text) {
+      // % and _ are LIKE wildcards. Dropped rather than escaped: SQLite needs an
+      // explicit ESCAPE clause for that, and nobody searches a restaurant name
+      // for an underscore.
+      const cleaned = normalise(text).replace(/[%_]/g, ' ').trim();
+
+      // A query that is nothing but wildcards or punctuation matches nothing.
+      // Falling through with an empty pattern would build '%%' and return the
+      // entire database — a nonsense query answered with everything, which
+      // reads as a working search and is the worst of both.
+      rows = cleaned === '' ? [] : q.searchByText.all(...q.displayedParams, `%${cleaned}%`, `%${cleaned}%`);
+    } else {
+      rows = q.searchAll.all(...q.displayedParams);
+    }
+
+    const now = new Date();
+    let results = rows.map((row) => toPin(row, now));
+
+    if (city) results = results.filter((r) => (r.city ?? '').toLowerCase() === city.toLowerCase());
+    if (signal) results = results.filter((r) => r.signal === signal);
+
+    const total = results.length;
+    res.set('Cache-Control', 'public, max-age=60');
+    res.json({
+      as_of: dataAsOf(db),
+      query: { q: text, city, signal },
+      count: Math.min(total, limit),
+      total,
+      truncated: total > limit,
+      establishments: results.slice(0, limit),
     });
   });
 

@@ -30,6 +30,7 @@
     cluster: null,
     lastBbox: null,
     inFlight: null,
+    searching: false,
   };
 
   /* ------------------------------------------------------------- markers --- */
@@ -384,6 +385,85 @@
     }
   }
 
+  /* --------------------------------------------------------------- search --- */
+
+  /**
+   * Two ways to have a result set, and the page must never leave you unsure
+   * which one you are looking at: the viewport (pan the map) or a search
+   * (name, city, result). The scope line under the map says so in words, and
+   * the results heading changes with it.
+   */
+  function setScope(html) {
+    $('scope').innerHTML = html || '';
+    $('clear').hidden = !state.searching;
+    $('results-heading').textContent = state.searching ? 'Search results' : 'Establishments in view';
+  }
+
+  async function runSearch(event) {
+    if (event) event.preventDefault();
+
+    const params = new URLSearchParams();
+    for (const id of ['q', 'city', 'signal']) {
+      const value = $(id).value.trim();
+      if (value) params.set(id, value);
+    }
+
+    // An empty form is not a search — it is a request to go back to the map.
+    if (![...params.keys()].length) return clearSearch();
+
+    if (state.inFlight) state.inFlight.abort();
+    const controller = new AbortController();
+    state.inFlight = controller;
+
+    setStatus('Searching…');
+    try {
+      const res = await fetch(`/api/search?${params}`, { signal: controller.signal });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || `Search failed (${res.status})`);
+
+      state.searching = true;
+      // A search leaves viewport mode, so the remembered box must not suppress
+      // the next "search this area" — otherwise panning back looks broken.
+      state.lastBbox = null;
+      draw(body.establishments);
+
+      const withPins = body.establishments.filter((e) => Number.isFinite(e.lat));
+      if (withPins.length) {
+        state.map.fitBounds(withPins.map((e) => [e.lat, e.lng]), { padding: [40, 40], maxZoom: 16 });
+      }
+
+      const bits = [];
+      if (body.query.q) bits.push(`matching “${escapeHtml(body.query.q)}”`);
+      if (body.query.city) bits.push(`in ${escapeHtml(body.query.city)}`);
+      if (body.query.signal) bits.push(`with result “${escapeHtml(label(body.query.signal))}”`);
+
+      setScope(
+        body.total === 0
+          ? `No establishments ${bits.join(' ')}.`
+          : `<b>${body.total}</b> establishment${body.total === 1 ? '' : 's'} ${bits.join(' ')}` +
+            (body.truncated ? ` — showing the first ${body.count} on the map.` : '.')
+      );
+
+      setStatus(body.total ? `${Math.min(body.total, body.count)} shown` : 'Nothing matched');
+      $('search-area').hidden = true;
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      setStatus(`Search failed: ${err.message}`, 'error');
+    } finally {
+      if (state.inFlight === controller) state.inFlight = null;
+    }
+  }
+
+  function clearSearch() {
+    $('q').value = '';
+    $('city').value = '';
+    $('signal').value = '';
+    state.searching = false;
+    state.lastBbox = null;
+    setScope('');
+    load();
+  }
+
   async function loadMeta() {
     try {
       const res = await fetch('/api/meta');
@@ -393,6 +473,26 @@
       LEGEND = meta.signals || {};
       windowStart = meta.inspection_window_start || null;
       renderLegend();
+
+      // Both filter menus are built from the API, never hardcoded: the cities
+      // are whatever the licence data contains, and the result options are
+      // whatever src/signal.js defines.
+      const citySelect = $('city');
+      for (const { city, n } of meta.cities || []) {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = `${city} (${n})`;
+        citySelect.append(option);
+      }
+
+      const signalSelect = $('signal');
+      for (const key of ['pass', 'warning', 'serious', 'unknown']) {
+        if (!meta.signals[key]) continue;
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = meta.signals[key].label;
+        signalSelect.append(option);
+      }
 
       // The as-of date is derived from the last successful ingest, never from
       // the clock (FR-601). If the pipeline stops, this date stops with it —
@@ -468,7 +568,12 @@
       }
     });
 
-    $('search-area').addEventListener('click', load);
+    $('search-area').addEventListener('click', () => {
+      // Asking for this viewport is a way out of a search, so drop the search
+      // state rather than leaving the scope line describing a stale query.
+      if (state.searching) { state.searching = false; setScope(''); }
+      load();
+    });
 
     // The list is a list of records, so clicking one opens the record — and
     // moves the map to it, because where it is remains part of the answer.
@@ -491,6 +596,13 @@
     });
 
     $('detail-close').addEventListener('click', closeDetail);
+
+    $('search').addEventListener('submit', runSearch);
+    $('clear').addEventListener('click', clearSearch);
+    // Changing a menu searches straight away; typing still waits for Enter or
+    // the button, so the map does not lurch on every keystroke.
+    $('city').addEventListener('change', runSearch);
+    $('signal').addEventListener('change', runSearch);
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && !$('detail').hidden) closeDetail();
