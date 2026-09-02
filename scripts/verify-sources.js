@@ -45,6 +45,34 @@ const COUNTY_COLUMN = {
 /** Minimum bytes below which the payload cannot be a real extract. */
 const MIN_BYTES = { licenses: 1_000_000, inspections: 500_000 };
 
+/**
+ * Fallback for a source whose county column is not named above. Tried in order,
+ * then a contains-COUNTY sweep, so an unpinned extract can still be counted.
+ */
+const COUNTY_COLUMN_CANDIDATES = ['COUNTY NUMBER', 'COUNTYNUMBER', 'COUNTY_NUMBER', 'COUNTY'];
+
+function findCountyColumn(header) {
+  const norm = (c) => c.trim().toUpperCase().replace(/_/g, ' ');
+  for (const candidate of COUNTY_COLUMN_CANDIDATES) {
+    const hit = header.find((c) => norm(c) === candidate.replace(/_/g, ' '));
+    if (hit !== undefined) return hit;
+  }
+  return header.find((c) => norm(c).includes('COUNTY') && !norm(c).includes('NAME'));
+}
+
+/** The weekly closure extract is filed under its week-ending Sunday. */
+function mostRecentSunday(now = new Date()) {
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  d.setUTCDate(d.getUTCDate() - d.getUTCDay());
+  return d.toISOString().slice(0, 10);
+}
+
+/** A source is either a fixed url or a template dated by week-ending Sunday. */
+function resolveUrl(spec) {
+  if (spec.url) return spec.url;
+  return spec.urlTemplate.replace('{weekEnding}', mostRecentSunday());
+}
+
 function parseCsv(buffer) {
   const { parse } = require('csv-parse/sync');
   return parse(buffer, { columns: true, bom: true, skip_empty_lines: true, relax_column_count: true });
@@ -98,8 +126,12 @@ async function fetchExtract(url) {
 }
 
 async function verify(key, at) {
-  const { url, columns: reference } = LAYOUTS[key];
-  const result = { key, url, checks: [], ok: true };
+  const spec = LAYOUTS[key];
+  const url = resolveUrl(spec);
+  const kind = spec.kind === 'xlsx' ? 'xlsx' : 'csv';
+  const required = spec.required !== false;
+  const reference = spec.columns ?? null;
+  const result = { key, url, kind, required, skipped: false, checks: [], ok: true };
 
   const ok = (label, detail) => result.checks.push({ label, pass: true, detail });
   const bad = (label, detail) => { result.checks.push({ label, pass: false, detail }); result.ok = false; };
@@ -117,6 +149,15 @@ async function verify(key, at) {
     bytes: res.bytes, lastModified: res.lastModified, elapsedMs: res.elapsedMs,
   });
 
+  // An optional extract that has not posted yet is absent, not broken. The
+  // weekly closure file legitimately 404s until its week-ending Sunday lands.
+  if (!required && res.status === 404) {
+    result.skipped = true;
+    result.verifiedAt = at;
+    ok('optional source absent', `HTTP 404 — not published yet`);
+    return result;
+  }
+
   // 1 — HTTP 200
   if (res.status === 200) ok('HTTP 200', `${res.status} in ${res.elapsedMs} ms`);
   else bad('HTTP 200', `received ${res.status}`);
@@ -129,13 +170,23 @@ async function verify(key, at) {
 
   // 3 — first bytes are not a document declaration (before the header check,
   //     because an HTML body would otherwise fail as a confusing layout diff)
-  const head = res.buffer.toString('utf8', 0, 120).replace(/\r?\n/g, ' ');
+  const head = res.buffer.toString('utf8', 0, 120).replace(/[\r\n]+/g, ' ');
   try {
     assertNotHtml(res.buffer, { url });
     ok('not a document declaration', JSON.stringify(head.slice(0, 60)));
   } catch (err) {
     bad('not a document declaration', err.message);
     return result; // nothing below this is meaningful on an HTML body
+  }
+
+  // XLSX is a binary container — the CSV header and county checks do not apply.
+  // A ZIP local-file signature is the strongest cheap statement we can make.
+  if (kind === 'xlsx') {
+    const isZip = res.buffer.length > 1 && res.buffer[0] === 0x50 && res.buffer[1] === 0x4b;
+    if (isZip) ok('XLSX container signature', `PK, ${res.bytes.toLocaleString()} bytes`);
+    else bad('XLSX container signature', 'first bytes are not a ZIP local-file header');
+    result.verifiedAt = at;
+    return result;
   }
 
   // 2 — non-HTML content type
@@ -146,20 +197,26 @@ async function verify(key, at) {
     bad('non-HTML content type', err.message);
   }
 
-  try {
-    assertMinimumBytes(res.buffer, MIN_BYTES[key], { url });
-    ok('size floor', `${res.bytes.toLocaleString()} bytes >= ${MIN_BYTES[key].toLocaleString()}`);
-  } catch (err) {
-    bad('size floor', err.message);
+  if (MIN_BYTES[key] !== undefined) {
+    try {
+      assertMinimumBytes(res.buffer, MIN_BYTES[key], { url });
+      ok('size floor', `${res.bytes.toLocaleString()} bytes >= ${MIN_BYTES[key].toLocaleString()}`);
+    } catch (err) {
+      bad('size floor', err.message);
+    }
   }
 
-  // 4 — full column header matches the published layout
+  // 4 — full column header matches the published layout, where one is pinned
   let live;
   try {
     live = headerOf(res.buffer);
-    const problems = diffLayout(live, reference);
-    if (problems.length === 0) ok('column header', `${live.length} columns, exact match`);
-    else bad('column header', problems.slice(0, 6).join('; '));
+    if (reference === null) {
+      ok('column header', `${live.length} columns — layout not pinned`);
+    } else {
+      const problems = diffLayout(live, reference);
+      if (problems.length === 0) ok('column header', `${live.length} columns, exact match`);
+      else bad('column header', problems.slice(0, 6).join('; '));
+    }
   } catch (err) {
     bad('column header', err.message);
     return result;
@@ -175,9 +232,16 @@ async function verify(key, at) {
   }
 
   const column = COUNTY_COLUMN[key];
-  const actual = live.find((c) => c.trim() === column);
+  const actual = column === undefined
+    ? findCountyColumn(live)
+    : live.find((c) => c.trim() === column);
+
   if (actual === undefined) {
-    bad(`county column present`, `no column named ${JSON.stringify(column)}`);
+    const detail = column === undefined
+      ? 'no column matching a county candidate — map it by hand from the header'
+      : `no column named ${JSON.stringify(column)}`;
+    if (required) bad('county column present', detail);
+    else ok('county column present', `skipped — ${detail}`);
     return result;
   }
 
@@ -188,8 +252,10 @@ async function verify(key, at) {
 
   if (countyRows.length > 0) {
     ok(`county ${COUNTY_CODE} rows present`, `${countyRows.length.toLocaleString()} of ${rows.length.toLocaleString()}`);
-  } else {
+  } else if (required) {
     bad(`county ${COUNTY_CODE} rows present`, `0 of ${rows.length} rows — Gate 0 fails`);
+  } else {
+    ok(`county ${COUNTY_CODE} rows present`, `0 of ${rows.length} rows — optional source`);
   }
 
   // Distinct establishments give the count a denominator that survives revisits.
@@ -207,7 +273,7 @@ async function verify(key, at) {
 function render(results, at) {
   const lines = [];
   for (const r of results) {
-    lines.push('', `── ${r.key} ─ ${r.url}`);
+    lines.push('', `── ${r.key}${r.required ? '' : ' [optional]'} ─ ${r.url}`);
     for (const c of r.checks) {
       lines.push(`   ${c.pass ? 'PASS' : 'FAIL'}  ${c.label}${c.detail ? ` — ${c.detail}` : ''}`);
     }
@@ -219,9 +285,20 @@ function render(results, at) {
       );
     }
   }
-  const failed = results.filter((r) => !r.ok);
+  const required = results.filter((r) => r.required);
+  const failed = required.filter((r) => !r.ok);
+  const optionalFailed = results.filter((r) => !r.required && !r.ok);
+  const skipped = results.filter((r) => r.skipped);
+
+  if (optionalFailed.length > 0) {
+    lines.push('', `note: optional source(s) not healthy — ${optionalFailed.map((r) => r.key).join(', ')}`);
+  }
+  if (skipped.length > 0) {
+    lines.push(`note: optional source(s) not published yet — ${skipped.map((r) => r.key).join(', ')}`);
+  }
+
   lines.push('', failed.length === 0
-    ? `Gate 0: PASS — ${results.length}/${results.length} extracts verified at ${at}`
+    ? `Gate 0: PASS — ${required.length}/${required.length} required extracts verified at ${at}`
     : `Gate 0: FAIL — ${failed.map((r) => r.key).join(', ')}`);
   return lines.join('\n');
 }
@@ -249,7 +326,7 @@ function record(results, at) {
     r.totalRows?.toLocaleString() ?? '—',
     r.countyRows?.toLocaleString() ?? '—',
     r.countyDistinctLicenses?.toLocaleString() ?? '—',
-    r.ok ? 'PASS' : 'FAIL',
+    r.skipped ? 'SKIP' : r.ok ? 'PASS' : (r.required ? 'FAIL' : 'FAIL (optional)'),
   ].join(' | ')).map((s) => `| ${s} |`).join('\n');
 
   let body;
@@ -264,7 +341,9 @@ function record(results, at) {
 
 async function main() {
   const at = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
-  console.log(`verify-sources: ${Object.keys(LAYOUTS).length} documented extracts, county code ${COUNTY_CODE}`);
+  const requiredCount = Object.values(LAYOUTS).filter((v) => v.required !== false).length;
+  console.log(`verify-sources: ${Object.keys(LAYOUTS).length} documented extracts ` +
+              `(${requiredCount} required), county code ${COUNTY_CODE}`);
 
   const results = [];
   for (const key of Object.keys(LAYOUTS)) {
@@ -274,7 +353,7 @@ async function main() {
   console.log(render(results, at));
   if (process.argv.includes('--record')) record(results, at);
 
-  process.exit(results.every((r) => r.ok) ? 0 : 1);
+  process.exit(results.filter((r) => r.required).every((r) => r.ok) ? 0 : 1);
 }
 
 main().catch((err) => {

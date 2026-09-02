@@ -40,7 +40,9 @@
       "Number of Seats or Rental Units",
       "Base Risk Level",
       "Secondary Risk Level"
-    ]
+    ],
+    "kind": "csv",
+    "required": true
   },
   "inspections": {
     "url": "https://www2.myfloridalicense.com/sto/file_download/extracts/2fdinspi.csv",
@@ -130,6 +132,24 @@
       "Violation 58",
       "License ID",
       "Inspection Visit ID"
-    ]
+    ],
+    "kind": "csv",
+    "required": true
+  },
+  "newEstablishments": {
+    "url": "https://www2.myfloridalicense.com/sto/file_download/extracts/newfood.csv",
+    "kind": "csv",
+    "required": false,
+    "note": "New establishments. Layout not yet pinned - columns is null, so the header check reports the live shape instead of diffing it.",
+    "columnCount": null,
+    "columns": null
+  },
+  "closures": {
+    "urlTemplate": "https://www2.myfloridalicense.com/hr/inspections/documents/EOS_Weekly_Extract_{weekEnding}.xlsx",
+    "kind": "xlsx",
+    "required": false,
+    "note": "Emergency closures, weekly. {weekEnding} is the most recent Sunday. A 404 means the current week has not posted yet and is not a failure.",
+    "columnCount": null,
+    "columns": null
   }
 }
