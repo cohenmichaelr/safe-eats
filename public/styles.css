@@ -680,3 +680,25 @@ main {
   .search__actions { margin-left: 0; width: 100%; }
   .search__actions .btn { flex: 1; }
 }
+
+/* The result filter carries the same mark the map uses, so the dropdown and
+   the pins share one vocabulary. Colour is never alone: each option also
+   carries its shape as a character, which survives a native mobile picker
+   that ignores option styling entirely (FR-404). */
+.search__withmark {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.search__withmark select { flex: 1; min-width: 0; }
+
+.search__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 auto;
+}
+.search__mark svg { display: block; }
+.search__mark:empty { display: none; }

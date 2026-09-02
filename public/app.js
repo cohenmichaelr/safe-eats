@@ -77,6 +77,25 @@
     return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true" focusable="false">${shapeSvg(shape, color, size)}</svg>`;
   }
 
+  /**
+   * Text stand-ins for the pin shapes, for places that can only hold
+   * characters — chiefly <option>, which cannot contain an SVG and whose
+   * colour a native mobile picker ignores. Keyed by the shape names
+   * src/signal.js publishes, so adding a signal there surfaces here.
+   */
+  const SHAPE_GLYPH = {
+    circle: '●',    // U+25CF BLACK CIRCLE
+    triangle: '▲',  // U+25B2 BLACK UP-POINTING TRIANGLE
+    square: '■',    // U+25A0 BLACK SQUARE
+    diamond: '◆',   // U+25C6 BLACK DIAMOND
+  };
+
+  /** Show the real marker for whatever the result filter currently selects. */
+  function updateSignalMark() {
+    const value = $('signal').value;
+    $('signal-mark').innerHTML = value ? markSvg(value, 15) : '';
+  }
+
   function iconFor(signal) {
     const size = 18;
     return L.divIcon({
@@ -458,6 +477,7 @@
     $('q').value = '';
     $('city').value = '';
     $('signal').value = '';
+    updateSignalMark();
     state.searching = false;
     state.lastBbox = null;
     setScope('');
@@ -487,12 +507,19 @@
 
       const signalSelect = $('signal');
       for (const key of ['pass', 'warning', 'serious', 'unknown']) {
-        if (!meta.signals[key]) continue;
+        const display = meta.signals[key];
+        if (!display) continue;
+
         const option = document.createElement('option');
         option.value = key;
-        option.textContent = meta.signals[key].label;
+        // The shape travels as a character, not as styling. Desktop browsers
+        // honour a coloured <option>; iOS and Android native pickers do not,
+        // and a filter whose only cue disappears on a phone is not a filter.
+        option.textContent = `${SHAPE_GLYPH[display.shape] || '●'}  ${display.label}`;
+        option.style.color = display.color;
         signalSelect.append(option);
       }
+      updateSignalMark();
 
       // The as-of date is derived from the last successful ingest, never from
       // the clock (FR-601). If the pipeline stops, this date stops with it —
@@ -602,7 +629,7 @@
     // Changing a menu searches straight away; typing still waits for Enter or
     // the button, so the map does not lurch on every keystroke.
     $('city').addEventListener('change', runSearch);
-    $('signal').addEventListener('change', runSearch);
+    $('signal').addEventListener('change', () => { updateSignalMark(); runSearch(); });
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && !$('detail').hidden) closeDetail();

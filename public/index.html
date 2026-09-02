@@ -51,7 +51,13 @@
 
     <div class="search__field">
       <label for="signal">Result</label>
-      <select id="signal" name="signal"><option value="">Any result</option></select>
+      <div class="search__withmark">
+        <!-- The swatch renders the real pin marker for whatever is selected.
+             Native mobile pickers ignore option colours, so the colour has to
+             live somewhere we actually control. -->
+        <span class="search__mark" id="signal-mark" aria-hidden="true"></span>
+        <select id="signal" name="signal"><option value="">Any result</option></select>
+      </div>
     </div>
 
     <div class="search__actions">
