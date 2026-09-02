@@ -104,6 +104,48 @@ function runStep(step) {
 }
 
 /**
+ * Where a given outcome should be POSTed.
+ *
+ * Chat webhooks (Slack, Discord) carry the outcome in the message body — one
+ * URL, and a human reads the words. Dead-man's-switch monitors do not work that
+ * way: healthchecks.io decides up or down from **which URL you ping**, and a
+ * plain ping means "success" no matter what the body says.
+ *
+ * So posting every outcome to the same healthchecks URL would mark the check
+ * healthy on a failed refresh — a failure reported as success, which is the
+ * precise fault this project exists to prevent. Failures go to `/fail`.
+ *
+ *   ok, needs-look  →  <ping-url>        the data pipeline did its job
+ *   failed, stale   →  <ping-url>/fail   it did not
+ *
+ * `needs-look` pings success deliberately: the basemap needing human eyes does
+ * not mean the refresh failed, and a monitor that cries wolf gets muted. The
+ * detail travels in the body, which healthchecks.io records against the ping.
+ */
+const FAILURE_STATES = new Set(['failed', 'stale']);
+
+function alertTarget(webhook, status) {
+  if (!webhook) return null;
+
+  let host;
+  try {
+    host = new URL(webhook).hostname.toLowerCase();
+  } catch {
+    return webhook; // not parseable as a URL; post it as given and let it fail loudly
+  }
+
+  // hc-ping.com is the hosted service; the env var covers a self-hosted instance,
+  // whose hostname we cannot guess.
+  const isHealthchecks =
+    host === 'hc-ping.com' ||
+    host.endsWith('.hc-ping.com') ||
+    process.env.SAFE_EATS_ALERT_STYLE === 'healthchecks';
+
+  if (!isHealthchecks) return webhook;
+  return FAILURE_STATES.has(status) ? `${webhook.replace(/\/$/, '')}/fail` : webhook;
+}
+
+/**
  * Optional outbound alert. A webhook rather than an integration: it works with
  * Slack, Discord, healthchecks.io and anything else that accepts a POST, so it
  * does not become another thing to rewrite when OPEN-1 is decided.
@@ -113,17 +155,19 @@ function runStep(step) {
  */
 async function alert(payload) {
   if (!WEBHOOK) return;
+  const target = alertTarget(WEBHOOK, payload.status);
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 10_000);
     try {
-      const res = await fetch(WEBHOOK, {
+      const res = await fetch(target, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload),
         signal: controller.signal,
       });
-      log(`alert posted — HTTP ${res.status}`);
+      const where = target === WEBHOOK ? '' : ' (failure endpoint)';
+      log(`alert posted${where} — HTTP ${res.status}`);
     } finally {
       clearTimeout(timer);
     }
@@ -234,7 +278,13 @@ async function main() {
   await alert({ text: summary, status: 'ok', as_of: after });
 }
 
-main().catch((err) => {
-  console.error(`[refresh] unhandled failure: ${err.stack || err.message}`);
-  process.exitCode = 1;
-});
+module.exports = { alertTarget };
+
+// Only run when invoked directly. Without this guard, `require`-ing the module
+// to test alertTarget would kick off a real ingest against live DBPR data.
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(`[refresh] unhandled failure: ${err.stack || err.message}`);
+    process.exitCode = 1;
+  });
+}

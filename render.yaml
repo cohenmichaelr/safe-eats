@@ -65,7 +65,22 @@ services:
 
       # Optional. Any endpoint that accepts a POST — Slack, Discord,
       # healthchecks.io. Set in the dashboard, never here.
+      #
+      # Prefer a healthchecks.io ping URL. Slack and Discord can only report a
+      # refresh that RAN AND FAILED; neither can report one that never ran at
+      # all — the service asleep, the scheduler dead, the disk detached. That
+      # silence is exactly how v1 went unnoticed for three years. A dead-man's
+      # switch alerts on absence, which is the failure that actually happened.
+      #
+      # refresh.js routes failures to <ping-url>/fail automatically when the
+      # host is hc-ping.com, because healthchecks reads up/down from the URL
+      # rather than the body.
       - key: SAFE_EATS_ALERT_WEBHOOK
+        sync: false
+
+      # Only needed for a SELF-HOSTED healthchecks instance, whose hostname
+      # cannot be detected. Set to "healthchecks" in that case.
+      - key: SAFE_EATS_ALERT_STYLE
         sync: false
 
       # Only used by the tier-2 paid geocoder, a manual batch job. It never
