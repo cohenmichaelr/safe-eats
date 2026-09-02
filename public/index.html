@@ -40,6 +40,16 @@
   </main>
 
   <!--
+    Establishment detail — E5. Opens over the map on a phone and beside it on a
+    wide screen. It is a dialog rather than a page because the MVP has no server
+    rendering (FR-501 is Gate 4 work); the hash URL makes it shareable anyway.
+  -->
+  <aside id="detail" class="panel" hidden role="dialog" aria-modal="false" aria-labelledby="detail-name">
+    <button type="button" class="panel__close" id="detail-close" aria-label="Close details">&times;</button>
+    <div id="detail-body"></div>
+  </aside>
+
+  <!--
     Every marker is mirrored here as a real link. The map is a canvas of
     positioned <div>s; this list is what a screen reader, a keyboard, and a
     search engine can actually traverse. It is not a fallback — it is the same
@@ -56,6 +66,7 @@
       Map: © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> contributors, © <a href="https://carto.com/attributions" rel="noopener">CARTO</a>.
     </p>
     <p id="legend-note" class="foot__note"></p>
+    <p><a href="/methodology.html">How this works, and what it cannot tell you</a></p>
   </footer>
 
   <script src="/vendor/leaflet/leaflet.js"></script>

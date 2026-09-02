@@ -227,13 +227,66 @@ The start date did not move and nothing fell out. **The extract is fiscal-year-t
 
 ---
 
+## DEC-011 — Show violation tiers, never bare violation codes
+
+**Date:** 2 Sep 2026 · **Status:** Accepted · **Resolves:** D-012 · **Traces:** FR-503, FR-502, E5 task 10 · Charter editorial rule
+
+**Context.** D-012 asked how the detail panel should present violation severity. The profile had already established that `Number of Critical Violations` and `Number of Noncritical Violations` are blank in 100% of source rows, leaving four populated counts: total, high priority, intermediate, basic. Unpivoting the 58 wide columns (task 5) also produced a `violation` table of 4,533 rows carrying 38 distinct codes.
+
+**What the codes actually are.** Bare two-character numbers — `03`, `08`, `12`, `31` — taken from the extract's column headers `Violation 01` … `Violation 58`. **The extracts publish no description for any of them**, and `docs/source-layouts.json` records none. The obvious place to get the text, DBPR's per-inspection detail page, is dead (DEC-012).
+
+**Decision.** The detail panel displays the **tier counts** — high priority, intermediate, basic, and the total — each with DBPR's own tier name and a one-line gloss of what that tier means. It displays **no violation codes at all**. The codes stay in the database and remain in the `/api/establishments/:id` payload; they are simply not rendered.
+
+**Why.** FR-503 requires plain language and "no bare codes", and there are only three ways to satisfy it:
+
+1. Print `Violation 03`. Meets the letter of the data and tells the reader nothing. A code with no key is noise that looks like evidence.
+2. Write our own description of each code. This is the option to refuse. An inspection record is a statement about a **named, identifiable business**, and a description we authored — however carefully inferred from the code's position on the form — is our accusation wearing the state's authority. The charter's editorial rule is that Safe Eats publishes only what a DBPR record supports, and the record supports the count, not a narrative.
+3. Publish the tiers and stop. The tier names are DBPR's own severity classification, they are populated, and they carry real meaning: a diner can act on "two high-priority violations" without knowing which two.
+
+Option 3 is the only one that is both useful and true. The gloss text describes the *tier*, which is a documented DBPR classification, not the individual finding.
+
+**Consequence.** The panel is less specific than a reader might want, and less specific than the underlying data technically is. That is the correct trade: the specificity we would have to add is invented. The methodology page states plainly that we hold the codes and why we do not show them, rather than letting the absence look like an oversight.
+
+**Reversal condition.** DBPR publishes an authoritative code-to-description table, or restores a per-inspection page we can link to (DEC-012). Either makes the descriptions quotable rather than authored, and the panel can then show each cited violation by the state's own text.
+
+---
+
+## DEC-012 — Link to the state's inspection search, not to a per-visit record
+
+**Date:** 2 Sep 2026 · **Status:** Accepted · **Traces:** FR-504, E5 task 10 · AUD F1
+
+**Context.** FR-504 requires that the detail panel link out to the state's own record, so a reader can verify anything we display against the source. The natural target is DBPR's per-inspection page, whose historic form is `www.myfloridalicense.com/inspectionDetail.asp?InspVisitID=<visit>&businessID=<licence id>`. Both parameters are columns we already hold: `inspection.inspection_visit_id` and `inspection.source_license_id`.
+
+**Evidence.** Probed 2 Sep 2026 with a real pair from the loaded data (visit `13747028`, business `2224513`):
+
+```
+HTTP 200 · text/html · 8,190 bytes
+<META HTTP-EQUIV="refresh" CONTENT=5;URL="http://www.myfloridalicense.com/dbpr/index.html">
+```
+
+**It answers 200 with a bounce stub** — a five-second meta-refresh to the DBPR index. Not a 404, not a redirect: a success status carrying a page that contains none of the requested record. That is the exact shape of AUD F1, the failure this whole rebuild exists to correct, and it is worth naming that we found it by checking rather than by shipping the link and waiting for a complaint.
+
+`https://www.myfloridalicense.com/portalsearches/VerifyLicensee?Mode=0&BoardType=H` — the "Online Inspection Search" linked from DBPR's own inspections page — resolves normally (200, 12KB, no bounce).
+
+**Decision.** Link to the search page, and label the link for what it does: *"Look up &lt;licence number&gt; on the state's inspection search"*. Do not construct a deep link to a record we cannot reach.
+
+**Why.** A link that promises a specific record and delivers a marketing page is worse than no link, because it spends the reader's trust to prove nothing. Naming the licence number in the link text gives them the one thing they need to complete the lookup by hand, and keeps the promise the label makes.
+
+**Consequence.** FR-504's verification reads "Link resolves to state record"; as implemented, the link resolves to the state's *search for* the record. This is a partial satisfaction and is logged as such rather than ticked — it should be re-examined at Gate 4.
+
+**Reversal condition.** DBPR restores a working per-inspection or per-establishment URL. The two identifiers needed to build it are already stored on every row, so this reverts to a deep link the moment there is one to point at.
+
+---
+
 ## Closed decisions
+
 
 | ID | Decision | Closed by | Date |
 |---|---|---|---|
 | D-002 | Map provider | DEC-008 | 24 Aug 2026 |
 | D-004 | Establishment types included | DEC-009 | 24 Aug 2026 |
 | D-005 | Historical backfill depth | DEC-010 | 1 Sep 2026 |
+| D-012 | Violation severity display | DEC-011 | 2 Sep 2026 |
 | D-010 | Establishment identity key | DEC-006 | 24 Aug 2026 |
 | D-011 | Inspection primary key | DEC-007 | 24 Aug 2026 |
 
@@ -244,7 +297,6 @@ D-010 and D-011 were not in the `docs/12-PRD-v1.0.md` register, which defines D-
 | ID | Decision needed | By | Notes |
 |---|---|---|---|
 | D-013 | Fiscal-year roll-over behaviour | Before 1 Jul 2027 | Raised by DEC-010. `2fdinspi.csv` is fiscal-year-to-date; what it does when FY2627 closes is unobserved. Extend `source-watchdog` to alert on a window reset, not only on a dead URL. |
-| D-012 | Violation severity display | Task 10 | `Number of Critical Violations` and `Number of Noncritical Violations` are blank in 100% of source rows, so `critical_violations`/`noncritical_violations` are NULL for all 1,305 inspections. Only total/high/intermediate/basic are populated. The detail panel must be built on the four that exist. |
 | OPEN-1 | Hosting target | Task 12 | Render hosted v1; static-friendly hosts are viable now that Puppeteer is gone |
 | OPEN-2 | Paid geocode fallback | — | *Effectively closed by implementation* (commit `03e6120`): tier-2 fallback raised coverage 92.82% → 98.86%. Needs a retrospective entry recording cost and provider. |
 | OPEN-3 | Expand beyond Palm Beach | Post-MVP | Ingest is already district-wide; gated on the accuracy sample holding |

@@ -18,7 +18,13 @@ const path = require('node:path');
 
 const { open, dataAsOf } = require('./db');
 const { displayedPredicate } = require('./display');
-const { establishmentSignal, SIGNAL_DISPLAY, isKnownDisposition } = require('./signal');
+const {
+  establishmentSignal,
+  SIGNAL_DISPLAY,
+  DISPOSITION_MAP,
+  STALE_AFTER_MONTHS,
+  isKnownDisposition,
+} = require('./signal');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
@@ -137,6 +143,21 @@ function prepareStatements(db) {
      * 70% of pins currently say it.
      */
     windowStart: db.prepare(`SELECT MIN(inspection_date) AS start FROM inspection`),
+
+    /**
+     * Coverage, for the methodology page (FR-601). Published as live counts
+     * rather than as numbers typed into prose: a hand-written "98.9% geocoded"
+     * is true on the day it is written and unfalsifiable afterwards, which is
+     * the genre of claim this project exists to stop making.
+     */
+    coverage: db.prepare(`
+      SELECT COUNT(*)                                                   AS displayed,
+             SUM(CASE WHEN e.lat IS NOT NULL THEN 1 ELSE 0 END)         AS positioned,
+             SUM(CASE WHEN EXISTS (
+                   SELECT 1 FROM inspection i WHERE i.license_key = e.license_key
+                 ) THEN 1 ELSE 0 END)                                   AS inspected
+        FROM establishment e
+       WHERE ${displayed.sql}`),
   };
 }
 
@@ -249,11 +270,23 @@ function createApp(db) {
    * there were two of them.
    */
   app.get('/api/meta', (req, res) => {
+    // The disposition mapping is published, not just applied. FR-601 asks the
+    // product to be able to say how it reached its verdict, and the methodology
+    // page renders this table rather than restating it in prose — a second
+    // hand-maintained copy of the mapping would drift from the first.
+    const dispositions = [...DISPOSITION_MAP.entries()].map(([disposition, signal]) => ({
+      disposition,
+      signal,
+    }));
+
     res.set('Cache-Control', 'public, max-age=300');
     res.json({
       as_of: dataAsOf(db),
       inspection_window_start: q.windowStart.get()?.start ?? null,
       signals: SIGNAL_DISPLAY,
+      dispositions,
+      stale_after_months: STALE_AFTER_MONTHS,
+      coverage: q.coverage.get(...q.displayedParams),
       attribution: {
         data: 'Florida Department of Business & Professional Regulation',
         basemap: '© OpenStreetMap contributors, © CARTO',

@@ -288,3 +288,284 @@ main {
     overflow-y: auto;
   }
 }
+
+/* --------------------------------------------------------------- panel ---- */
+
+/*
+ * Establishment detail (E5). A bottom sheet on a phone, a side panel on a wide
+ * screen — the map stays visible in both, because the pin's position is part of
+ * the answer to "should I eat here".
+ */
+.panel {
+  position: fixed;
+  z-index: 1200;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 1.1rem 1rem calc(1.4rem + env(safe-area-inset-bottom));
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  border-radius: .9rem .9rem 0 0;
+  box-shadow: 0 -6px 28px rgba(0, 0, 0, .22);
+  -webkit-overflow-scrolling: touch;
+}
+
+.panel__close {
+  position: absolute;
+  top: .55rem;
+  right: .6rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.panel__close:hover { background: var(--paper-soft); }
+
+.panel h2 {
+  margin: 0 2.2rem .15rem 0;
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.panel__addr {
+  margin: 0 0 .8rem;
+  color: var(--ink-soft);
+  font-size: .87rem;
+}
+
+/* The verdict line. Shape and colour both present, and the words carry the
+   meaning on their own — FR-404, FR-503. */
+.verdict {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem .7rem;
+  border: 1px solid var(--rule);
+  border-radius: .45rem;
+  background: var(--paper-soft);
+  font-weight: 600;
+  font-size: .95rem;
+}
+.verdict__when {
+  display: block;
+  margin-top: .1rem;
+  font-weight: 400;
+  font-size: .8rem;
+  color: var(--ink-soft);
+}
+
+.panel__plain {
+  margin: .6rem 0 1rem;
+  font-size: .88rem;
+  line-height: 1.45;
+}
+
+.panel h3 {
+  margin: 1.2rem 0 .5rem;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--ink-soft);
+}
+
+/* Tiered violation counts. The tier IS the plain language — DBPR's own
+   severity words — because the underlying codes are bare numbers with no
+   published descriptions (DEC-011, FR-503). */
+.tiers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  gap: .4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tiers > li {
+  padding: .5rem .6rem;
+  border: 1px solid var(--rule);
+  border-radius: .4rem;
+}
+.tiers dt, .tier__label {
+  display: block;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--ink-soft);
+}
+.tier__n {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.tier__gloss {
+  display: block;
+  margin-top: .15rem;
+  font-size: .72rem;
+  color: var(--ink-soft);
+  line-height: 1.3;
+}
+
+/* Inspection history */
+.visits { margin: 0; padding: 0; list-style: none; }
+.visit {
+  padding: .7rem 0;
+  border-top: 1px solid var(--paper-soft);
+}
+.visit__head {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .88rem;
+  font-weight: 600;
+}
+.visit__date { font-variant-numeric: tabular-nums; }
+.visit__type {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: .76rem;
+  color: var(--ink-soft);
+}
+.visit__disposition {
+  margin: .2rem 0 .3rem;
+  font-size: .82rem;
+  color: var(--ink-soft);
+}
+.visit__counts {
+  margin: 0;
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel__note {
+  margin: 1rem 0 0;
+  padding-top: .8rem;
+  border-top: 1px solid var(--rule);
+  font-size: .78rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.panel__source {
+  display: inline-block;
+  margin-top: .5rem;
+  font-size: .8rem;
+}
+
+@media (min-width: 60rem) {
+  .panel {
+    top: 0;
+    bottom: 0;
+    left: auto;
+    width: min(27rem, 40vw);
+    max-height: none;
+    border-radius: 0;
+    border-top: 0;
+    border-left: 1px solid var(--rule);
+    box-shadow: -6px 0 28px rgba(0, 0, 0, .14);
+  }
+}
+
+.card__more {
+  margin-top: .55rem;
+  padding: .4rem .7rem;
+  border: 1px solid var(--rule);
+  border-radius: .3rem;
+  background: var(--paper);
+  color: var(--focus);
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.card__more:hover { background: var(--paper-soft); }
+
+/* ---------------------------------------------------------- prose page ---- */
+
+/* The methodology page (FR-601). Measured column, generous leading: this is the
+   page someone reads when they want to know whether to believe the map. */
+.prose-page { height: auto; }
+.prose-page .bar h1 a { color: inherit; text-decoration: none; }
+
+.prose {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.1rem 3rem;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+.prose .lede {
+  font-size: 1.1rem;
+  line-height: 1.55;
+  margin: 0 0 1.6rem;
+}
+.prose h2 {
+  margin: 2.2rem 0 .6rem;
+  font-size: 1.12rem;
+  line-height: 1.3;
+}
+.prose p { margin: 0 0 1rem; }
+.prose code {
+  padding: .1rem .3rem;
+  border-radius: .2rem;
+  background: var(--paper-soft);
+  font-size: .9em;
+}
+.prose dt { font-weight: 700; margin-top: 1rem; }
+.prose dd { margin: .25rem 0 0; color: var(--ink-soft); }
+
+.callout {
+  padding: .85rem 1rem;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--ink-soft);
+  border-radius: .3rem;
+  background: var(--paper-soft);
+  font-size: .93rem;
+}
+
+.mapping {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1rem;
+  font-size: .88rem;
+}
+.mapping th, .mapping td {
+  padding: .55rem .5rem;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+.mapping th {
+  font-size: .74rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--ink-soft);
+}
+.mapping td:first-child { white-space: nowrap; font-weight: 600; }
+
+/* The swatch is decoration here: the row is already labelled in words, so the
+   colour adds recognition rather than carrying meaning on its own. */
+.chip {
+  display: inline-block;
+  width: .7rem;
+  height: .7rem;
+  margin-right: .4rem;
+  border-radius: .15rem;
+  vertical-align: baseline;
+}
+
+.dispositions { margin: 0; padding-left: 1.1rem; }
+.dispositions li { margin-bottom: .15rem; }
+
+@media (max-width: 34rem) {
+  .mapping, .mapping tbody, .mapping tr, .mapping td { display: block; width: 100%; }
+  .mapping thead { display: none; }
+  .mapping tr { padding: .6rem 0; border-bottom: 1px solid var(--rule); }
+  .mapping td { border: 0; padding: .15rem 0; }
+}

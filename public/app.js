@@ -133,6 +133,7 @@
       `<p class="card__signal">${markSvg(pin.signal, 14)} ${escapeHtml(label(pin.signal))}</p>` +
       `<p class="card__plain">${escapeHtml(plainLine(pin))}</p>` +
       counts +
+      `<button type="button" class="card__more" data-detail-id="${escapeHtml(pin.id)}">See all inspections</button>` +
       `</div>`
     );
   }
@@ -141,6 +142,139 @@
     return String(value ?? '').replace(/[&<>"']/g, (ch) =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]
     );
+  }
+
+  /* ---------------------------------------------------------------- panel --- */
+
+  /**
+   * FR-508 — elapsed time in plain language. "Three weeks ago" is a fact a
+   * person can weigh; "2026-08-11" makes them do arithmetic before they can.
+   */
+  function elapsed(iso) {
+    const then = Date.parse(`${iso}T00:00:00Z`);
+    if (Number.isNaN(then)) return null;
+    const days = Math.floor((Date.now() - then) / 86400000);
+    if (days <= 0) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 14) return `${days} days ago`;
+    if (days < 60) return `${Math.round(days / 7)} weeks ago`;
+    if (days < 365) return `${Math.round(days / 30)} months ago`;
+    const years = (days / 365).toFixed(days < 730 ? 0 : 1).replace(/\.0$/, '');
+    return `${years} year${years === '1' ? '' : 's'} ago`;
+  }
+
+  /**
+   * FR-503 — tiered counts with DBPR's own severity words, and a gloss saying
+   * what each tier means.
+   *
+   * The bare violation codes are deliberately NOT rendered. The extract ships
+   * them as numbers ("03", "08", "12") with no published description, and the
+   * state's per-visit detail page is dead, so there is no authoritative text to
+   * attach to them. Printing "Violation 03" tells a reader nothing, and writing
+   * our own gloss for it would be inventing a claim about a named restaurant.
+   * See DEC-011.
+   */
+  const TIERS = [
+    ['high', 'High priority', 'Could directly contribute to food-borne illness.'],
+    ['intermediate', 'Intermediate', 'Relates to controls that prevent a high-priority risk.'],
+    ['basic', 'Basic', 'General maintenance, cleaning and facility upkeep.'],
+  ];
+
+  function tiersHtml(v) {
+    if (!v || v.total === null || v.total === undefined) return '';
+    const cells = TIERS.map(
+      ([key, label, gloss]) =>
+        `<li><span class="tier__label">${label}</span>` +
+        `<span class="tier__n">${v[key] ?? 0}</span>` +
+        `<span class="tier__gloss">${gloss}</span></li>`
+    ).join('');
+    return `<ul class="tiers">${cells}</ul>`;
+  }
+
+  function visitHtml(visit) {
+    const v = visit.violations || {};
+    const counts =
+      v.total === null || v.total === undefined
+        ? '<p class="visit__counts">No violation counts published for this visit.</p>'
+        : `<p class="visit__counts">${v.total} violation${v.total === 1 ? '' : 's'}` +
+          ` — ${v.high ?? 0} high priority, ${v.intermediate ?? 0} intermediate, ${v.basic ?? 0} basic.</p>`;
+
+    return (
+      `<li class="visit">` +
+      `<p class="visit__head">${markSvg(visit.signal, 13)}` +
+      `<span class="visit__date">${escapeHtml(formatDate(visit.date))}</span>` +
+      `<span class="visit__type">${escapeHtml(visit.type || 'Inspection')}</span></p>` +
+      // The disposition verbatim from the state. It is the state's own wording
+      // for the outcome, and paraphrasing it would put our words on their record.
+      `<p class="visit__disposition">${escapeHtml(visit.disposition || 'No disposition recorded')}</p>` +
+      counts +
+      `</li>`
+    );
+  }
+
+  function detailHtml(data) {
+    const est = data.establishment;
+    const latest = data.inspections[0] || null;
+    const when = latest ? elapsed(latest.date) : null;
+
+    const header =
+      `<h2 id="detail-name">${escapeHtml(est.name)}</h2>` +
+      `<p class="panel__addr">${escapeHtml([est.address, est.city, est.zip].filter(Boolean).join(', '))}</p>` +
+      `<p class="verdict">${markSvg(est.signal, 18)}<span>${escapeHtml(label(est.signal))}` +
+      (latest ? `<span class="verdict__when">Last inspected ${escapeHtml(formatDate(latest.date))} · ${escapeHtml(when)}</span>` : '') +
+      `</span></p>` +
+      `<p class="panel__plain">${escapeHtml(plainLine({ signal: est.signal, last_inspection_date: latest?.date }))}</p>`;
+
+    const latestBlock = latest
+      ? `<h3>Most recent visit</h3>${tiersHtml(latest.violations)}`
+      : '';
+
+    const history = data.inspections.length
+      ? `<h3>All published inspections (${data.inspections.length})</h3>` +
+        `<ul class="visits">${data.inspections.map(visitHtml).join('')}</ul>`
+      : '';
+
+    // FR-505 — the snapshot caveat travels with the record, not only with the
+    // map. Someone linked straight to this panel has not seen the header.
+    // FR-504 — the state's per-visit detail page (inspectionDetail.asp) now
+    // answers with a bounce stub, so this links to their live search rather than
+    // claiming to deep-link a record it cannot reach. See DEC-012.
+    const note =
+      `<p class="panel__note">Each result describes one inspection on one day. ` +
+      `It is not a rating, and it does not describe the kitchen today. ` +
+      `Published by the Florida Department of Business &amp; Professional Regulation` +
+      (data.as_of ? ` · data as of ${escapeHtml(formatDate(data.as_of.slice(0, 10)))}` : '') + `.` +
+      `<a class="panel__source" href="https://www.myfloridalicense.com/portalsearches/VerifyLicensee?Mode=0&amp;BoardType=H" target="_blank" rel="noopener">` +
+      `Look up ${escapeHtml(est.license_number || 'this licence')} on the state's inspection search →</a></p>`;
+
+    return header + latestBlock + history + note;
+  }
+
+  async function openDetail(id) {
+    const panel = $('detail');
+    const body = $('detail-body');
+    body.innerHTML = '<p class="panel__plain">Loading…</p>';
+    panel.hidden = false;
+
+    try {
+      const res = await fetch(`/api/establishments/${encodeURIComponent(id)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+
+      body.innerHTML = detailHtml(data);
+      state.openId = id;
+      // Shareable without server rendering (FR-501 proper is Gate 4 work).
+      history.replaceState(null, '', `#/e/${encodeURIComponent(id)}`);
+      $('detail-close').focus();
+    } catch (err) {
+      body.innerHTML = `<p class="panel__plain">Could not load this establishment: ${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  function closeDetail() {
+    $('detail').hidden = true;
+    state.openId = null;
+    history.replaceState(null, '', location.pathname + location.search);
   }
 
   /* --------------------------------------------------------------- render --- */
@@ -305,16 +439,40 @@
 
     $('search-area').addEventListener('click', load);
 
+    // The list is a list of records, so clicking one opens the record — and
+    // moves the map to it, because where it is remains part of the answer.
     $('results-list').addEventListener('click', (event) => {
       const link = event.target.closest('a[data-id]');
       if (!link) return;
       event.preventDefault();
-      const marker = state.markersById?.get(link.dataset.id);
-      if (!marker) return;
-      state.cluster.zoomToShowLayer(marker, () => marker.openPopup());
+      const id = link.dataset.id;
+      const marker = state.markersById?.get(id);
+      if (marker) state.cluster.zoomToShowLayer(marker, () => {});
+      openDetail(id);
     });
 
-    loadMeta().then(load);
+    // Popups are re-created by Leaflet on every open, so the handler is
+    // delegated from the map container rather than bound per marker.
+    $('map').addEventListener('click', (event) => {
+      const button = event.target.closest('[data-detail-id]');
+      if (!button) return;
+      openDetail(button.dataset.detailId);
+    });
+
+    $('detail-close').addEventListener('click', closeDetail);
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !$('detail').hidden) closeDetail();
+    });
+
+    // A shared link opens straight onto the record it names.
+    const deepLink = /^#\/e\/(.+)$/.exec(location.hash);
+
+    loadMeta()
+      .then(load)
+      .then(() => {
+        if (deepLink) openDetail(decodeURIComponent(deepLink[1]));
+      });
   }
 
   if (document.readyState === 'loading') {

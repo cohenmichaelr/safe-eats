@@ -322,6 +322,27 @@ test('GET /api/meta — FR-601, FR-404', async (t) => {
     assert.equal(body.inspection_window_start, '2019-03-04');
   });
 
+  await t.test('publishes the disposition mapping, not just applies it', async () => {
+    // FR-601: the methodology page renders this table rather than restating the
+    // mapping in prose, so a second hand-maintained copy cannot drift from
+    // src/signal.js. Identity with DISPOSITION_MAP is the assertion.
+    const { body } = await get('/api/meta');
+    const { DISPOSITION_MAP } = require('../src/signal');
+    assert.equal(body.dispositions.length, DISPOSITION_MAP.size);
+    for (const { disposition, signal } of body.dispositions) {
+      assert.equal(signal, DISPOSITION_MAP.get(disposition), `${disposition} disagrees with signal.js`);
+    }
+    // Nothing may map to a signal the legend cannot draw.
+    for (const { signal } of body.dispositions) assert.ok(body.signals[signal], `${signal} has no display`);
+  });
+
+  await t.test('reports coverage over the displayed population only', async () => {
+    const { body } = await get('/api/meta');
+    // The fixture holds 6 displayable (type 2010, county 60) establishments: 5
+    // positioned, 1 not; the taco truck is excluded. 4 have inspections.
+    assert.deepEqual(body.coverage, { displayed: 6, positioned: 5, inspected: 4 });
+  });
+
   await t.test('names both attributions', async () => {
     const { body } = await get('/api/meta');
     assert.match(body.attribution.data, /Business & Professional Regulation/);

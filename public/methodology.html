@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>How Safe Eats works — methodology and limits</title>
+  <meta name="description" content="Where Safe Eats gets its data, how inspection results become a signal, how pins are placed, and what the data cannot tell you.">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="prose-page">
+  <header class="bar">
+    <h1><a href="/">Safe&nbsp;Eats</a> <span class="bar__where">Methodology</span></h1>
+    <p class="bar__asof" id="asof">Loading…</p>
+  </header>
+
+  <main class="prose">
+    <p class="lede">
+      Safe Eats shows Florida health-inspection results for licensed food service
+      establishments in Palm Beach County. It publishes only what the state's own
+      records support. This page says exactly what that means, and where it stops.
+    </p>
+
+    <h2>Where the data comes from</h2>
+    <p>
+      Two files published by the Florida Department of Business &amp; Professional
+      Regulation (DBPR), fetched directly from the state:
+    </p>
+    <ul>
+      <li><code>hrfood2.csv</code> — currently licensed establishments in District 2</li>
+      <li><code>2fdinspi.csv</code> — inspections in District 2</li>
+    </ul>
+    <p>
+      District 2 covers Broward, Martin and Palm Beach. We keep county 60, Palm Beach.
+      Nothing is scraped, and no third party sits between the state's file and this map.
+    </p>
+    <p class="callout">
+      <strong>If the source breaks, this site stops rather than lies.</strong>
+      The loader refuses a file that is not CSV, that begins with an HTML document,
+      or that carries implausibly few rows — and leaves the previous data and its
+      date untouched. The earlier version of this project did not do that: its
+      download URL died in January 2023, the failure was written to a log instead
+      of stopping the run, and it served three-year-old records as current. The
+      date in the corner of every page is the date of the last <em>successful</em>
+      load, never today's date.
+    </p>
+
+    <h2>How an inspection becomes a signal</h2>
+    <p>
+      Each inspection ends with a disposition — the state's own words for the
+      outcome. Every disposition is mapped explicitly to one of four signals. An
+      unrecognised disposition <strong>stops the build</strong> rather than
+      defaulting to a passing result, because a silent default is how a change in
+      someone else's file becomes a false reassurance about a kitchen.
+    </p>
+    <div id="mapping"></div>
+    <p>
+      An establishment shows the signal of its <strong>most recent visit</strong>.
+      Where an inspector returned to check on earlier violations, it is that later
+      visit that counts — a warning cleared on a callback is a resolved problem,
+      not a current one.
+    </p>
+
+    <h2>Why most places say “no recent inspection”</h2>
+    <p id="grey-stat">
+      The inspection file DBPR publishes runs from the start of the state fiscal
+      year, <span id="window-start">1 July</span>, and grows as inspections happen.
+      It is not a full history, and older years are not published anywhere we can
+      reach.
+    </p>
+    <p>
+      So most licensed establishments have no published inspection yet. They are
+      shown in grey, and grey means exactly one thing: <strong>the state has not
+      published a visit here within the period we hold.</strong> It is not a poor
+      result, a warning, or a hint. Florida inspects licensed food service one to
+      four times a year depending on assessed risk, so this fills in over time.
+    </p>
+
+    <h2>How pins are placed</h2>
+    <p>
+      Each establishment's licensed address is converted to coordinates once, by
+      the US Census Bureau geocoder, and the result is stored. Nothing about a pin
+      is looked up from a mapping service when you load this page, and no
+      establishment is matched by name against anyone else's database — the pin
+      and the inspection record are the same record.
+    </p>
+    <p id="coverage-stat"></p>
+    <p>
+      An establishment with no usable coordinate is left off the map rather than
+      placed at a guess such as a ZIP-code centre. A pin in roughly the right area
+      is worse than no pin, because it looks equally confident.
+    </p>
+    <p>
+      Accuracy is checked by drawing a random sample of mapped establishments with
+      a fixed seed and verifying each one by hand against aerial imagery. The
+      threshold is set before the sample is drawn and the sample is not redrawn to
+      obtain a better number.
+    </p>
+
+    <h2>What this does not show, and why</h2>
+    <dl>
+      <dt>Individual violation descriptions</dt>
+      <dd>
+        The published file records violations as bare numbers with no accompanying
+        text, and the state's per-inspection detail page no longer resolves. We
+        show the counts in DBPR's own severity tiers — high priority, intermediate,
+        basic — and stop there. Writing our own description of what violation “03”
+        means at a named restaurant would be inventing an accusation.
+      </dd>
+
+      <dt>Food trucks, caterers, temporary events and vending machines</dt>
+      <dd>
+        These are licensed at a commissary, base or home address rather than where
+        food reaches you. Mapping them would put a restaurant pin on a residential
+        street and assert something the licence record does not support.
+      </dd>
+
+      <dt>Counties other than Palm Beach</dt>
+      <dd>Not yet verified to the same accuracy standard.</dd>
+
+      <dt>Ratings, photos, reviews and opening hours</dt>
+      <dd>
+        Not inspection data. Mixing them in would blur the line between what the
+        state found and what the internet thinks.
+      </dd>
+    </dl>
+
+    <h2>What an inspection result is not</h2>
+    <p>
+      An inspection is one inspector's findings during one visit on one day. It is
+      not a score, not a grade, and not a statement about the food you will be
+      served. A restaurant with violations may have corrected them the same
+      afternoon; one with a clean record may have been inspected months ago. Read
+      the date alongside the result — that is why every result here carries one.
+    </p>
+
+    <h2>Corrections</h2>
+    <p>
+      If a pin is in the wrong place or a record looks wrong, the authoritative
+      copy is the state's. Inspection records are corrected by DBPR, not by us,
+      and a correction there reaches this map on the next load.
+      <a href="https://www2.myfloridalicense.com/food-lodging/inspections/" rel="noopener">DBPR Hotels and Restaurants inspections →</a>
+    </p>
+  </main>
+
+  <footer class="foot">
+    <p>
+      Data: <a href="https://www2.myfloridalicense.com/sto/file_download/extracts/" rel="noopener">Florida DBPR public extracts</a>.
+      Map: © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> contributors, © <a href="https://carto.com/attributions" rel="noopener">CARTO</a>.
+    </p>
+    <p><a href="/">← Back to the map</a></p>
+  </footer>
+
+  <script>
+  /*
+   * Every number and every row below is fetched from /api/meta, not typed into
+   * the prose above. A methodology page that restates the mapping in its own
+   * words becomes wrong the first time the mapping changes, and nobody finds out.
+   */
+  (function () {
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+    // Our plain-English reading of each signal. Deliberately separate from the
+    // labels and the dispositions, which are the code's words and the state's.
+    const GLOSS = {
+      pass: 'The inspector finished and asked for nothing further.',
+      warning: 'Violations were found and a follow-up was still outstanding.',
+      serious: 'Referred for enforcement — an administrative complaint or an emergency order.',
+      unknown: 'No published visit in the period we hold. Not a result.',
+    };
+
+    const fmt = (iso) => {
+      const d = new Date(iso.length > 10 ? iso : `${iso}T00:00:00Z`);
+      return isNaN(d) ? iso : d.toLocaleDateString(undefined,
+        { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+    };
+
+    fetch('/api/meta').then((r) => r.json()).then((meta) => {
+      document.getElementById('asof').textContent =
+        meta.as_of ? `Data as of ${fmt(meta.as_of.slice(0, 10))}` : 'No successful data load on record';
+
+      if (meta.inspection_window_start) {
+        document.getElementById('window-start').textContent = fmt(meta.inspection_window_start);
+      }
+
+      // Disposition mapping, grouped by signal, straight from src/signal.js.
+      const order = ['pass', 'warning', 'serious', 'unknown'];
+      const groups = new Map(order.map((k) => [k, []]));
+      for (const row of meta.dispositions || []) {
+        if (groups.has(row.signal)) groups.get(row.signal).push(row.disposition);
+      }
+
+      document.getElementById('mapping').innerHTML =
+        '<table class="mapping"><thead><tr><th>Signal</th><th>Means</th><th>State disposition</th></tr></thead><tbody>' +
+        order.filter((k) => meta.signals[k]).map((key) => {
+          const d = meta.signals[key];
+          const said = groups.get(key);
+          const rows = said.length
+            ? said.map((s) => `<li>${esc(s)}</li>`).join('')
+            : `<li>No inspection within ${esc(meta.stale_after_months)} months, or none published</li>`;
+          return `<tr><td><span class="chip" style="background:${esc(d.color)}"></span>${esc(d.label)}</td>` +
+                 `<td>${esc(GLOSS[key] || '')}</td>` +
+                 `<td><ul class="dispositions">${rows}</ul></td></tr>`;
+        }).join('') + '</tbody></table>';
+
+      const c = meta.coverage;
+      if (c && c.displayed) {
+        const pct = (n) => ((n / c.displayed) * 100).toFixed(1);
+        document.getElementById('coverage-stat').innerHTML =
+          `Of the <strong>${c.displayed.toLocaleString()}</strong> permanent food service establishments ` +
+          `licensed in Palm Beach County, <strong>${c.positioned.toLocaleString()}</strong> ` +
+          `(${pct(c.positioned)}%) have a verified coordinate and appear on the map. ` +
+          `<strong>${c.inspected.toLocaleString()}</strong> (${pct(c.inspected)}%) have at least one published inspection.`;
+      }
+    }).catch(() => {
+      document.getElementById('asof').textContent = 'Data date unavailable';
+      document.getElementById('mapping').textContent =
+        'The signal mapping could not be loaded. It is defined in src/signal.js.';
+    });
+
+  })();
+  </script>
+</body>
+</html>
