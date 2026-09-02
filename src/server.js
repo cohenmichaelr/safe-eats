@@ -289,7 +289,7 @@ function createApp(db) {
       coverage: q.coverage.get(...q.displayedParams),
       attribution: {
         data: 'Florida Department of Business & Professional Regulation',
-        basemap: '© OpenStreetMap contributors, © CARTO',
+        basemap: 'Esri World Street Map — Esri, HERE, Garmin, USGS, Intermap, © OpenStreetMap contributors',
       },
     });
   });

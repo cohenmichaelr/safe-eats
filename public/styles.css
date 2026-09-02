@@ -165,7 +165,14 @@ main {
 /* Leaflet wraps a divIcon in .leaflet-marker-icon; the SVG inside carries the
    shape and the fill. No background or border here — the shape IS the mark. */
 .pin { display: block; }
-.pin svg { display: block; overflow: visible; }
+/* The shadow is what keeps a pin readable over a colour basemap (DEC-013).
+   On the old greyscale canvas the white stroke alone was enough; over a park
+   or a highway it is not. */
+.pin svg {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .5));
+}
 
 .leaflet-marker-icon:focus-visible {
   outline: 3px solid var(--focus);
@@ -181,8 +188,9 @@ main {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, .92);
-  border: 2px solid #4b5158;
+  background: rgba(255, 255, 255, .96);
+  border: 2px solid #3a4046;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .45);
   color: var(--ink);
   font-size: .78rem;
   font-weight: 700;

@@ -5,7 +5,7 @@
  *
  * Everything drawn here comes from our own API (FR-403). The page makes exactly
  * three kinds of request: `/api/meta` once, `/api/establishments?bbox=` per
- * viewport, and basemap tiles from CARTO. There is no Places lookup, no
+ * viewport, and basemap tiles from Esri. There is no Places lookup, no
  * geocoder, and no key — which is the whole point of DEC-002 and DEC-008.
  */
 
@@ -37,14 +37,18 @@
   /**
    * FR-404 — colour AND shape. Rendered as inline SVG rather than a coloured
    * dot so the mark survives greyscale, colour-blindness, and a phone screen in
-   * sunlight. The white stroke keeps every shape legible against both the pale
-   * basemap and a dark park polygon.
+   * sunlight.
+   *
+   * The white stroke does more work since the basemap gained colour (DEC-013):
+   * it is the separation between a green "met standards" pin and the green of a
+   * park underneath it. Widened accordingly, and paired with a drop shadow in
+   * CSS so the mark keeps an edge over tan, orange and water alike.
    */
   function shapeSvg(shape, color, size) {
     const s = size;
     const c = s / 2;
     const r = s * 0.42;
-    const common = `fill="${color}" stroke="#ffffff" stroke-width="${Math.max(1, s * 0.11)}" stroke-linejoin="round"`;
+    const common = `fill="${color}" stroke="#ffffff" stroke-width="${Math.max(1.5, s * 0.16)}" stroke-linejoin="round"`;
 
     switch (shape) {
       case 'triangle': {
@@ -410,9 +414,36 @@
       preferCanvas: false,
     }).fitBounds(COUNTY_BOUNDS);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap contributors, © CARTO',
-      subdomains: 'abcd',
+    /*
+     * Esri World Street Map — DEC-013.
+     *
+     * Two changes from DEC-008, for two different reasons.
+     *
+     * Not CARTO: CARTO began requiring a key for basemaps.cartocdn.com and now
+     * serves an "API KEY REQUIRED" watermark stamped across every tile. It
+     * answers HTTP 200 with a valid PNG carrying correct map data, so every
+     * status-code and content-type check passes while the product is visibly
+     * broken — the same shape as AUD F1, and caught only by looking at the
+     * pixels rather than at the response.
+     *
+     * Not greyscale: colour was asked for. DEC-008 chose a desaturated basemap
+     * so the signal colours would be the only colour on the map, and that
+     * reasoning still holds — a street map puts green parks and orange highways
+     * in the same channel as the pass/warning/serious pins. FR-404 survives
+     * because the signal was never carried by colour alone: each state also has
+     * a distinct shape, and the popup and list both name it in words. What is
+     * lost is instant scanning, so the pins compensate with a heavier white
+     * stroke and a drop shadow (see .pin in styles.css) to hold their edge
+     * against tan, green and orange alike.
+     *
+     * Esri's street map bakes its labels into the tile, so unlike the Light Gray
+     * canvas it needs no second reference layer.
+     */
+    const ESRI = 'https://services.arcgisonline.com/ArcGIS/rest/services';
+
+    L.tileLayer(`${ESRI}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`, {
+      attribution:
+        'Tiles © Esri — Esri, HERE, Garmin, USGS, Intermap, © OpenStreetMap contributors, and the GIS user community',
       maxZoom: 19,
     }).addTo(state.map);
 

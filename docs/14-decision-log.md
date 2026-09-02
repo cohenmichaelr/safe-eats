@@ -130,6 +130,9 @@ Keying on the visit id also makes the displayed signal well-defined: the establi
 
 ## DEC-008 — Map provider: Leaflet with CARTO Positron raster tiles
 
+> **Partly superseded by DEC-013 (2 Sep 2026).** Leaflet stands; the CARTO Positron
+> tile source does not. CARTO now requires a key, and the basemap is colour by choice.
+
 **Date:** 24 Aug 2026 · **Status:** Accepted · **Resolves:** D-002 · **Traces:** NFR-12, NFR-13, FR-403, FR-404 · Charter C3
 
 **Context.** D-002 has been open since Gate 0. v1 used the Google Maps JavaScript API, which required a browser-exposed key: `server.js` served `GOOGLE_MAPS_API_KEY` to the frontend from a `/config` endpoint, so the key was readable by anyone who loaded the page. `docs/40-mvp-plan.md` §4 already assumes Leaflet; this entry records the choice, the tile source it depends on, and what would reverse it.
@@ -278,7 +281,53 @@ HTTP 200 · text/html · 8,190 bytes
 
 ---
 
+## DEC-013 — Basemap: Esri World Street Map, in colour
+
+**Date:** 2 Sep 2026 · **Status:** Accepted · **Supersedes:** DEC-008 (tile source only; Leaflet is unchanged) · **Traces:** FR-403, FR-404, NFR-12 · Charter C3
+
+**Context.** Two separate things changed DEC-008's answer on the same day: one forced, one chosen.
+
+### 1. CARTO stopped being keyless — forced
+
+DEC-008 selected CARTO Positron specifically because it needed no API key, no billing account and no browser-exposed credential. That premise expired. CARTO now requires a key for `basemaps.cartocdn.com` and serves unregistered traffic a tile with **"API KEY REQUIRED — carto.com/basemaps/apikey" watermarked diagonally across it**.
+
+The failure is worth recording precisely, because it is this project's own subject matter:
+
+```
+GET https://a.basemaps.cartocdn.com/light_all/10/283/433.png
+HTTP 200 · image/png · 7,915 bytes · valid PNG · correct map geometry
+```
+
+Status code: fine. Content type: fine. Payload size: plausible. Decodes as a real image of the right place. **Every check short of looking at the pixels passes**, and the product is visibly broken. That is AUD F1's shape exactly — a success response carrying a wrong payload — and it was found by rendering a tile and reading it, not by any assertion in this repository.
+
+The lesson generalises past this incident: **a check that cannot fail on the actual failure mode is not a check.** `source-watchdog` verifies the DBPR extracts are alive and CSV; nothing verified that the basemap was a basemap. See the open item below.
+
+### 2. Colour instead of greyscale — chosen
+
+DEC-008 argued for a desaturated basemap so the signal colours would be the only colour on the map. That argument is still correct on its own terms, and it is overridden deliberately: a colour street map is more legible and more familiar, and the greyscale canvas made the product read as a data tool rather than as something you consult before dinner.
+
+**Decision.** Leaflet with **Esri World Street Map** raster tiles, in colour. No key, no billing account, no credential in the browser. Labels are baked into the tile, so the second reference layer the Light Gray canvas needs is dropped. Attribution: Esri, HERE, Garmin, USGS, Intermap, © OpenStreetMap contributors.
+
+**Why Esri and not the alternatives.** Three keyless candidates were fetched and inspected as images, not as status codes:
+
+| Candidate | Key | Verdict |
+|---|---|---|
+| CARTO Positron | now required | Watermarked; unusable unregistered |
+| Esri World Street Map | none | Muted colour, labels included — chosen |
+| OSM Standard | none | Saturated greens and oranges; also the OSMF tile policy discourages production use, which DEC-008 already rejected it for |
+
+OSM Standard is the more obvious "colour map", and it is the worse one here: its parks are the green of a passing pin and its arterials the orange-red of an enforcement pin. Esri's palette is quieter, which leaves the signal colours more room.
+
+**What this costs, and what pays for it.** FR-404 requires the signal to survive greyscale and colour-blindness, and it still does — the signal was never carried by colour alone. Each state has a distinct shape (circle, triangle, square, diamond), and the popup, the detail panel and the results list each name it in words.
+
+What is genuinely lost is **scanning speed**: picking the red squares out of a viewport is harder over a busy basemap than over a grey one. The pins compensate — white stroke widened from 11% to 16% of the mark, plus a drop shadow, and the same for cluster bubbles — so a mark holds its edge over tan, green and water alike. If scanning proves to be the thing users actually do, the fix is a basemap toggle rather than a reversal.
+
+**Reversal condition.** Either (a) usability evidence that people scan the map for red rather than search it for a place, which would argue for restoring a desaturated default; or (b) Esri's terms turn out to prohibit this use (open item below), which forces a provider change regardless of colour. Reversal is a URL and an attribution string — the layer is one `L.tileLayer` call — so this is a cheap decision to unwind, which is part of why it was taken quickly.
+
+---
+
 ## Closed decisions
+
 
 
 | ID | Decision | Closed by | Date |
@@ -297,6 +346,8 @@ D-010 and D-011 were not in the `docs/12-PRD-v1.0.md` register, which defines D-
 | ID | Decision needed | By | Notes |
 |---|---|---|---|
 | D-013 | Fiscal-year roll-over behaviour | Before 1 Jul 2027 | Raised by DEC-010. `2fdinspi.csv` is fiscal-year-to-date; what it does when FY2627 closes is unobserved. Extend `source-watchdog` to alert on a window reset, not only on a dead URL. |
+| D-014 | Esri basemap terms of use | Before public launch | Raised by DEC-013. The ArcGIS Online basemap services are publicly served and widely used with attribution, but their terms for unauthenticated production use have not been read. If they prohibit it, CARTO with a free key is the licensed fallback. |
+| D-015 | Watch the basemap, not just the data | Task 12 | Raised by DEC-013. CARTO served a watermarked tile under HTTP 200 and nothing caught it. `source-watchdog` covers the DBPR extracts only. A basemap check has to compare pixels or bytes against a known-good tile, since status and content-type both pass on the failure. |
 | OPEN-1 | Hosting target | Task 12 | Render hosted v1; static-friendly hosts are viable now that Puppeteer is gone |
 | OPEN-2 | Paid geocode fallback | — | *Effectively closed by implementation* (commit `03e6120`): tier-2 fallback raised coverage 92.82% → 98.86%. Needs a retrospective entry recording cost and provider. |
 | OPEN-3 | Expand beyond Palm Beach | Post-MVP | Ingest is already district-wide; gated on the accuracy sample holding |
