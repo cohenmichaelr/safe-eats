@@ -146,6 +146,7 @@ page cannot drift from the code.
 | `npm run probe:window` | Re-check the inspection window without writing anything |
 | `npm run verify:sources` | Probe every source and diff its header against the pinned layout |
 | `npm run check:basemap` | Basemap canary. Exits 2 when a tile changed and needs human eyes |
+| `npm run refresh` | The whole weekly cycle: verify, ingest, geocode, check. Exit code is the signal |
 | `npm test` | 176 tests, `node --test` |
 | `npm run scan:secrets` / `guard:sql` | Commit gates, also installed as pre-commit hooks |
 

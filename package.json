@@ -12,6 +12,7 @@
     "probe:window": "node scripts/probe-window.js",
     "verify:sources": "node scripts/verify-sources.js",
     "check:basemap": "node scripts/check-basemap.js",
+    "refresh": "node scripts/refresh.js",
     "start": "node src/server.js",
     "test": "node --test",
     "prepare": "node scripts/install-hooks.js",
