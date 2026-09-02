@@ -44,6 +44,15 @@ services:
     startCommand: npm start
     healthCheckPath: /api/meta
 
+    # A new disk starts empty. The service handles that itself: on boot it
+    # restores seed/geocode-cache.csv into geocode_cache when the table is
+    # empty, so a fresh deploy does not re-buy the 272 paid resolutions or
+    # re-ask the Census geocoder 3,900 questions it has already answered.
+    # Establishments and inspections need no seed — DBPR republishes those, and
+    # the first scheduled refresh reloads them in about three seconds.
+    #
+    # This cannot be a build step: Render disks are "accessible ... only at
+    # runtime", so nothing written during the build reaches the database.
     disk:
       name: safe-eats-data
       mountPath: /var/data

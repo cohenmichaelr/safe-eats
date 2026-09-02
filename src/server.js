@@ -19,6 +19,7 @@ const path = require('node:path');
 const { open, dataAsOf } = require('./db');
 const { displayedPredicate } = require('./display');
 const { createScheduler } = require('./scheduler');
+const { seedGeocodeCache } = require('./seed');
 const {
   establishmentSignal,
   SIGNAL_DISPLAY,
@@ -409,6 +410,17 @@ function main() {
   const db = open();
   const app = createApp(db);
   const port = Number(process.env.PORT) || 3000;
+
+  // Restore the committed geocode cache if this is a fresh disk. A no-op when
+  // anything is already cached, so it costs one COUNT on every other boot.
+  // Render disks exist only at runtime, so this cannot be a build step.
+  try {
+    const { seeded, reason } = seedGeocodeCache(db);
+    console.log(seeded ? `geocode cache: seeded ${seeded} address(es) — ${reason}` : `geocode cache: ${reason}`);
+  } catch (err) {
+    // Never fatal. A missing cache costs geocoding time, not correctness.
+    console.error(`geocode cache: could not seed — ${err.message}`);
+  }
 
   const server = app.listen(port, () => {
     console.log(`safe-eats listening on http://localhost:${port}`);

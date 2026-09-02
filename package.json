@@ -13,6 +13,7 @@
     "verify:sources": "node scripts/verify-sources.js",
     "check:basemap": "node scripts/check-basemap.js",
     "refresh": "node scripts/refresh.js",
+    "export:geocode": "node scripts/export-geocode-cache.js",
     "start": "node src/server.js",
     "test": "node --test",
     "prepare": "node scripts/install-hooks.js",

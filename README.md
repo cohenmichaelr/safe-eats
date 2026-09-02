@@ -147,6 +147,7 @@ page cannot drift from the code.
 | `npm run verify:sources` | Probe every source and diff its header against the pinned layout |
 | `npm run check:basemap` | Basemap canary. Exits 2 when a tile changed and needs human eyes |
 | `npm run refresh` | The whole weekly cycle: verify, ingest, geocode, check. Exit code is the signal |
+| `npm run export:geocode` | Re-cut `seed/geocode-cache.csv`. Run after any paid geocoding, and commit it |
 | `npm test` | 176 tests, `node --test` |
 | `npm run scan:secrets` / `guard:sql` | Commit gates, also installed as pre-commit hooks |
 
