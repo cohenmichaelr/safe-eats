@@ -60,6 +60,34 @@
       not a current one.
     </p>
 
+    <h3>A worked example</h3>
+    <p>
+      Here is the case that most often gets reported wrongly elsewhere. One
+      inspection <em>case</em> can contain several <em>visits</em>, and it is the
+      last visit that holds the outcome:
+    </p>
+    <table class="mapping worked">
+      <thead>
+        <tr><th>Visit</th><th>Date</th><th>State's disposition</th><th>Signal</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>1 July</td><td>Warning Issued</td><td>Violations found</td></tr>
+        <tr><td>2</td><td>20 July</td><td>Call Back - Extension given, pending</td><td>Violations found</td></tr>
+        <tr><td>3</td><td>20 July</td><td>Call Back - Complied</td><td>Met standards</td></tr>
+      </tbody>
+    </table>
+    <p>
+      The inspector issued a warning, returned, granted an extension, then
+      returned again and found the problems fixed. <strong>This establishment
+      shows “Met standards”, dated 20 July.</strong> Reporting the original
+      warning would describe a problem that has already been resolved — the
+      restaurant did what it was asked to do, and the record says so.
+    </p>
+    <p>
+      The panel still lists all three visits, so you can see the sequence rather
+      than just the conclusion.
+    </p>
+
     <h2>Why most places say “no recent inspection”</h2>
     <p id="grey-stat">
       The inspection file DBPR publishes runs from the start of the state fiscal
@@ -148,6 +176,7 @@
       Map: © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> contributors, © <a href="https://carto.com/attributions" rel="noopener">CARTO</a>.
     </p>
     <p><a href="/">← Back to the map</a></p>
+    <p class="foot__affil">Safe Eats is an independent project. It is not affiliated with, operated by, or endorsed by the State of Florida or the Department of Business &amp; Professional Regulation. The authoritative records are the state's.</p>
   </footer>
 
   <script>

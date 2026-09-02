@@ -52,7 +52,7 @@ The MVP is smaller than v1.0 in scope but **more accurate**, because it stops gu
 | Explicit disposition → safety signal mapping | FR-301 |
 | Map with colour-coded pins, bounding-box query | FR-401, FR-403, FR-404 |
 | Establishment detail: recent inspections, violation counts | E5 subset |
-| Data-as-of date, disclaimer, DBPR attribution, methodology page | FR-503, FR-601 |
+| Data-as-of date, disclaimer, DBPR attribution, methodology page | FR-601, FR-602, FR-604, FR-605 |
 | Deploy + weekly scheduled refresh | E7 subset |
 
 ### Out — deferred, not cancelled
@@ -174,7 +174,7 @@ Ends with pins on a map from real, current data. If this works, nothing else in 
 | 8 | `GET /api/establishments/:licenseId` — detail + inspection history | 2 | E5 |
 | 9 | Map UI: clustered pins, colour + shape, search-this-area | 8 | FR-403/404 |
 | 10 | Detail panel: signal, date, violation breakdown, DBPR link | 4 | E5 |
-| 11 | Trust surface: data-as-of date, disclaimer, attribution, methodology page | 2 | FR-503, FR-601 |
+| 11 | Trust surface: data-as-of date, disclaimer, attribution, methodology page | 2 | FR-601, FR-602, FR-604, FR-605 |
 | 12 | Deploy + weekly scheduled ingest + failure alert | 3 | E7 |
 | 13 | Reserve | 2 | — |
 

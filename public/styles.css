@@ -569,3 +569,17 @@ main {
   .mapping tr { padding: .6rem 0; border-bottom: 1px solid var(--rule); }
   .mapping td { border: 0; padding: .15rem 0; }
 }
+
+/* FR-604 — the affiliation disclaimer. Not a footnote: mistaking this for an
+   official state service is the specific misreading it exists to prevent. */
+.foot__affil {
+  margin-top: .5rem;
+  padding-top: .5rem;
+  border-top: 1px solid var(--rule);
+  max-width: 42rem;
+}
+
+/* The worked example is an illustration, not live data — the muted head keeps
+   it from reading as a record of a real establishment. */
+.worked td:first-child { white-space: nowrap; font-weight: 400; }
+.worked tbody tr:last-child { font-weight: 600; }
