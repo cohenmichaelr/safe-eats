@@ -38,6 +38,35 @@ Establishments without coordinates (41 of 3659) are excluded:
 AC-E2-GATE measures displayed pins. Missing pins are a coverage question under
 NFR-07 and Gate 1, and are tracked there.
 
+## Population drift — DEC-016
+
+The sample is drawn from the displayed population as it stood. A weekly ingest
+keeps changing that population, so verification runs against the **frozen
+draw**: a later ingest does not invalidate a sample already drawn. Redrawing on
+every change would reset verification weekly and the gate could never be
+completed, and a rule that can never be satisfied is not a gate.
+
+Two guards bound that, both enforced by `scripts/score-gate.js`:
+
+| Guard | Effect |
+| --- | --- |
+| Drift above **5%** of the drawn population size | No verdict. Redraw before the next release assessment. |
+| Any sampled establishment leaving the population | No verdict. A verdict on establishments the product no longer displays is not a verdict on the product. |
+
+The cap exists because drift is not neutral. Establishments joining between
+draws are the ones that were **hard to place** — they needed the paid geocoder
+or several attempts — so they are more likely to be misplaced than average, and
+leaving them out biases the result optimistically.
+
+Every run prints the population it measured and the drift since the draw,
+complete or not. A gate result without that figure is a claim with a hidden
+denominator.
+
+**As of 3 Sep 2026:** drift is **+23 (0.64%)** — 3,618 at the draw, 3,641 now,
+after the tier-2 geocode resolved addresses that previously had no coordinate.
+All 100 sampled establishments remain in the population. **This draw is valid
+and verification may proceed.**
+
 ## Verification protocol
 
 This step is manual and cannot be automated — it is a visual judgement against

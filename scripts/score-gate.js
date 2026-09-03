@@ -104,8 +104,15 @@ function score(rows) {
     });
   }
 
-  return { problems, unverified, evaluated, total: rows.length };
+  return {
+    problems, unverified, evaluated, total: rows.length,
+    drift: measureDrift(rows.map((r) => r.establishment_id).filter(Boolean)),
+  };
 }
+
+const { measureDrift, MAX_DRIFT_PCT } = require('./gate-drift');
+
+const NL = String.fromCharCode(10);
 
 function report(result) {
   const { problems, unverified, evaluated, total } = result;
@@ -113,6 +120,28 @@ function report(result) {
 
   out.push(`AC-E2-GATE — ${total}-row sample, threshold >=${THRESHOLD_WITHIN} within ${THRESHOLD_DISTANCE_M} m`);
   out.push('');
+
+  // DEC-016. Printed before anything else, and printed even when the run is
+  // incomplete: the population a gate measured is part of the result, not a
+  // footnote to it.
+  const drift = result.drift;
+  if (drift) {
+    out.push(`  population  county ${drift.county} · drawn ${drift.drawnSize} (${drift.drawnFingerprint}) · now ${drift.nowSize} (${drift.nowFingerprint})`);
+    if (drift.pct !== null) {
+      out.push(`  drift       ${drift.grew >= 0 ? '+' : ''}${drift.grew} (${drift.pct.toFixed(2)}%) since ${String(drift.drawnAt).slice(0, 10)} — bound is ${MAX_DRIFT_PCT}%`);
+    }
+    if (drift.gone.length) {
+      out.push(`  MISSING     ${drift.gone.length} sampled establishment(s) are no longer in the population`);
+    }
+    out.push('');
+  } else {
+    // Scoring still works from the worksheet alone — but a verdict that cannot
+    // name the population it measured must say so, or it reads as a stronger
+    // claim than it is.
+    out.push('  population  NOT CHECKED — the database could not be read.');
+    out.push('              Drift against the drawn population is unknown for this run.');
+    out.push('');
+  }
 
   if (problems.length) {
     out.push(`  ${problems.length} worksheet problem(s):`);
@@ -133,6 +162,21 @@ function report(result) {
   if (problems.length) {
     out.push('  No gate verdict is issued while the worksheet has problems.');
     return { text: out.join('\n'), complete: false, pass: null };
+  }
+
+  if (drift && !drift.withinBound) {
+    out.push(`  POPULATION MOVED TOO FAR — ${drift.pct.toFixed(2)}% drift exceeds the ${MAX_DRIFT_PCT}% bound.`);
+    out.push('  The sample no longer represents what is displayed. Redraw before the next');
+    out.push('  release assessment. Establishments that join between draws are the ones that');
+    out.push('  were hard to place, so leaving them out flatters the result (DEC-016).');
+    return { text: out.join(NL), complete: false, pass: null };
+  }
+
+  if (drift && drift.gone.length) {
+    out.push(`  SAMPLED ROWS HAVE LEFT THE POPULATION — ${drift.gone.length} of ${total}.`);
+    out.push('  A verdict on establishments the product no longer displays is not a verdict');
+    out.push('  on the product. Redraw.');
+    return { text: out.join(NL), complete: false, pass: null };
   }
 
   const within = evaluated.filter((e) => e.within);
@@ -210,4 +254,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { distanceMetres, score, THRESHOLD_WITHIN, THRESHOLD_DISTANCE_M };
+module.exports = { distanceMetres, score, report, THRESHOLD_WITHIN, THRESHOLD_DISTANCE_M };

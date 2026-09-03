@@ -362,7 +362,35 @@ That is worth stating plainly: **the obvious implementation of task 12 is a sile
 
 ---
 
+## DEC-016 — The accuracy gate measures a frozen draw, within a drift bound
+
+**Date:** 3 Sep 2026 · **Status:** Accepted · **Resolves:** D-016 · **Traces:** AC-E2-GATE, NFR-06, FR-209 · Charter O3/M3
+
+**Context.** `docs/07-accuracy-gate.md` says a sample may not be redrawn to obtain a better result, and that a changed population fingerprint means any new draw is a different sample. It says nothing about the population simply **growing**, which is what a weekly ingest does by design. The question became concrete twice in two days: an ingest added 14 establishments, and the tier-2 geocode run added 23 more by resolving addresses that previously had no coordinate. The pinned fingerprint `da7b5b4397e4ceca` (population 3,618) is now `e13d0f3cc0c07b61` (population 3,641), with 100 rows drawn and none yet verified.
+
+**Why the obvious rule is wrong.** "Redraw whenever the population changes" is the strict reading, and it is unusable: the refresh runs weekly, so it would reset verification every week and the gate could never be completed. **A rule that can never be satisfied is not a gate**, it is a way of never shipping.
+
+**Decision.** Verification proceeds against the **frozen draw**. A later ingest does not invalidate a sample already drawn. Two guards bound that:
+
+1. **Drift cap of 5%.** If the displayed population has moved more than 5% from the size recorded at draw time, the sample no longer represents what ships and must be redrawn — before the *next* release assessment, not mid-verification.
+2. **Any sampled establishment leaving the population voids the draw.** A verdict on establishments the product no longer displays is not a verdict on the product.
+
+Both are enforced by `scripts/score-gate.js`, which now refuses to issue a verdict in either case, and prints the population and its drift above every result — complete or not.
+
+**Why a cap rather than unlimited tolerance.** Drift is not neutral, and this is the part worth stating plainly. The establishments that join the population between draws are precisely the ones that were **hard to place** — they needed the paid geocoder, or several attempts, or a corrected address. They are therefore *more* likely to be misplaced than an average member of the population. Excluding them from the sample does not merely lose precision, it **biases the result optimistically**: the gate would systematically measure the easy cases and report the number as if it covered everything. A small amount of that is tolerable in exchange for a gate that can actually be completed; an unbounded amount is a gate measuring a population that no longer exists.
+
+**Why the figure is always printed.** A gate result that does not state the population it measured, and how far the live population has moved since, is a claim with a hidden denominator — the same species of problem as v1's "success" with no freshness assertion behind it. When the database cannot be read at all, the scorer now says `population NOT CHECKED` rather than passing quietly, because a verdict that cannot name its own population must not read as a stronger claim than it is.
+
+**Current state.** Drift is **+23 (0.64%)**, well inside the bound, and all 100 sampled establishments are still in the population. **The pending verification is valid and can proceed.**
+
+**Consequence — this is now a per-county gate.** DEC-015 scoped `displayedPredicate` so the gate holds one county steady while the product covers three. Broward and Dade have no drawn sample and therefore no accuracy verdict; they are displayed on the strength of Palm Beach's geocoding method, not on a measurement of their own. That is a real exposure and it should be named rather than assumed away: the honest position is that Palm Beach will be measured and the other two inherit an argument. Each should get its own draw before anyone claims a statewide accuracy figure.
+
+**Reversal condition.** Either (a) the drift cap proves to bite in normal operation — a fiscal-year roll-over or a large licensing change moving the population more than 5% between draws — in which case the answer is a scheduled redraw cadence rather than a looser cap; or (b) evidence that newly-geocoded establishments are *not* systematically harder to place, which would remove the bias argument and allow the cap to widen.
+
+---
+
 ## Closed decisions
+
 
 
 
@@ -375,6 +403,8 @@ That is worth stating plainly: **the obvious implementation of task 12 is a sile
 | D-012 | Violation severity display | DEC-011 | 2 Sep 2026 |
 | D-015 | Watch the basemap, not just the data | `scripts/check-basemap.js` | 2 Sep 2026 |
 | OPEN-1 | Hosting target | DEC-014 | 2 Sep 2026 |
+| D-016 | Accuracy sample vs. a growing population | DEC-016 | 3 Sep 2026 |
+| OPEN-3 | Expand beyond Palm Beach | DEC-015 (Broward, Dade) | 2 Sep 2026 |
 | D-010 | Establishment identity key | DEC-006 | 24 Aug 2026 |
 | D-011 | Inspection primary key | DEC-007 | 24 Aug 2026 |
 
@@ -386,6 +416,5 @@ D-010 and D-011 were not in the `docs/12-PRD-v1.0.md` register, which defines D-
 |---|---|---|---|
 | D-013 | Fiscal-year roll-over behaviour | Before 1 Jul 2027 | Raised by DEC-010. `2fdinspi.csv` is fiscal-year-to-date; what it does when FY2627 closes is unobserved. Extend `source-watchdog` to alert on a window reset, not only on a dead URL. |
 | D-014 | Esri basemap terms of use | Before public launch | Raised by DEC-013. The ArcGIS Online basemap services are publicly served and widely used with attribution, but their terms for unauthenticated production use have not been read. If they prohibit it, CARTO with a free key is the licensed fallback. |
-| **D-016** | **Accuracy sample vs. a growing population** | **Before scheduling the refresh** | **Measured, not hypothetical.** A refresh run against a copy of the database on 2 Sep 2026 added 14 establishments and dropped none, moving the AC-E2-GATE population fingerprint `da7b5b4397e4ceca` -> `631514c45a23a267`. All 100 drawn sample rows survived, so the draw is not destroyed — but the sample was drawn uniformly from 3,618 and the population is now 3,632, so the 14 additions had zero chance of selection. `07-accuracy-gate.md` forbids redrawing to get a better result and says a changed fingerprint means a different sample; it has no rule for the population simply *growing*, which is what a weekly ingest does by design. Once the refresh is scheduled this recurs every week and the gate needs an answer: verify against a frozen snapshot, re-draw on a stated cadence, or accept bounded drift with the fingerprint recorded per run. |
 | OPEN-2 | Paid geocode fallback | — | *Effectively closed by implementation* (commit `03e6120`): tier-2 fallback raised coverage 92.82% → 98.86%. Needs a retrospective entry recording cost and provider. |
 | OPEN-3 | Expand beyond Palm Beach | Post-MVP | Ingest is already district-wide; gated on the accuracy sample holding |
