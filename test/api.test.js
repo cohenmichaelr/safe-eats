@@ -552,25 +552,29 @@ test('GET /api/establishments — FR-401', async (t) => {
     assert.ok(!body.establishments.some((e) => e.name === 'TACO TRUCK'));
   });
 
-  await t.test('cannot serve another county, because one cannot be stored — FR-104', async () => {
+  await t.test('cannot serve an out-of-scope county, because one cannot be stored — FR-104', async () => {
     // The map filters on county_code, but the filter is the second line of
-    // defence: migration 002 rebuilt the table with CHECK (county_code = '60'),
-    // so a District 2 sibling is refused by the database before any query runs.
+    // defence: migration 006 rebuilt the table with
+    // CHECK (county_code IN ('16','23','60')), so a county outside the vetted
+    // set is refused by the database before any query runs. Orange County is
+    // real and populous; it is simply not in scope, and adding it takes a
+    // migration.
     assert.throws(
       () => addEstablishment(db, {
-        establishment_id: '1600007|2010|700 LAS OLAS BLVD, FORT LAUDERDALE, 33301',
-        license_key: '1600007|2010',
-        name: 'BROWARD BISTRO',
-        city: 'FORT LAUDERDALE',
-        county_code: '16',
-        county_name: 'Broward',
-        normalized_address: '700 LAS OLAS BLVD, FORT LAUDERDALE, 33301',
+        establishment_id: '5800007|2010|700 ORANGE AVE, ORLANDO, 32801',
+        license_key: '5800007|2010',
+        name: 'ORLANDO BISTRO',
+        address: '700 ORANGE AVE',
+        city: 'ORLANDO',
+        county_code: '58',
+        county_name: 'Orange',
+        normalized_address: '700 ORANGE AVE, ORLANDO, 32801',
       }),
-      /CHECK constraint failed: establishment_is_palm_beach/
+      /CHECK constraint failed/
     );
 
-    const { body } = await get('/api/establishments?bbox=-81,25.9,-79,27.5');
-    assert.ok(!body.establishments.some((e) => e.city === 'FORT LAUDERDALE'));
+    const { body } = await get('/api/establishments?bbox=-82,27,-80,29');
+    assert.ok(!body.establishments.some((e) => e.city === 'ORLANDO'));
   });
 
   await t.test('excludes rows with no coordinate rather than inventing one', async () => {

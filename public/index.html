@@ -14,7 +14,7 @@
   <a class="skip-link" href="#results">Skip to results list</a>
 
   <header class="bar">
-    <h1>Safe&nbsp;Eats <span class="bar__where">Palm Beach County</span></h1>
+    <h1>Safe&nbsp;Eats <span class="bar__where">South Florida</span></h1>
     <p class="bar__asof" id="asof" aria-live="polite">Loading…</p>
   </header>
 
@@ -45,6 +45,11 @@
     </div>
 
     <div class="search__field">
+      <label for="county">County</label>
+      <select id="county" name="county"><option value="">All counties</option></select>
+    </div>
+
+    <div class="search__field">
       <label for="city">City</label>
       <select id="city" name="city"><option value="">All cities</option></select>
     </div>
@@ -67,7 +72,7 @@
   </form>
 
   <main>
-    <div id="map" role="application" aria-label="Map of inspected food establishments in Palm Beach County"></div>
+    <div id="map" role="application" aria-label="Map of inspected food establishments in Palm Beach, Broward and Miami-Dade counties"></div>
 
     <button type="button" id="search-area" class="search-area" hidden>
       Search this area

@@ -17,7 +17,8 @@ const express = require('express');
 const path = require('node:path');
 
 const { open, dataAsOf } = require('./db');
-const { displayedPredicate } = require('./display');
+const { displayedPredicate, COUNTIES, DISPLAYED_COUNTIES, countyName } = require('./display');
+const { canonicalCity, titleCase } = require('./cities');
 const { createScheduler } = require('./scheduler');
 const { seedGeocodeCache } = require('./seed');
 const {
@@ -112,7 +113,7 @@ function prepareStatements(db) {
      * correct predicate costs nothing.
      */
     inBbox: db.prepare(`
-      SELECT e.establishment_id, e.name, e.address, e.city, e.zip,
+      SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.county_code,
              e.lat, e.lng, e.geocode_quality,
              i.inspection_date, i.disposition, i.signal AS raw_signal,
              i.total_violations, i.high_violations
@@ -172,7 +173,8 @@ function prepareStatements(db) {
      * rather than the raw name — not a cleverer scan.
      */
     searchByText: db.prepare(`
-      SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.lat, e.lng,
+      SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.county_code,
+             e.lat, e.lng,
              i.inspection_date, i.disposition, i.signal AS raw_signal,
              i.total_violations, i.high_violations
         FROM establishment e
@@ -187,7 +189,8 @@ function prepareStatements(db) {
 
     /** Browse with no search term — a city or signal filter on its own. */
     searchAll: db.prepare(`
-      SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.lat, e.lng,
+      SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.county_code,
+             e.lat, e.lng,
              i.inspection_date, i.disposition, i.signal AS raw_signal,
              i.total_violations, i.high_violations
         FROM establishment e
@@ -195,12 +198,21 @@ function prepareStatements(db) {
        WHERE ${displayed.sql}
        ORDER BY e.name`),
 
-    /** The city list for the filter. Stable between ingests, so cached with meta. */
+    /**
+     * The city list, per county, for the cascading filter.
+     *
+     * Grouped on the canonical spelling rather than the raw one. The licence
+     * data carries 61 distinct city strings for roughly 45 real places —
+     * "ROYAL PLM BEACH" (11), "GREEN ACRES" (9), "BOYTON BEACH" (3),
+     * "GEENACRES", "PLAM BEACH GARDENS". Listing those raw meant a reader
+     * filtering Royal Palm Beach saw 106 establishments and silently missed 12,
+     * which is a filter that looks like it worked.
+     */
     cities: db.prepare(`
-      SELECT e.city, COUNT(*) AS n
+      SELECT e.county_code, e.city, COUNT(*) AS n
         FROM establishment e
        WHERE ${displayed.sql} AND e.city IS NOT NULL AND e.city <> ''
-       GROUP BY e.city
+       GROUP BY e.county_code, e.city
        ORDER BY e.city`),
 
     /**
@@ -308,7 +320,13 @@ function toPin(row, now) {
     id: row.establishment_id,
     name: row.name,
     address: row.address,
+    // Raw is what DBPR published; label is the canonical spelling for display.
+    // Both, because a typo on screen looks like our mistake, and silently
+    // rewriting the source would be a different kind of mistake.
     city: row.city,
+    city_label: titleCase(canonicalCity(row.city) ?? ''),
+    county_code: row.county_code,
+    county: countyName(row.county_code),
     lat: row.lat,
     lng: row.lng,
     signal: signalFor(row, now),
@@ -354,8 +372,27 @@ function createApp(db) {
       dispositions,
       stale_after_months: STALE_AFTER_MONTHS,
       coverage: q.coverage.get(...q.displayedParams),
-      // For the search filter. 61 values, stable between ingests.
-      cities: q.cities.all(...q.displayedParams),
+      counties: DISPLAYED_COUNTIES.map((code) => ({ code, name: countyName(code) })),
+
+      // Cities per county, canonicalised. The raw data carries 193 spellings
+      // for ~150 real places; grouping them is what stops a filter from
+      // silently hiding the 100 establishments behind a misspelling. See
+      // src/cities.js for why the aliases are enumerated rather than computed.
+      cities: (() => {
+        const byCounty = new Map();
+        for (const row of q.cities.all(...q.displayedParams)) {
+          const canonical = canonicalCity(row.city);
+          if (!canonical) continue;
+          const bucket = byCounty.get(row.county_code) ?? new Map();
+          bucket.set(canonical, (bucket.get(canonical) ?? 0) + row.n);
+          byCounty.set(row.county_code, bucket);
+        }
+        return [...byCounty.entries()].flatMap(([county_code, bucket]) =>
+          [...bucket.entries()]
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([city, n]) => ({ county_code, city, label: titleCase(city), n }))
+        );
+      })(),
       attribution: {
         data: 'Florida Department of Business & Professional Regulation',
         basemap: 'Esri World Street Map — Esri, HERE, Garmin, USGS, Intermap, © OpenStreetMap contributors',
@@ -378,11 +415,15 @@ function createApp(db) {
   app.get('/api/search', (req, res) => {
     const text = (req.query.q ?? '').toString().trim();
     const city = (req.query.city ?? '').toString().trim();
+    const county = (req.query.county ?? '').toString().trim();
     const signal = (req.query.signal ?? '').toString().trim();
     const limit = parseLimit(req.query.limit ?? '200');
 
     if (signal && !SIGNAL_DISPLAY[signal]) {
       throw new BadRequest(`Unknown signal ${JSON.stringify(signal)}`);
+    }
+    if (county && !(county in COUNTIES)) {
+      throw new BadRequest(`Not a displayed county: ${JSON.stringify(county)}`);
     }
 
     // Normalise the query exactly as the column is normalised, or the two
@@ -408,14 +449,20 @@ function createApp(db) {
     const now = new Date();
     let results = rows.map((row) => toPin(row, now));
 
-    if (city) results = results.filter((r) => (r.city ?? '').toLowerCase() === city.toLowerCase());
+    if (county) results = results.filter((r) => r.county_code === county);
+    // Matched on the canonical spelling, so choosing "Royal Palm Beach" also
+    // returns the rows filed under ROYAL PLM BEACH and ROAYL PALM BEACH.
+    if (city) {
+      const wanted = canonicalCity(city);
+      results = results.filter((r) => canonicalCity(r.city) === wanted);
+    }
     if (signal) results = results.filter((r) => r.signal === signal);
 
     const total = results.length;
     res.set('Cache-Control', 'public, max-age=60');
     res.json({
       as_of: dataAsOf(db),
-      query: { q: text, city, signal },
+      query: { q: text, county, city, signal },
       count: Math.min(total, limit),
       total,
       truncated: total > limit,

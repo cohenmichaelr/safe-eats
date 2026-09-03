@@ -129,18 +129,32 @@ test('migration runner', async (t) => {
   });
 });
 
-test('FR-104 — county-60 check constraint', async (t) => {
-  await t.test('accepts county 60', (t) => {
+test('FR-104 — county scope check constraint', async (t) => {
+  // Migration 002 pinned this to county 60; migration 006 widened it to the
+  // three counties the product now covers. The constraint still does work —
+  // it is the difference between "counties we have vetted" and "whatever a
+  // district file happened to contain", and Florida has 67 of them.
+
+  await t.test('accepts every county in scope', (t) => {
     const db = freshDb(t);
     migrate(db);
-    assert.doesNotThrow(() => insertEst(db));
+    for (const [i, county] of ['60', '16', '23'].entries()) {
+      assert.doesNotThrow(
+        () => insertEst(db, { county_code: county, establishment_id: `600000${i}|2010|addr ${i}` }),
+        `county ${county} should be storable`
+      );
+    }
   });
 
-  await t.test('rejects any other county at the table, not just at the filter', (t) => {
+  await t.test('rejects a county out of scope at the table, not just at the filter', (t) => {
     const db = freshDb(t);
     migrate(db);
+    // Orange (58) is a real Florida county with 4,869 displayable
+    // establishments. It is simply not in scope, so it must not be storable:
+    // expansion stays a deliberate migration rather than something an ingest
+    // can do by accident.
     assert.throws(
-      () => insertEst(db, { county_code: '16', establishment_id: 'x|2010|y' }),
+      () => insertEst(db, { county_code: '58', establishment_id: 'x|2010|y' }),
       /CHECK constraint failed/i
     );
   });
@@ -149,7 +163,35 @@ test('FR-104 — county-60 check constraint', async (t) => {
     const db = freshDb(t);
     migrate(db);
     const ddl = db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='establishment'`).get().sql;
-    assert.match(ddl, /CHECK\s*\(\s*county_code\s*=\s*'60'\s*\)/i);
+    assert.match(ddl, /CHECK\s*\(\s*county_code\s+IN\s*\(/i);
+    for (const county of ['16', '23', '60']) assert.match(ddl, new RegExp(`'${county}'`));
+  });
+
+  await t.test('the rebuild kept every trigger and index', (t) => {
+    // Migration 006 rebuilt the table, and a rebuild discards the triggers
+    // attached to it. Losing the IFC-1 boundary here would be silent: the map
+    // would keep working while ingest regained the ability to write coordinates.
+    const db = freshDb(t);
+    migrate(db);
+    const triggers = db.prepare(
+      `SELECT name FROM sqlite_master WHERE type='trigger' AND tbl_name='establishment' ORDER BY name`
+    ).all().map((r) => r.name);
+
+    for (const name of [
+      'establishment_fts_ad', 'establishment_fts_ai', 'establishment_fts_au',
+      'establishment_rtree_ad', 'establishment_rtree_ai', 'establishment_rtree_au',
+      'ifc1a_position_insert_requires_cache', 'ifc1a_position_update_requires_cache',
+      'ifc1b_position_not_nulled', 'ifc1c_position_write_is_exclusive',
+    ]) {
+      assert.ok(triggers.includes(name), `${name} did not survive the rebuild`);
+    }
+
+    const indexes = db.prepare(
+      `SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='establishment' AND sql IS NOT NULL`
+    ).all().map((r) => r.name);
+    for (const name of ['idx_est_bbox', 'idx_est_norm', 'idx_est_name', 'idx_est_key']) {
+      assert.ok(indexes.includes(name), `${name} did not survive the rebuild`);
+    }
   });
 });
 

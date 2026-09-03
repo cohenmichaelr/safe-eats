@@ -24,6 +24,8 @@
    */
   let LEGEND = {};
   let windowStart = null;
+  let COUNTIES = [];
+  let CITIES = [];
 
   const state = {
     map: null,
@@ -110,6 +112,7 @@
   /* -------------------------------------------------------------- wording --- */
 
   const label = (signal) => (LEGEND[signal] || {}).label || 'No recent inspection';
+  const countyName = (code) => (COUNTIES.find((c) => c.code === code) || {}).name || code;
 
   const formatDate = (iso) => {
     if (!iso) return null;
@@ -153,7 +156,7 @@
     return (
       `<div class="card">` +
       `<p class="card__name">${escapeHtml(pin.name)}</p>` +
-      `<p class="card__addr">${escapeHtml([pin.address, pin.city].filter(Boolean).join(', '))}</p>` +
+      `<p class="card__addr">${escapeHtml([pin.address, pin.city_label || pin.city].filter(Boolean).join(', '))}</p>` +
       `<p class="card__signal">${markSvg(pin.signal, 14)} ${escapeHtml(label(pin.signal))}</p>` +
       `<p class="card__plain">${escapeHtml(plainLine(pin))}</p>` +
       counts +
@@ -407,6 +410,40 @@
   /* --------------------------------------------------------------- search --- */
 
   /**
+   * The city menu follows the county menu. With three counties there are 149
+   * cities, which is a scroll nobody should have to do to find Hialeah — and it
+   * also removes a real trap, because South Florida repeats its names across
+   * county lines.
+   *
+   * The selected city is preserved when it still exists under the new county,
+   * so changing county to re-check the same town does not silently widen the
+   * search back to everywhere.
+   */
+  function fillCities() {
+    const county = $('county').value;
+    const select = $('city');
+    const previous = select.value;
+
+    const list = CITIES
+      .filter((c) => !county || c.county_code === county)
+      .sort((a, b) => a.label.localeCompare(b.label));
+
+    select.innerHTML = '<option value="">All cities</option>';
+    for (const { city, label, n } of list) {
+      const option = document.createElement('option');
+      option.value = city;
+      // Counts are per county, so summing a repeated name across counties
+      // would report a total that matches no possible filter.
+      option.textContent = `${label} (${n})`;
+      select.append(option);
+    }
+
+    if (previous && list.some((c) => c.city === previous)) select.value = previous;
+  }
+
+
+
+  /**
    * Two ways to have a result set, and the page must never leave you unsure
    * which one you are looking at: the viewport (pan the map) or a search
    * (name, city, result). The scope line under the map says so in words, and
@@ -422,7 +459,7 @@
     if (event) event.preventDefault();
 
     const params = new URLSearchParams();
-    for (const id of ['q', 'city', 'signal']) {
+    for (const id of ['q', 'county', 'city', 'signal']) {
       const value = $(id).value.trim();
       if (value) params.set(id, value);
     }
@@ -454,6 +491,7 @@
       const bits = [];
       if (body.query.q) bits.push(`matching “${escapeHtml(body.query.q)}”`);
       if (body.query.city) bits.push(`in ${escapeHtml(body.query.city)}`);
+      if (body.query.county && !body.query.city) bits.push(`in ${escapeHtml(countyName(body.query.county))} County`);
       if (body.query.signal) bits.push(`with result “${escapeHtml(label(body.query.signal))}”`);
 
       setScope(
@@ -475,6 +513,8 @@
 
   function clearSearch() {
     $('q').value = '';
+    $('county').value = '';
+    fillCities();
     $('city').value = '';
     $('signal').value = '';
     updateSignalMark();
@@ -497,13 +537,17 @@
       // Both filter menus are built from the API, never hardcoded: the cities
       // are whatever the licence data contains, and the result options are
       // whatever src/signal.js defines.
-      const citySelect = $('city');
-      for (const { city, n } of meta.cities || []) {
+      COUNTIES = meta.counties || [];
+      CITIES = meta.cities || [];
+
+      const countySelect = $('county');
+      for (const { code, name } of COUNTIES) {
         const option = document.createElement('option');
-        option.value = city;
-        option.textContent = `${city} (${n})`;
-        citySelect.append(option);
+        option.value = code;
+        option.textContent = name;
+        countySelect.append(option);
       }
+      fillCities();
 
       const signalSelect = $('signal');
       for (const key of ['pass', 'warning', 'serious', 'unknown']) {
@@ -628,6 +672,8 @@
     $('clear').addEventListener('click', clearSearch);
     // Changing a menu searches straight away; typing still waits for Enter or
     // the button, so the map does not lurch on every keystroke.
+    // County first: refill the city menu, then search.
+    $('county').addEventListener('change', () => { fillCities(); runSearch(); });
     $('city').addEventListener('change', runSearch);
     $('signal').addEventListener('change', () => { updateSignalMark(); runSearch(); });
 

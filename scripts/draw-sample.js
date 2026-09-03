@@ -31,7 +31,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const { open } = require('../src/db');
-const { DISPLAYED_LICENSE_TYPES, displayedPredicate } = require('../src/display');
+const { DISPLAYED_LICENSE_TYPES, displayedPredicate, countyName } = require('../src/display');
 
 const ROOT = path.join(__dirname, '..');
 const CSV_PATH = path.join(ROOT, 'docs', '07-accuracy-sample.csv');
@@ -52,6 +52,9 @@ const DEFAULT_SEED = 'safe-eats/AC-E2-GATE/2026-08-24';
  * the sampled population and the rendered one cannot drift apart again.
  */
 const DISPLAYED_LICENSE_TYPE = DISPLAYED_LICENSE_TYPES.join(', ');
+
+/** The county this gate measures. Overridable so a new county can be drawn. */
+const GATE_COUNTY = process.env.SAFE_EATS_GATE_COUNTY || '60';
 
 /** mulberry32 — small, deterministic, adequate for drawing a sample. */
 function rng(seedText) {
@@ -128,7 +131,12 @@ function main() {
 
   const db = open({ readonly: true });
 
-  const displayed = displayedPredicate('e');
+  // Scoped to ONE county on purpose — DEC-015. The product now displays Palm
+  // Beach, Broward and Dade, but the accuracy gate is per county: a sample drawn
+  // across all three would be a different sample from the one already drawn and
+  // awaiting verification, and would silently discard that work. Each county
+  // clears its own bar before it ships.
+  const displayed = displayedPredicate('e', { counties: GATE_COUNTY });
 
   const population = db.prepare(`
     SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.lat, e.lng,
@@ -223,7 +231,7 @@ Charter O3 / M3, PRD §4. The decision rule:
 | --- | --- |
 | Seed | \`${seed}\` |
 | Population | ${population.length} geocoded of ${total} displayed Palm Beach establishments |
-| Population filter | county 60 · licence type ${DISPLAYED_LICENSE_TYPE} (DEC-009) · geocoded |
+| Population filter | county ${GATE_COUNTY} ${countyName(GATE_COUNTY)} · licence type ${DISPLAYED_LICENSE_TYPE} (DEC-009) · geocoded |
 | Population fingerprint | \`${fingerprint}\` |
 | Sample size | ${SAMPLE_SIZE} |
 | Drawn at | ${drawnAt} |
