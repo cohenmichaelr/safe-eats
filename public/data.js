@@ -8,15 +8,15 @@
  * page prints the disposition and the date. The moment it starts interpreting,
  * it stops being the thing you open when the map looks wrong.
  *
- * Sign-in is the same session cookie /admin.html uses — see src/admin-session.js
- * for why the raw rows are gated at all (DEC-009: the extract contains licence
- * types this product deliberately does not publish).
+ * The rows include the licence types the map does not publish (DEC-009), and
+ * these routes are open by an explicit decision — see the comment above them in
+ * src/server.js. The page states, on every record, whether the row is one the
+ * map shows and why not, so a reader cannot mistake a food truck's licensed
+ * address for a place to eat.
  */
 
 const $ = (id) => document.getElementById(id);
 
-const signinForm = $('signin-form');
-const passwordInput = $('password');
 const queryForm = $('query-form');
 const statusLine = $('status');
 const tbody = $('rows');
@@ -34,12 +34,6 @@ function say(message, tone) {
   statusLine.textContent = message || '';
   if (tone) statusLine.dataset.tone = tone;
   else delete statusLine.dataset.tone;
-}
-
-function showSignIn(required) {
-  signinForm.hidden = !required;
-  queryForm.hidden = required;
-  if (required) passwordInput.focus();
 }
 
 /** Blank cells say "empty in the source", which is itself a finding. */
@@ -143,13 +137,8 @@ async function load() {
 
   const body = await res.json().catch(() => ({}));
 
-  if (res.status === 401 && body.auth === 'password') {
-    showSignIn(true);
-    return say('');
-  }
   if (!res.ok) return say(body.error || `Server returned ${res.status}.`, 'error');
 
-  showSignIn(false);
   say('');
   fillFacets(body);
   renderRows(body.rows);
@@ -234,28 +223,6 @@ $('prev').addEventListener('click', () => {
 $('next').addEventListener('click', () => {
   if (offset + PAGE < total) offset += PAGE;
   load();
-});
-
-signinForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  say('Signing in…');
-
-  const res = await api('/api/admin/session', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ password: passwordInput.value }),
-  }).catch(() => null);
-
-  if (!res) return say('Could not reach the server.', 'error');
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    passwordInput.select();
-    return say(body.error || 'Sign-in failed.', 'error');
-  }
-
-  passwordInput.value = '';
-  return load();
 });
 
 load();

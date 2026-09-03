@@ -75,23 +75,6 @@
       the check v1 never had.
     </p>
 
-    <!--
-      Sign-in. Present only when the server has SAFE_EATS_ADMIN_PASSWORD set;
-      on localhost without one, the routes are loopback-gated and this stays
-      hidden. The password is posted once and exchanged for an HttpOnly session
-      cookie, so it is never stored by this page.
-    -->
-    <form class="admin__form" id="signin-form" hidden>
-      <div class="admin__field">
-        <label for="password">Admin password</label>
-        <input type="password" id="password" name="password"
-               autocomplete="current-password" required>
-      </div>
-      <div class="search__actions">
-        <button type="submit" class="btn btn--primary">Sign in</button>
-      </div>
-    </form>
-
     <form class="admin__form" id="refresh-form">
       <div class="admin__field">
         <label for="county">County</label>
@@ -106,7 +89,6 @@
       </label>
 
       <div class="search__actions">
-        <button type="button" class="btn" id="signout" hidden>Sign out</button>
         <button type="submit" class="btn btn--primary" id="run">Refresh data now</button>
       </div>
     </form>

@@ -9,20 +9,17 @@
  * as-of date moving, which is the same thing scripts/refresh.js asserts and the
  * same thing the map shows. There is only one definition of success here.
  *
- * Note what this file does NOT do: keep a credential. The password is posted
- * once to /api/admin/session and exchanged for an HttpOnly cookie the browser
- * attaches on its own, so there is nothing here to store, read back, or leak.
+ * There is no sign-in: the routes are open by an explicit decision (see the
+ * comment above them in src/server.js). Anyone who reaches this page can start
+ * a refresh.
  */
 
 const $ = (id) => document.getElementById(id);
 
-const signinForm = $('signin-form');
-const passwordInput = $('password');
 const refreshForm = $('refresh-form');
 const countySelect = $('county');
 const skipGeocode = $('skip-geocode');
 const runButton = $('run');
-const signoutButton = $('signout');
 const statusLine = $('status');
 
 /** Poll only while something is running; a static page must not tick forever. */
@@ -44,13 +41,6 @@ const stamp = (iso) => {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
 };
-
-/** Which of the two forms the operator is looking at. */
-function showSignIn(required) {
-  signinForm.hidden = !required;
-  refreshForm.hidden = required;
-  if (required) passwordInput.focus();
-}
 
 const counties = new Map();
 const countyLabel = (code) => counties.get(String(code)) ?? String(code);
@@ -115,18 +105,11 @@ async function poll() {
 
   const body = await res.json().catch(() => ({}));
 
-  if (res.status === 401 && body.auth === 'password') {
-    clearTimeout(timer);
-    setBusy(false);
-    showSignIn(true);
-    return say('');
-  }
   if (!res.ok) {
     setBusy(false);
     return say(body.error || `Server returned ${res.status}.`, 'error');
   }
 
-  showSignIn(false);
   renderCounties(body.counties);
   renderRun(body.run);
 
@@ -141,58 +124,6 @@ async function poll() {
   if (running) timer = setTimeout(poll, POLL_MS);
   return undefined;
 }
-
-/** Does this server want a password? Decides whether Sign out is offered. */
-async function loadAuthMode() {
-  try {
-    const { password_required: required } = await (await api('/api/admin/session')).json();
-    signoutButton.hidden = !required;
-  } catch {
-    signoutButton.hidden = true;
-  }
-}
-
-signinForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  say('Signing in…');
-
-  let res;
-  try {
-    res = await api('/api/admin/session', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ password: passwordInput.value }),
-    });
-  } catch (err) {
-    return say(`Could not reach the server: ${err.message}`, 'error');
-  }
-
-  const body = await res.json().catch(() => ({}));
-
-  if (res.status === 429) {
-    const wait = Number(res.headers.get('retry-after') || 0);
-    return say(
-      `${body.error || 'Too many attempts.'}${wait ? ` Try again in about ${Math.ceil(wait / 60)} minute(s).` : ''}`,
-      'error'
-    );
-  }
-  if (!res.ok) {
-    passwordInput.select();
-    return say(body.error || 'Sign-in failed.', 'error');
-  }
-
-  passwordInput.value = '';
-  say('');
-  await loadAuthMode();
-  return poll();
-});
-
-signoutButton.addEventListener('click', async () => {
-  await api('/api/admin/session', { method: 'DELETE' }).catch(() => {});
-  clearTimeout(timer);
-  showSignIn(true);
-  say('Signed out.');
-});
 
 refreshForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -216,11 +147,6 @@ refreshForm.addEventListener('submit', async (event) => {
 
   const body = await res.json().catch(() => ({}));
 
-  if (res.status === 401 && body.auth === 'password') {
-    setBusy(false);
-    showSignIn(true);
-    return say('Your session expired. Sign in again.', 'error');
-  }
   if (res.status === 409) {
     // Not an error the operator caused — the weekly schedule got there first.
     say('A refresh is already running; watching it instead.');
@@ -236,5 +162,4 @@ refreshForm.addEventListener('submit', async (event) => {
   return poll();
 });
 
-loadAuthMode();
 poll();

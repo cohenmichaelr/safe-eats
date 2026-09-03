@@ -92,17 +92,6 @@ services:
       - key: SAFE_EATS_ALERT_STYLE
         sync: false
 
-      # The sign-in for /admin.html (manual refresh) and /data.html (raw rows).
-      # Set it in the dashboard — a password in this file is a password in the
-      # repository.
-      #
-      # Leaving it unset is safe but useless here: without a password the admin
-      # routes fall back to loopback-only, and nothing on Render is loopback, so
-      # both pages return 403 to everyone including you. It is the local default,
-      # not a deployed one.
-      - key: SAFE_EATS_ADMIN_PASSWORD
-        sync: false
-
       # Only used by the tier-2 paid geocoder, a manual batch job. It never
       # reaches the browser. v1 served its key to the frontend from /config,
       # where anyone loading the page could read it (AUD F3).

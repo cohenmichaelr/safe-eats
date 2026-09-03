@@ -16,10 +16,9 @@
 /**
  * `.env` is loaded here for the same reason ingest.js and geocode.js load it:
  * the local run must see the same configuration the deployed one gets from its
- * host. Without this, SAFE_EATS_ADMIN_PASSWORD in .env would be read by the
- * scripts and ignored by the server — the sign-in silently disabled on the one
- * machine where the file exists. dotenv never overrides a variable already set,
- * so Render's environment still wins.
+ * host, so a variable set in the file cannot be read by the scripts and ignored
+ * by the server. dotenv never overrides a variable already set, so Render's
+ * environment still wins.
  */
 require('dotenv').config();
 
@@ -37,7 +36,6 @@ const {
 const { canonicalCity, titleCase } = require('./cities');
 const { createScheduler } = require('./scheduler');
 const { createRefreshRunner } = require('./refresh-runner');
-const { createAdminSessions, COOKIE } = require('./admin-session');
 const { seedGeocodeCache } = require('./seed');
 const {
   establishmentSignal,
@@ -356,22 +354,8 @@ function toPin(row, now) {
 
 /* ----------------------------------------------------------------- app ----- */
 
-/**
- * Is this request from the machine the server runs on? Express normalises IPv4
- * over IPv6 sockets to ::ffff:127.0.0.1, which is the form a browser on the
- * same laptop actually arrives as.
- */
-function isLoopbackAddress(ip) {
-  const address = (ip || '').toString().replace(/^::ffff:/, '');
-  return address === '127.0.0.1' || address === '::1' || address.startsWith('127.');
-}
-
-function createApp(db, {
-  refreshRunner = createRefreshRunner(),
-  adminSessions = createAdminSessions(),
-} = {}) {
+function createApp(db, { refreshRunner = createRefreshRunner() } = {}) {
   const q = prepareStatements(db);
-  const sessions = adminSessions;
   const app = express();
 
   app.disable('x-powered-by');
@@ -594,98 +578,29 @@ function createApp(db, {
   /**
    * The manual refresh — /admin.html.
    *
-   * WHY THIS IS GATED AND THE REST IS NOT
+   * THESE ROUTES ARE OPEN, DELIBERATELY
    *
-   * Every other route reads SQLite. This one starts a process that fetches ~40MB
-   * from DBPR and rewrites the database, so an unauthenticated button would let
-   * any visitor hammer the state's servers from ours. Two postures, chosen by
-   * whether a password is configured:
+   * They were gated first by a token and then by a password, and the gate was
+   * removed by an explicit decision: the operator wants the pages usable on the
+   * deployed service without a sign-in. What that means, written here because
+   * the consequence is not visible from the code:
    *
-   *   SAFE_EATS_ADMIN_PASSWORD set  →  sign in first, from anywhere
-   *   not set                       →  loopback only
+   *   - anyone who finds /admin.html can start a refresh, and each one pulls
+   *     ~40MB from DBPR's servers. `refreshRunner` allows only one at a time,
+   *     so this is serial rather than concurrent, but it is not rate-limited.
+   *   - anyone can read /api/admin/data, which serves the rows DEC-009 keeps
+   *     off the map — mobile vendors, caterers, temporary events. A row there
+   *     is not a claim that a diner can walk into it, and the page says so.
    *
-   * The default is the safe one for the deployed service (where nothing is
-   * loopback) without making `npm start` on a laptop require ceremony. The page
-   * itself is plain static HTML and holds no data, so it is served either way;
-   * what it can *do* is what these routes decide.
-   *
-   * The password is never a credential the browser keeps. It is exchanged once
-   * for a session cookie — see src/admin-session.js for why that distinction
-   * matters more for a password than it did for the random token this replaced.
+   * Neither costs data integrity: ingest still aborts rather than degrades, and
+   * these routes write nothing themselves. If the exposure stops being
+   * acceptable, the fix is a gate here rather than anything downstream.
    */
-  function adminGuard(req, res, next) {
-    if (sessions.configured()) {
-      if (sessions.isValid(sessions.fromRequest(req))) return next();
-      // `auth` tells the page to show the sign-in form rather than an error it
-      // cannot act on. 401, not 403: the request may succeed once authenticated.
-      return res.status(401).json({ error: 'Sign in to refresh the data.', auth: 'password' });
-    }
-
-    if (!isLoopbackAddress(req.socket?.remoteAddress)) {
-      return res.status(403).json({
-        error:
-          'Manual refresh is available on localhost only. Set SAFE_EATS_ADMIN_PASSWORD to enable it remotely.',
-      });
-    }
-    return next();
-  }
-
-  /**
-   * POST /api/admin/session { password } — sign in.
-   *
-   * The cookie is HttpOnly, so the page's own JavaScript cannot read it back:
-   * the credential is not in localStorage, not in a header the page assembles,
-   * and not in anything an injected script could exfiltrate. SameSite=Strict
-   * because every caller is this origin's own page, which also means no other
-   * site can make an authenticated refresh request on your behalf.
-   */
-  app.post('/api/admin/session', express.json({ limit: '4kb' }), (req, res) => {
-    res.set('Cache-Control', 'no-store');
-
-    if (!sessions.configured()) {
-      return res.status(400).json({ error: 'No admin password is configured on this server.' });
-    }
-
-    const result = sessions.signIn(req.socket?.remoteAddress, (req.body?.password ?? '').toString());
-
-    if (!result.ok) {
-      if (result.retryAfter) res.set('Retry-After', String(result.retryAfter));
-      // 429 for a lockout, 401 for a wrong password: the page tells the operator
-      // "wait" or "try again" from the status alone.
-      return res.status(result.retryAfter ? 429 : 401).json({ error: result.reason });
-    }
-
-    const secure = req.secure || req.get('x-forwarded-proto') === 'https';
-    res.cookie(COOKIE, result.id, {
-      httpOnly: true,
-      sameSite: 'strict',
-      secure,
-      path: '/',
-      expires: new Date(result.expires),
-    });
-    return res.status(204).end();
-  });
-
-  /** Sign out — the session dies here, not merely in the browser. */
-  app.delete('/api/admin/session', (req, res) => {
-    sessions.signOut(sessions.fromRequest(req));
-    res.clearCookie(COOKIE, { path: '/' });
-    res.status(204).end();
-  });
-
-  /** Whether this server wants a password at all, so the page can say so. */
-  app.get('/api/admin/session', (req, res) => {
-    res.set('Cache-Control', 'no-store');
-    res.json({
-      password_required: sessions.configured(),
-      signed_in: sessions.configured() ? sessions.isValid(sessions.fromRequest(req)) : true,
-    });
-  });
 
   const adminCounties = () =>
     DISPLAYED_COUNTIES.map((code) => ({ code, name: countyName(code) }));
 
-  app.get('/api/admin/refresh', adminGuard, (req, res) => {
+  app.get('/api/admin/refresh', (req, res) => {
     res.set('Cache-Control', 'no-store');
     res.json({
       as_of: dataAsOf(db),
@@ -708,7 +623,7 @@ function createApp(db, {
    * fetch. And since ingest upserts and never deletes (AUD F4), refreshing one
    * county leaves the other counties' rows exactly as they were.
    */
-  app.post('/api/admin/refresh', adminGuard, express.json({ limit: '4kb' }), (req, res) => {
+  app.post('/api/admin/refresh', express.json({ limit: '4kb' }), (req, res) => {
     const raw = (req.body?.county ?? req.query.county ?? '').toString().trim();
     const counties = raw && raw !== 'all' ? [raw] : [];
 
@@ -803,7 +718,7 @@ function createApp(db, {
     return { sql: where.length ? `WHERE ${where.join(' AND ')}` : '', params };
   }
 
-  app.get('/api/admin/data', adminGuard, (req, res) => {
+  app.get('/api/admin/data', (req, res) => {
     const filter = rawFilter(req.query);
     const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 1000);
     const offset = Math.max(Number(req.query.offset) || 0, 0);
@@ -861,7 +776,7 @@ function createApp(db, {
    * see"; this answers "what is in the database", which is the question you ask
    * when the first one looks wrong.
    */
-  app.get('/api/admin/data/:establishmentId', adminGuard, (req, res) => {
+  app.get('/api/admin/data/:establishmentId', (req, res) => {
     const establishment = db
       .prepare(`SELECT ${RAW_COLUMNS} FROM establishment e WHERE e.establishment_id = ?`)
       .get(req.params.establishmentId);
@@ -987,4 +902,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { createApp, parseBbox, parseLimit, isLoopbackAddress, DEFAULT_LIMIT, MAX_LIMIT };
+module.exports = { createApp, parseBbox, parseLimit, DEFAULT_LIMIT, MAX_LIMIT };

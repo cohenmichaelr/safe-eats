@@ -7,11 +7,11 @@
  * owns that, and it aborts loudly when it does not). It is everything around
  * it that could silently do the wrong thing:
  *
- *   - a stranger must not be able to start one
  *   - a typo'd county must be a 400, not a run that quietly refreshes nothing
  *   - two refreshes must never run at once, however they were triggered
  *
- * The runner is injected, so no test ever spawns a real ingest against DBPR.
+ * The routes are open by decision, so there is nothing here about who may call
+ * them. The runner is injected, so no test ever spawns a real ingest.
  */
 
 const test = require('node:test');
@@ -22,16 +22,9 @@ const path = require('node:path');
 const Database = require('better-sqlite3');
 
 const { migrate } = require('../src/migrate');
-const { createApp, isLoopbackAddress } = require('../src/server');
+const { createApp } = require('../src/server');
 const { createRefreshRunner, outcomeFor } = require('../src/refresh-runner');
-const { readCookie, MAX_ATTEMPTS } = require('../src/admin-session');
 const { COUNTIES } = require('../src/display');
-
-/**
- * The fixture's password. A constant rather than a literal at each call site so
- * the secret scanner has one line to allow rather than seven to argue with.
- */
-const PASSWORD = 'correct horse'; // pragma: allowlist secret
 
 /** A runner-shaped double that records what it was asked to do. */
 function fakeRunner() {
@@ -66,14 +59,10 @@ function fakeRunner() {
   };
 }
 
-async function fixture(t, { password = null } = {}) {
+async function fixture(t) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'safe-eats-admin-'));
   const db = new Database(path.join(dir, 'test.db'));
   migrate(db);
-
-  const previous = process.env.SAFE_EATS_ADMIN_PASSWORD;
-  if (password === null) delete process.env.SAFE_EATS_ADMIN_PASSWORD;
-  else process.env.SAFE_EATS_ADMIN_PASSWORD = password;
 
   const runner = fakeRunner();
   const server = createApp(db, { refreshRunner: runner }).listen(0);
@@ -84,40 +73,23 @@ async function fixture(t, { password = null } = {}) {
     await new Promise((resolve) => server.close(resolve));
     db.close();
     fs.rmSync(dir, { recursive: true, force: true });
-    if (previous === undefined) delete process.env.SAFE_EATS_ADMIN_PASSWORD;
-    else process.env.SAFE_EATS_ADMIN_PASSWORD = previous;
   });
-
-  // A one-cookie jar. `fetch` does not keep cookies, and the session is the
-  // thing under test, so the test client has to behave like a browser here.
-  let jar = null;
 
   const call = async (method, url, { body, headers = {} } = {}) => {
     const res = await fetch(base + url, {
       method,
       headers: {
         ...(body ? { 'content-type': 'application/json' } : {}),
-        ...(jar ? { cookie: jar } : {}),
         ...headers,
       },
       body: body ? JSON.stringify(body) : undefined,
     });
 
-    const setCookie = res.headers.get('set-cookie');
-    if (setCookie) jar = setCookie.split(';')[0];
-
     const text = await res.text();
-    return {
-      status: res.status,
-      headers: res.headers,
-      body: text ? JSON.parse(text) : null,
-      setCookie,
-    };
+    return { status: res.status, headers: res.headers, body: text ? JSON.parse(text) : null };
   };
 
-  const signIn = (password) => call('POST', '/api/admin/session', { body: { password } });
-
-  return { db, runner, call, signIn, jar: () => jar };
+  return { db, runner, call };
 }
 
 test('manual refresh', async (t) => {
@@ -176,97 +148,6 @@ test('manual refresh', async (t) => {
     assert.equal(runner.calls[0].skipGeocode, true);
   });
 
-  await t.test('with a password configured, an unauthenticated request is refused', async (t) => {
-    const { call, runner } = await fixture(t, { password: PASSWORD });
-
-    const status = await call('GET', '/api/admin/refresh');
-    assert.equal(status.status, 401);
-    assert.equal(status.body.auth, 'password', 'the page is told to show sign-in, not an error');
-
-    const post = await call('POST', '/api/admin/refresh', { body: { county: '60' } });
-    assert.equal(post.status, 401);
-    assert.equal(runner.calls.length, 0, 'no refused request reached the runner');
-  });
-
-  await t.test('the wrong password does not sign anyone in', async (t) => {
-    const { signIn, call } = await fixture(t, { password: PASSWORD });
-
-    const attempt = await signIn(`${PASSWORD}r`);
-    assert.equal(attempt.status, 401);
-    assert.equal(attempt.setCookie, null, 'a failed sign-in must not set a session');
-    assert.equal((await call('GET', '/api/admin/refresh')).status, 401);
-  });
-
-  await t.test('the right password signs in, and the session carries the refresh', async (t) => {
-    const { signIn, call, runner } = await fixture(t, { password: PASSWORD });
-
-    const session = await signIn(PASSWORD);
-    assert.equal(session.status, 204);
-    assert.match(session.setCookie, /HttpOnly/i, 'the page must not be able to read it back');
-    assert.match(session.setCookie, /SameSite=Strict/i, 'no other site may spend it');
-    assert.ok(readCookie(session.setCookie.split(';')[0]), 'and it names a session id');
-
-    assert.equal((await call('GET', '/api/admin/refresh')).status, 200);
-    const run = await call('POST', '/api/admin/refresh', { body: { county: '60' } });
-    assert.equal(run.status, 202);
-    assert.deepEqual(runner.calls[0].counties, ['60']);
-  });
-
-  await t.test('signing out ends the session on the server, not just in the browser', async (t) => {
-    const { signIn, call } = await fixture(t, { password: PASSWORD });
-    await signIn(PASSWORD);
-    assert.equal((await call('GET', '/api/admin/refresh')).status, 200);
-
-    await call('DELETE', '/api/admin/session');
-    assert.equal(
-      (await call('GET', '/api/admin/refresh')).status,
-      401,
-      'a signed-out cookie must not still work if it is replayed'
-    );
-  });
-
-  await t.test('guessing is locked out', async (t) => {
-    // The reason this exists and the token version did not need it: a password
-    // is chosen by a person, so it is guessable, and what it unlocks is a button
-    // that makes our server hammer the state's.
-    const { signIn, call } = await fixture(t, { password: PASSWORD });
-
-    for (let i = 0; i < MAX_ATTEMPTS - 1; i += 1) {
-      assert.equal((await signIn('nope')).status, 401, `attempt ${i + 1} is merely wrong`);
-    }
-
-    const locked = await signIn('nope');
-    assert.equal(locked.status, 429);
-    assert.ok(Number(locked.headers.get('retry-after')) > 0, 'and says how long to wait');
-
-    const afterLock = await signIn(PASSWORD);
-    assert.equal(afterLock.status, 429, 'the lockout holds even for the right password');
-  });
-
-  await t.test('the page can ask whether a password is wanted at all', async (t) => {
-    const open = await fixture(t);
-    assert.deepEqual((await open.call('GET', '/api/admin/session')).body, {
-      password_required: false,
-      signed_in: true,
-    });
-
-    const closed = await fixture(t, { password: PASSWORD });
-    assert.deepEqual((await closed.call('GET', '/api/admin/session')).body, {
-      password_required: true,
-      signed_in: false,
-    });
-  });
-});
-
-test('loopback detection', () => {
-  // Without a token the routes are localhost-only, so this predicate is the
-  // whole gate on a deployed service — where nothing is loopback.
-  assert.equal(isLoopbackAddress('127.0.0.1'), true);
-  assert.equal(isLoopbackAddress('::1'), true);
-  assert.equal(isLoopbackAddress('::ffff:127.0.0.1'), true, 'IPv4 over an IPv6 socket');
-  assert.equal(isLoopbackAddress('203.0.113.9'), false);
-  assert.equal(isLoopbackAddress(''), false);
-  assert.equal(isLoopbackAddress(undefined), false);
 });
 
 test('refresh outcomes follow the exit-code contract', () => {
@@ -425,16 +306,4 @@ test('raw data browser', async (t) => {
     assert.equal((await call('GET', '/api/admin/data/nope')).status, 404);
   });
 
-  await t.test('the raw rows are behind the same password as the refresh', async (t) => {
-    // DEC-009 is a publishing decision, not a rendering one. Serving the rows
-    // it excludes from an ungated URL would reverse it by the back door.
-    const { db, call, signIn } = await fixture(t, { password: PASSWORD });
-    seedRaw(db);
-
-    assert.equal((await call('GET', '/api/admin/data')).status, 401);
-    assert.equal((await call('GET', '/api/admin/data/diner')).status, 401);
-
-    await signIn(PASSWORD);
-    assert.equal((await call('GET', '/api/admin/data')).status, 200);
-  });
 });
