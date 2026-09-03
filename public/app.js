@@ -33,6 +33,7 @@
     lastBbox: null,
     inFlight: null,
     searching: false,
+    unmapped: 0,
   };
 
   /* ------------------------------------------------------------- markers --- */
@@ -344,15 +345,34 @@
           `<span class="results__name">${escapeHtml(pin.name)}</span>` +
           `<span class="results__meta">${escapeHtml(label(pin.signal))}` +
           (pin.last_inspection_date ? ` · ${escapeHtml(formatDate(pin.last_inspection_date))}` : '') +
+          (Number.isFinite(pin.lat) ? '' : ' · <span class="results__unmapped">not on the map</span>') +
           `</span></a></li>`
       )
       .join('');
   }
 
+  /**
+   * Draw a result set.
+   *
+   * Not every establishment can be a pin. Search returns matches whether or not
+   * they have a coordinate — a restaurant we cannot place is still a licensed
+   * restaurant with inspection results, and refusing to find it would be worse
+   * than not mapping it. The bbox query never produced those, because it reads
+   * from the spatial index, so this function used to assume a coordinate on
+   * every row and threw the moment search started calling it.
+   *
+   * So the two are separated: the map gets what can be mapped, the list gets
+   * everything, and the count of the difference is reported rather than hidden.
+   * Dropping them from the map silently would be the same failure as the
+   * viewport cap that once hid 2,000 restaurants behind a flag nobody read.
+   */
   function draw(pins) {
     state.cluster.clearLayers();
 
-    const markers = pins.map((pin) => {
+    const mappable = pins.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+    state.unmapped = pins.length - mappable.length;
+
+    const markers = mappable.map((pin) => {
       const marker = L.marker([pin.lat, pin.lng], {
         icon: iconFor(pin.signal),
         // Read aloud as one sentence rather than as an unlabelled graphic.
@@ -367,6 +387,7 @@
     state.cluster.addLayers(markers);
     state.markersById = new Map(markers.map((m) => [m.safeEatsId, m]));
     renderResults(pins);
+    return { mapped: mappable.length, unmapped: state.unmapped };
   }
 
   /* ---------------------------------------------------------------- fetch --- */
@@ -481,7 +502,7 @@
       // A search leaves viewport mode, so the remembered box must not suppress
       // the next "search this area" — otherwise panning back looks broken.
       state.lastBbox = null;
-      draw(body.establishments);
+      const drawn = draw(body.establishments);
 
       const withPins = body.establishments.filter((e) => Number.isFinite(e.lat));
       if (withPins.length) {
@@ -498,7 +519,10 @@
         body.total === 0
           ? `No establishments ${bits.join(' ')}.`
           : `<b>${body.total}</b> establishment${body.total === 1 ? '' : 's'} ${bits.join(' ')}` +
-            (body.truncated ? ` — showing the first ${body.count} on the map.` : '.')
+            (body.truncated ? ` — showing the first ${body.count}` : '') +
+            (drawn.unmapped
+              ? `. <b>${drawn.unmapped}</b> of these ${drawn.unmapped === 1 ? 'has' : 'have'} no mapped location and ${drawn.unmapped === 1 ? 'appears' : 'appear'} only in the list below.`
+              : '.')
       );
 
       setStatus(body.total ? `${Math.min(body.total, body.count)} shown` : 'Nothing matched');

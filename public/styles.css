@@ -702,3 +702,12 @@ main {
 }
 .search__mark svg { display: block; }
 .search__mark:empty { display: none; }
+
+/* An establishment we hold a record for but cannot place. Said plainly in the
+   list rather than dropped from it — the record is real even when the pin is
+   not, and a silent omission is how a map tells someone a restaurant does not
+   exist. */
+.results__unmapped {
+  font-style: italic;
+  color: var(--ink-faint, var(--ink-soft));
+}
