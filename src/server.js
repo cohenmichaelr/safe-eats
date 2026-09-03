@@ -33,15 +33,17 @@ const {
   countyName,
   licenseTypeName,
 } = require('./display');
-const { canonicalCity, titleCase } = require('./cities');
+const { canonicalCity, spellingsFor, titleCase } = require('./cities');
 const { createScheduler } = require('./scheduler');
 const { createRefreshRunner } = require('./refresh-runner');
+const { createGates } = require('./gates');
 const { seedGeocodeCache } = require('./seed');
 const {
   establishmentSignal,
   SIGNAL_DISPLAY,
   DISPOSITION_MAP,
   STALE_AFTER_MONTHS,
+  staleCutoff,
   isKnownDisposition,
 } = require('./signal');
 
@@ -61,20 +63,21 @@ const VENDOR = {
 /**
  * Viewport cap.
  *
- * The default must exceed the entire displayable universe, or the default
- * request is the failure this cap exists to prevent. Measured: 3,618 geocoded
- * type-2010 establishments in county 60, of which 3,530 fall inside the
- * county bbox the tests use. At the previous default of 1,500 an unqualified
- * county-wide request returned 42% of the restaurants and a `truncated` flag —
- * a map that quietly drops pins is a map that tells a diner a restaurant does
+ * The default used to be chosen so that it exceeded the entire displayable
+ * universe — 4,000 against county 60's 3,618 geocoded establishments — on the
+ * reasoning that a map which quietly drops pins tells a diner a restaurant does
  * not exist, which is the one thing this product must never do.
  *
- * 4,000 clears the whole county with headroom. The cap now only bites on a
- * hand-typed bbox spanning the hemisphere, which is what it was for. MAX_LIMIT
- * leaves room for the county expansion in OPEN-3.
+ * Statewide that is no longer possible: 54,296 displayable establishments will
+ * not fit in a payload, and a cap that never bites cannot exist (DEC-017). So
+ * the guarantee moves from "the cap never applies" to "the cap is scoped to
+ * what you are looking at": the map queries a bounding box, and 4,000 comfortably
+ * exceeds any viewport a person can read. `truncated` still travels in the
+ * response, and the UI still says so rather than silently showing less.
  */
 const DEFAULT_LIMIT = 4000;
 const MAX_LIMIT = 10000;
+
 
 /* ----------------------------------------------------------- statements ---- */
 
@@ -111,6 +114,7 @@ function prepareStatements(db) {
   const displayed = displayedPredicate('e');
 
   return {
+    displayedSql: displayed.sql,
     displayedParams: displayed.params,
 
     /**
@@ -144,7 +148,7 @@ function prepareStatements(db) {
 
     byId: db.prepare(`
       SELECT e.establishment_id, e.license_key, e.license_number, e.name,
-             e.address, e.city, e.zip, e.county_name, e.seats, e.risk_level,
+             e.address, e.city, e.zip, e.county_name, e.county_code, e.seats, e.risk_level,
              e.lat, e.lng, e.geocode_source, e.geocode_quality, e.last_seen_at
         FROM establishment e
        WHERE e.establishment_id = ? AND ${displayed.sql}`),
@@ -188,32 +192,6 @@ function prepareStatements(db) {
      * whole state, the fix is a migration that feeds FTS5 the normalised text
      * rather than the raw name — not a cleverer scan.
      */
-    searchByText: db.prepare(`
-      SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.county_code,
-             e.lat, e.lng,
-             i.inspection_date, i.disposition, i.signal AS raw_signal,
-             i.total_violations, i.high_violations
-        FROM establishment e
-   LEFT JOIN inspection i ON i.inspection_visit_id = (${LATEST_VISIT})
-       WHERE ${displayed.sql}
-         AND ${NORMALIZED} LIKE ?
-       ORDER BY
-         -- A name match outranks an address match: someone typing "delray"
-         -- who wants Delray Beach should not be led by a shop on Delray Road.
-         CASE WHEN ${NORMALIZED_NAME} LIKE ? THEN 0 ELSE 1 END,
-         e.name`),
-
-    /** Browse with no search term — a city or signal filter on its own. */
-    searchAll: db.prepare(`
-      SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.county_code,
-             e.lat, e.lng,
-             i.inspection_date, i.disposition, i.signal AS raw_signal,
-             i.total_violations, i.high_violations
-        FROM establishment e
-   LEFT JOIN inspection i ON i.inspection_visit_id = (${LATEST_VISIT})
-       WHERE ${displayed.sql}
-       ORDER BY e.name`),
-
     /**
      * The city list, per county, for the cascading filter.
      *
@@ -354,7 +332,7 @@ function toPin(row, now) {
 
 /* ----------------------------------------------------------------- app ----- */
 
-function createApp(db, { refreshRunner = createRefreshRunner() } = {}) {
+function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGates() } = {}) {
   const q = prepareStatements(db);
   const app = express();
 
@@ -388,27 +366,22 @@ function createApp(db, { refreshRunner = createRefreshRunner() } = {}) {
       dispositions,
       stale_after_months: STALE_AFTER_MONTHS,
       coverage: q.coverage.get(...q.displayedParams),
-      counties: DISPLAYED_COUNTIES.map((code) => ({ code, name: countyName(code) })),
+      /*
+       * Every county, with whether its pin positions have been verified
+       * (DEC-017). The map shows all 67; only the counties whose 100-row
+       * sample has been checked by hand against satellite imagery carry an
+       * accuracy claim, and the UI says so on the rest rather than letting the
+       * reader assume one county's verification covers another's addresses.
+       */
+      counties: DISPLAYED_COUNTIES.map((code) => ({
+        code,
+        name: countyName(code),
+        verified: gates.verified(code),
+        verified_at: gates.verifiedAt(code),
+        gate_status: gates.statusOf(code),
+        gate_score: gates.scoreOf(code),
+      })),
 
-      // Cities per county, canonicalised. The raw data carries 193 spellings
-      // for ~150 real places; grouping them is what stops a filter from
-      // silently hiding the 100 establishments behind a misspelling. See
-      // src/cities.js for why the aliases are enumerated rather than computed.
-      cities: (() => {
-        const byCounty = new Map();
-        for (const row of q.cities.all(...q.displayedParams)) {
-          const canonical = canonicalCity(row.city);
-          if (!canonical) continue;
-          const bucket = byCounty.get(row.county_code) ?? new Map();
-          bucket.set(canonical, (bucket.get(canonical) ?? 0) + row.n);
-          byCounty.set(row.county_code, bucket);
-        }
-        return [...byCounty.entries()].flatMap(([county_code, bucket]) =>
-          [...bucket.entries()]
-            .sort((a, b) => a[0].localeCompare(b[0]))
-            .map(([city, n]) => ({ county_code, city, label: titleCase(city), n }))
-        );
-      })(),
       attribution: {
         data: 'Florida Department of Business & Professional Regulation',
         basemap: 'Esri World Street Map — Esri, HERE, Garmin, USGS, Intermap, © OpenStreetMap contributors',
@@ -417,16 +390,80 @@ function createApp(db, { refreshRunner = createRefreshRunner() } = {}) {
   });
 
   /**
-   * GET /api/search?q=&city=&signal=&limit= — FR-407.
+   * GET /api/cities?county=NN — the city filter's options, one county at a time.
+   *
+   * These used to travel inside /api/meta. At three counties that was 149
+   * entries; statewide it is 942, about 64 KB uncompressed on the first paint
+   * of a map that is meant to be usable on a phone (FR-402). And it was always
+   * 942 more than needed: the menu shows one county's cities, because South
+   * Florida alone repeats its town names across county lines.
+   *
+   * Canonicalised, so the 12 establishments filed under ROYAL PLM BEACH are
+   * counted under Royal Palm Beach rather than sitting in their own entry that
+   * looks like a different town. See src/cities.js for why that map is written
+   * by hand.
+   */
+  app.get('/api/cities', (req, res) => {
+    const county = (req.query.county ?? '').toString().trim();
+    if (county && !(county in COUNTIES)) {
+      throw new BadRequest(`Not a displayed county: ${JSON.stringify(county)}`);
+    }
+
+    const counted = new Map();
+    for (const row of q.cities.all(...q.displayedParams)) {
+      if (county && row.county_code !== county) continue;
+      const canonical = canonicalCity(row.city);
+      if (!canonical) continue;
+      counted.set(canonical, (counted.get(canonical) ?? 0) + row.n);
+    }
+
+    res.set('Cache-Control', 'public, max-age=300');
+    res.json({
+      county,
+      cities: [...counted.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        // Counts are per county, so summing a repeated name across counties
+        // would report a total that matches no possible filter.
+        .map(([city, n]) => ({ city, label: titleCase(city), n })),
+    });
+  });
+
+  /**
+   * GET /api/search?q=&city=&county=&signal=&limit= — FR-407.
    *
    * Three filters, and it is worth being explicit about what is NOT here:
    * there is no cuisine or category filter, because the DBPR licence extract
    * has no such column — none of its 35 fields describes what kind of food an
-   * establishment serves. Searching "pizza" matches 194 establishments with
-   * PIZZA in their name, which is genuinely useful, but it is a name match and
-   * the UI says so. Inferring cuisine from a name would be inventing a fact
-   * about a named business, which is the same line DEC-011 draws over
-   * violation codes.
+   * establishment serves. Searching "pizza" matches establishments with PIZZA
+   * in their name, which is genuinely useful, but it is a name match and the UI
+   * says so. Inferring cuisine from a name would be inventing a fact about a
+   * named business, which is the same line DEC-011 draws over violation codes.
+   *
+   * WHY THE FILTERING MOVED INTO SQL (DEC-017)
+   *
+   * This used to select the whole displayed population and filter it in
+   * JavaScript. At three counties that was 15,652 rows built into pins on every
+   * unfiltered browse; statewide it is 54,296. County and city are now WHERE
+   * clauses and the row cap is SQLite's, not a slice of an array we already
+   * paid to build.
+   *
+   * City is expressible in SQL because the alias map is finite and known: the
+   * spellings that canonicalise to "ROYAL PALM BEACH" are that string plus the
+   * three aliases pointing at it. The filter therefore stays exactly as
+   * forgiving as `canonicalCity` — the 12 establishments filed under ROYAL PLM
+   * BEACH are still found — without reading the state to find them.
+   *
+   * Signal is a WHERE clause too, and getting there took one fix. It is not a
+   * stored column — a pass older than STALE_AFTER_MONTHS reads as "unknown", so
+   * it depends on when the question is asked — and the first attempt handled
+   * that by over-fetching and filtering after. Measured statewide, that answered
+   * "show me enforcement actions" with 4 results out of thousands, all early in
+   * the alphabet, because the window was filled before the filter ran. A filter
+   * that quietly returns the first slice of the answer is worse than none.
+   *
+   * So the boundary is expressed as a date (`staleCutoff`, derived from the same
+   * STALE_AFTER_MONTHS the map uses) and compared in SQL. One constant, two
+   * languages, no second literal to drift.
    */
   app.get('/api/search', (req, res) => {
     const text = (req.query.q ?? '').toString().trim();
@@ -442,51 +479,107 @@ function createApp(db, { refreshRunner = createRefreshRunner() } = {}) {
       throw new BadRequest(`Not a displayed county: ${JSON.stringify(county)}`);
     }
 
-    // Normalise the query exactly as the column is normalised, or the two
-    // never meet: a user typing "wendy's" must reach rows stored as WENDY'S.
-    const normalise = (v) => v.toUpperCase().replace(/['.]/g, '').replace(/-/g, ' ');
+    const where = [];
+    const params = [];
 
-    let rows;
-    if (text) {
-      // % and _ are LIKE wildcards. Dropped rather than escaped: SQLite needs an
-      // explicit ESCAPE clause for that, and nobody searches a restaurant name
-      // for an underscore.
-      const cleaned = normalise(text).replace(/[%_]/g, ' ').trim();
-
-      // A query that is nothing but wildcards or punctuation matches nothing.
-      // Falling through with an empty pattern would build '%%' and return the
-      // entire database — a nonsense query answered with everything, which
-      // reads as a working search and is the worst of both.
-      rows = cleaned === '' ? [] : q.searchByText.all(...q.displayedParams, `%${cleaned}%`, `%${cleaned}%`);
-    } else {
-      rows = q.searchAll.all(...q.displayedParams);
+    if (county) {
+      where.push('e.county_code = ?');
+      params.push(county);
     }
+
+    // Matched on every spelling that canonicalises to the requested city, so
+    // choosing "Royal Palm Beach" also returns ROYAL PLM BEACH and ROAYL PALM
+    // BEACH. `tidy` uppercases and collapses whitespace; the column is matched
+    // the same way rather than assuming DBPR's casing.
+    if (city) {
+      const spellings = spellingsFor(city);
+      where.push(`UPPER(TRIM(e.city)) IN (${spellings.map(() => '?').join(', ')})`);
+      params.push(...spellings);
+    }
+
+    let cleaned = null;
+    if (text) {
+      // Normalise the query exactly as the column is normalised, or the two
+      // never meet: a user typing "wendy's" must reach rows stored as WENDY'S.
+      // % and _ are LIKE wildcards, dropped rather than escaped — SQLite needs
+      // an explicit ESCAPE clause, and nobody searches a name for an underscore.
+      cleaned = text.toUpperCase().replace(/['.]/g, '').replace(/-/g, ' ').replace(/[%_]/g, ' ').trim();
+
+      if (cleaned === '') {
+        // A query that is nothing but wildcards or punctuation matches nothing.
+        // Falling through with an empty pattern would build '%%' and return the
+        // entire database — a nonsense query answered with everything, which
+        // reads as a working search and is the worst of both.
+        where.push('1 = 0');
+      } else {
+        where.push(`${NORMALIZED} LIKE ?`);
+        params.push(`%${cleaned}%`);
+      }
+    }
+
+    if (signal) {
+      const cutoff = staleCutoff(new Date());
+      if (signal === 'unknown') {
+        // Four ways to be unknown: never inspected, no date, too old to speak
+        // for the premises now, or an inspection whose disposition maps to it.
+        where.push(
+          `(i.inspection_visit_id IS NULL OR i.inspection_date IS NULL
+             OR i.inspection_date < ? OR i.signal IS NULL OR i.signal = 'unknown')`
+        );
+        params.push(cutoff);
+      } else {
+        where.push('i.signal = ? AND i.inspection_date IS NOT NULL AND i.inspection_date >= ?');
+        params.push(signal, cutoff);
+      }
+    }
+
+    const filterSql = `${q.displayedSql}${where.length ? ` AND ${where.join(' AND ')}` : ''}`;
+    const filterParams = [...q.displayedParams, ...params];
+
+    // The signal predicate reads the joined inspection, so the count carries the
+    // same join. Without it the two would answer different questions.
+    const countFrom = `establishment e
+      LEFT JOIN inspection i ON i.inspection_visit_id = (${LATEST_VISIT})`;
+
+    const rows = db
+      .prepare(
+        `SELECT e.establishment_id, e.name, e.address, e.city, e.zip, e.county_code,
+                e.lat, e.lng,
+                i.inspection_date, i.disposition, i.signal AS raw_signal,
+                i.total_violations, i.high_violations
+           FROM establishment e
+      LEFT JOIN inspection i ON i.inspection_visit_id = (${LATEST_VISIT})
+          WHERE ${filterSql}
+       ORDER BY ${cleaned
+            ? // A name match outranks an address match: someone typing "delray"
+              // who wants Delray Beach should not be led by a shop on Delray Road.
+              `CASE WHEN ${NORMALIZED_NAME} LIKE ? THEN 0 ELSE 1 END, e.name`
+            : 'e.name'}
+          LIMIT ?`
+      )
+      .all(...filterParams, ...(cleaned ? [`%${cleaned}%`] : []), limit);
 
     const now = new Date();
-    let results = rows.map((row) => toPin(row, now));
+    const results = rows.map((row) => toPin(row, now));
 
-    if (county) results = results.filter((r) => r.county_code === county);
-    // Matched on the canonical spelling, so choosing "Royal Palm Beach" also
-    // returns the rows filed under ROYAL PLM BEACH and ROAYL PALM BEACH.
-    if (city) {
-      const wanted = canonicalCity(city);
-      results = results.filter((r) => canonicalCity(r.city) === wanted);
-    }
-    if (signal) results = results.filter((r) => r.signal === signal);
+    // The true count, from the same predicate that produced the page.
+    const total = db
+      .prepare(`SELECT COUNT(*) AS n FROM ${countFrom} WHERE ${filterSql}`)
+      .get(...filterParams).n;
 
-    const total = results.length;
+    const truncated = total > limit;
+
     res.set('Cache-Control', 'public, max-age=60');
     res.json({
       as_of: dataAsOf(db),
       query: { q: text, county, city, signal },
-      count: Math.min(total, limit),
+      count: Math.min(results.length, limit),
       total,
-      truncated: total > limit,
+      truncated,
       establishments: results.slice(0, limit),
     });
   });
 
-  /** GET /api/establishments?bbox=w,s,e,n[&limit=n] — FR-401. */
   app.get('/api/establishments', (req, res) => {
     const { west, south, east, north } = parseBbox(req.query.bbox);
     const limit = parseLimit(req.query.limit);
@@ -559,6 +652,17 @@ function createApp(db, { refreshRunner = createRefreshRunner() } = {}) {
         city: est.city,
         zip: est.zip,
         county: est.county_name,
+        county_code: est.county_code,
+        /*
+         * Whether this county's pin positions have been checked by hand
+         * (DEC-017). The panel renders a plain sentence when they have not,
+         * because the map now covers counties whose addresses nobody has
+         * verified, and a pin that looks identical to a verified one while
+         * resting on an unchecked geocode is a claim the product has not
+         * earned. Palm Beach's verification says nothing about Baker's
+         * addresses — see scripts/gate-paths.js for why they are not pooled.
+         */
+        position_verified: gates.verified(est.county_code),
         license_number: est.license_number,
         seats: est.seats,
         risk_level: est.risk_level,

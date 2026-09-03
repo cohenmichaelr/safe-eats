@@ -1,0 +1,538 @@
+{
+  "11": {
+    "county": "11",
+    "name": "Alachua",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.145Z"
+  },
+  "12": {
+    "county": "12",
+    "name": "Baker",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.220Z"
+  },
+  "13": {
+    "county": "13",
+    "name": "Bay",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.296Z"
+  },
+  "14": {
+    "county": "14",
+    "name": "Bradford",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.363Z"
+  },
+  "15": {
+    "county": "15",
+    "name": "Brevard",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.431Z"
+  },
+  "16": {
+    "county": "16",
+    "name": "Broward",
+    "status": "incomplete",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.572Z"
+  },
+  "17": {
+    "county": "17",
+    "name": "Calhoun",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.641Z"
+  },
+  "18": {
+    "county": "18",
+    "name": "Charlotte",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.723Z"
+  },
+  "19": {
+    "county": "19",
+    "name": "Citrus",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.797Z"
+  },
+  "20": {
+    "county": "20",
+    "name": "Clay",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.869Z"
+  },
+  "21": {
+    "county": "21",
+    "name": "Collier",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:42.952Z"
+  },
+  "22": {
+    "county": "22",
+    "name": "Columbia",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.029Z"
+  },
+  "23": {
+    "county": "23",
+    "name": "Dade",
+    "status": "incomplete",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.171Z"
+  },
+  "24": {
+    "county": "24",
+    "name": "DeSoto",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.242Z"
+  },
+  "25": {
+    "county": "25",
+    "name": "Dixie",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.314Z"
+  },
+  "26": {
+    "county": "26",
+    "name": "Duval",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.386Z"
+  },
+  "27": {
+    "county": "27",
+    "name": "Escambia",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.451Z"
+  },
+  "28": {
+    "county": "28",
+    "name": "Flagler",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.518Z"
+  },
+  "29": {
+    "county": "29",
+    "name": "Franklin",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.581Z"
+  },
+  "30": {
+    "county": "30",
+    "name": "Gadsden",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.650Z"
+  },
+  "31": {
+    "county": "31",
+    "name": "Gilchrist",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.714Z"
+  },
+  "32": {
+    "county": "32",
+    "name": "Glades",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.778Z"
+  },
+  "33": {
+    "county": "33",
+    "name": "Gulf",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.844Z"
+  },
+  "34": {
+    "county": "34",
+    "name": "Hamilton",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.914Z"
+  },
+  "35": {
+    "county": "35",
+    "name": "Hardee",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:43.980Z"
+  },
+  "36": {
+    "county": "36",
+    "name": "Hendry",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.047Z"
+  },
+  "37": {
+    "county": "37",
+    "name": "Hernando",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.114Z"
+  },
+  "38": {
+    "county": "38",
+    "name": "Highlands",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.185Z"
+  },
+  "39": {
+    "county": "39",
+    "name": "Hillsborough",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.265Z"
+  },
+  "40": {
+    "county": "40",
+    "name": "Holmes",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.340Z"
+  },
+  "41": {
+    "county": "41",
+    "name": "Indian River",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.414Z"
+  },
+  "42": {
+    "county": "42",
+    "name": "Jackson",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.489Z"
+  },
+  "43": {
+    "county": "43",
+    "name": "Jefferson",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.556Z"
+  },
+  "44": {
+    "county": "44",
+    "name": "Lafayette",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.624Z"
+  },
+  "45": {
+    "county": "45",
+    "name": "Lake",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.692Z"
+  },
+  "46": {
+    "county": "46",
+    "name": "Lee",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.765Z"
+  },
+  "47": {
+    "county": "47",
+    "name": "Leon",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.835Z"
+  },
+  "48": {
+    "county": "48",
+    "name": "Levy",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:44.899Z"
+  },
+  "49": {
+    "county": "49",
+    "name": "Liberty",
+    "status": "incomplete",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.002Z"
+  },
+  "50": {
+    "county": "50",
+    "name": "Madison",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.067Z"
+  },
+  "51": {
+    "county": "51",
+    "name": "Manatee",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.124Z"
+  },
+  "52": {
+    "county": "52",
+    "name": "Marion",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.184Z"
+  },
+  "53": {
+    "county": "53",
+    "name": "Martin",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.244Z"
+  },
+  "54": {
+    "county": "54",
+    "name": "Monroe",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.299Z"
+  },
+  "55": {
+    "county": "55",
+    "name": "Nassau",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.360Z"
+  },
+  "56": {
+    "county": "56",
+    "name": "Okaloosa",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.424Z"
+  },
+  "57": {
+    "county": "57",
+    "name": "Okeechobee",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.480Z"
+  },
+  "58": {
+    "county": "58",
+    "name": "Orange",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.541Z"
+  },
+  "59": {
+    "county": "59",
+    "name": "Osceola",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.609Z"
+  },
+  "60": {
+    "county": "60",
+    "name": "Palm Beach",
+    "status": "incomplete",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.735Z"
+  },
+  "61": {
+    "county": "61",
+    "name": "Pasco",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.838Z"
+  },
+  "62": {
+    "county": "62",
+    "name": "Pinellas",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:45.934Z"
+  },
+  "63": {
+    "county": "63",
+    "name": "Polk",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.038Z"
+  },
+  "64": {
+    "county": "64",
+    "name": "Putnam",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.120Z"
+  },
+  "65": {
+    "county": "65",
+    "name": "St. Johns",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.202Z"
+  },
+  "66": {
+    "county": "66",
+    "name": "St. Lucie",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.279Z"
+  },
+  "67": {
+    "county": "67",
+    "name": "Santa Rosa",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.364Z"
+  },
+  "68": {
+    "county": "68",
+    "name": "Sarasota",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.444Z"
+  },
+  "69": {
+    "county": "69",
+    "name": "Seminole",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.520Z"
+  },
+  "70": {
+    "county": "70",
+    "name": "Sumter",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.591Z"
+  },
+  "71": {
+    "county": "71",
+    "name": "Suwannee",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.668Z"
+  },
+  "72": {
+    "county": "72",
+    "name": "Taylor",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.742Z"
+  },
+  "73": {
+    "county": "73",
+    "name": "Union",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.817Z"
+  },
+  "74": {
+    "county": "74",
+    "name": "Volusia",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.881Z"
+  },
+  "75": {
+    "county": "75",
+    "name": "Wakulla",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:46.949Z"
+  },
+  "76": {
+    "county": "76",
+    "name": "Walton",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:47.014Z"
+  },
+  "77": {
+    "county": "77",
+    "name": "Washington",
+    "status": "not-drawn",
+    "within": null,
+    "total": null,
+    "scored_at": "2026-09-03T23:13:47.074Z"
+  }
+}

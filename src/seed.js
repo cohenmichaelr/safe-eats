@@ -18,9 +18,24 @@
  * every accumulated coordinate on every import — just moved from SQL to
  * infrastructure.
  *
- * So the cache is committed to the repository as a CSV and restored on boot
- * when the table is empty. A deploy to a new disk, a new host, or a laptop
- * that has never run the geocoder all converge on the same coordinates.
+ * So the cache is committed to the repository as a CSV and restored on boot.
+ * A deploy to a new disk, a new host, or a laptop that has never run the
+ * geocoder all converge on the same coordinates.
+ *
+ * WHY IT TOPS UP RATHER THAN ONLY RESTORING AN EMPTY TABLE (DEC-017)
+ *
+ * It used to do nothing at all when the table held anything, on the reasoning
+ * that a non-empty cache meant the disk already had the work. Statewide broke
+ * that: the deployed service has a disk holding the three-county cache, and the
+ * committed seed now carries tens of thousands of addresses it has never seen.
+ * Only-when-empty means the one artefact that cost money to produce would never
+ * reach the service that needs it, and every new county would be re-geocoded
+ * from scratch on a host where that step is slowest.
+ *
+ * Topping up is safe because the insert has always been DO NOTHING: a row
+ * present on the disk was resolved by that deployment and outranks a committed
+ * one, so a hand-corrected coordinate survives. The cost is one pass over the
+ * seed on each boot, which is a few tenths of a second inside one transaction.
  *
  * WHY BOOT AND NOT BUILD
  *
@@ -83,19 +98,18 @@ function parseCsv(text) {
  *
  * @returns {{seeded: number, reason: string}}
  */
-function seedGeocodeCache(db, { force = false } = {}) {
+function seedGeocodeCache(db) {
   const existing = db.prepare('SELECT COUNT(*) AS n FROM geocode_cache').get().n;
-  if (existing > 0 && !force) {
-    return { seeded: 0, reason: `cache already holds ${existing} row(s)` };
-  }
   if (!fs.existsSync(SEED_PATH)) {
     return { seeded: 0, reason: 'no seed file committed' };
   }
 
   const rows = parseCsv(fs.readFileSync(SEED_PATH, 'utf8'));
 
-  // DO NOTHING rather than DO UPDATE: if a row is somehow already present it was
-  // resolved by this deployment, and a live resolution outranks a committed one.
+  // DO NOTHING rather than DO UPDATE, and now load-bearing: this is what makes
+  // topping up a non-empty cache safe. A row already present was resolved by
+  // this deployment — including any coordinate corrected by hand — and a live
+  // resolution outranks a committed one.
   const insert = db.prepare(
     `INSERT INTO geocode_cache (normalized_address, lat, lng, quality, source, resolved_at)
      VALUES (@normalized_address, @lat, @lng, @quality, @source, @resolved_at)
@@ -106,7 +120,10 @@ function seedGeocodeCache(db, { force = false } = {}) {
     let n = 0;
     for (const r of all) {
       if (!r.normalized_address) continue;
-      insert.run({
+      // `changes` rather than a bare increment: with the top-up, "seeded" has
+      // to mean addresses that actually arrived, not rows we read past. A count
+      // of attempts would report 58,000 restored on a boot that restored none.
+      const info = insert.run({
         normalized_address: r.normalized_address,
         // Coarse rows are cached with null coordinates on purpose — they record
         // "asked, and the answer was not good enough", which is what stops the
@@ -117,12 +134,18 @@ function seedGeocodeCache(db, { force = false } = {}) {
         source: r.source || null,
         resolved_at: r.resolved_at || null,
       });
-      n += 1;
+      n += info.changes;
     }
     return n;
   });
 
-  return { seeded: load(rows), reason: 'restored from seed/geocode-cache.csv' };
+  const seeded = load(rows);
+  return {
+    seeded,
+    reason: existing > 0
+      ? `topped up from seed/geocode-cache.csv — ${existing} row(s) were already cached`
+      : 'restored from seed/geocode-cache.csv',
+  };
 }
 
 module.exports = { seedGeocodeCache, SEED_PATH };

@@ -253,6 +253,20 @@ function reportAll() {
   const lines = ['AC-E2-GATE — all counties', ''];
   let allPassed = true;
 
+  /**
+   * The machine-readable projection of the worksheets — DEC-017.
+   *
+   * The product now displays all 67 counties and labels the ones that have not
+   * passed their gate, so the server has to know which those are. It must not
+   * learn it from a hand-kept list: this file is written from the same scoring
+   * the text report prints, so the label and the verdict cannot disagree.
+   *
+   * A county absent from this file is unverified. That default is deliberate —
+   * the failure mode of a missing status file must be "claims nothing", never
+   * "claims everything is checked".
+   */
+  const gateStatus = {};
+
   for (const county of DISPLAYED_COUNTIES) {
     let text = '';
     let passed = false;
@@ -282,6 +296,15 @@ function reportAll() {
 
     allPassed = allPassed && passed && Boolean(within);
 
+    gateStatus[county] = {
+      county: String(county),
+      name: countyName(county),
+      status: noSheet ? 'not-drawn' : within ? (passed ? 'pass' : 'fail') : 'incomplete',
+      within: within ? Number(within[1]) : null,
+      total: within ? Number(within[2]) : null,
+      scored_at: new Date().toISOString(),
+    };
+
     lines.push(
       `  ${countyName(county).padEnd(12)} ${status.padEnd(30)}` +
         (drift ? `drift ${drift[1]} (${drift[2]}%)` : '')
@@ -295,6 +318,18 @@ function reportAll() {
       : '  Not every county has a passing gate. A county without one is displayed on the\n' +
         "  strength of another county's method, not on a measurement of its own."
   );
+
+  /*
+   * Written whatever the verdict, including "nothing has been drawn". The map
+   * labels counties from this file and src/gates.js defaults to unverified, so
+   * a pessimistic file is always safe; a file that failed to appear when gates
+   * fail would be the dangerous direction.
+   */
+  const statusPath = path.join(ROOT, 'docs', '07-gate-status.json');
+  fs.writeFileSync(statusPath, `${JSON.stringify(gateStatus, null, 2)}
+`);
+  lines.push('');
+  lines.push(`  Written ${path.relative(ROOT, statusPath)} — the map reads this to label unverified counties.`);
 
   console.log(lines.join('\n'));
   process.exitCode = allPassed ? 0 : 1;

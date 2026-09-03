@@ -98,10 +98,12 @@ test('manual refresh', async (t) => {
     const { status, body } = await call('GET', '/api/admin/refresh');
 
     assert.equal(status, 200);
+    // Fed from the displayed population, not a hand-kept list — which is why it
+    // went from three entries to 67 when DEC-017 landed, with no edit here.
+    assert.equal(body.counties.length, 67);
     assert.deepEqual(
-      body.counties.map((c) => c.code).sort(),
-      ['16', '23', '60'],
-      'the dropdown is fed from the displayed population, not a hand-kept list'
+      body.counties.filter((c) => ['16', '23', '60'].includes(c.code)).map((c) => c.name).sort(),
+      ['Broward', 'Dade', 'Palm Beach']
     );
     assert.equal(body.run, null, 'nothing has run in this process yet');
     assert.equal(body.as_of, null, 'and nothing has ever been ingested');

@@ -154,8 +154,25 @@ function main() {
     `SELECT COUNT(*) n FROM establishment e WHERE ${displayed.sql}`
   ).get(...displayed.params).n;
 
-  if (population.length < SAMPLE_SIZE) {
-    console.error(`Population is ${population.length}, smaller than the ${SAMPLE_SIZE}-row sample.`);
+  /*
+   * A county smaller than the sample is verified in full — DEC-017.
+   *
+   * Statewide, roughly two dozen counties hold fewer than 100 displayable
+   * establishments; Liberty has 3. Refusing to draw would leave them
+   * permanently unverifiable, and drawing "100" from 3 would report a sample
+   * that does not exist. So the whole population is taken, and the artefacts
+   * say census rather than sample.
+   *
+   * This is stronger than sampling, not weaker: every row is checked, so the
+   * >=99% rule leaves no room at all in a county of 3 — all three must be
+   * within 50 m. It is also cheaper. All the small counties together are about
+   * 900 rows, fewer than nine sampled counties.
+   */
+  const census = population.length <= SAMPLE_SIZE;
+  const drawSize = census ? population.length : SAMPLE_SIZE;
+
+  if (population.length === 0) {
+    console.error('Population is empty — nothing to verify, and nothing to claim.');
     process.exit(1);
   }
 
@@ -165,7 +182,9 @@ function main() {
     .digest('hex')
     .slice(0, 16);
 
-  const drawn = sample(population, SAMPLE_SIZE, rng(seed));
+  // A census is still ordered by the seeded shuffle, so the worksheet's row
+  // order is reproducible the same way a sample's is.
+  const drawn = sample(population, drawSize, rng(seed));
 
   const header = [
     'n', 'establishment_id', 'business_name', 'address', 'city', 'zip',
@@ -195,7 +214,8 @@ function main() {
     seed,
     populationSize: population.length,
     populationFingerprint: fingerprint,
-    sampleSize: SAMPLE_SIZE,
+    sampleSize: drawSize,
+    census,
     verdictsDiscarded: verdictsSoFar ?? 0,
     forced: force,
   });
@@ -235,7 +255,7 @@ Charter O3 / M3, PRD §4. The decision rule:
 | Population | ${population.length} geocoded of ${total} displayed ${countyName(GATE_COUNTY)} establishments |
 | Population filter | county ${GATE_COUNTY} ${countyName(GATE_COUNTY)} · licence type ${DISPLAYED_LICENSE_TYPE} (DEC-009) · geocoded |
 | Population fingerprint | \`${fingerprint}\` |
-| Sample size | ${SAMPLE_SIZE} |
+| ${census ? 'Census size' : 'Sample size'} | ${drawSize}${census ? ' — every displayed establishment in the county (DEC-017)' : ''} |
 | Drawn at | ${drawnAt} |
 | Draw number | ${history.length} — full history in [\`07-draw-history.json\`](07-draw-history.json) |
 | Worksheet | [\`07-accuracy-sample.csv\`](07-accuracy-sample.csv) |
@@ -251,7 +271,7 @@ NFR-07 and Gate 1, and are tracked there.
 ## Verification protocol
 
 This step is manual and cannot be automated — it is a visual judgement against
-aerial imagery. For each of the ${SAMPLE_SIZE} rows in the worksheet:
+aerial imagery. For each of the ${drawSize} rows in the worksheet:
 
 1. Open \`satellite_link\`. It centres on the geocoded position at zoom 20.
 2. Open \`address_search_link\` in a second tab to see where the address resolves.
@@ -290,7 +310,11 @@ any row is unverified.
 
   fs.writeFileSync(DOC_PATH, doc);
 
-  console.log(`drew ${SAMPLE_SIZE} of ${population.length} geocoded (${total} displayable in ${countyName(GATE_COUNTY)})`);
+  console.log(
+    census
+      ? `census: all ${drawSize} geocoded rows (${total} displayable in ${countyName(GATE_COUNTY)})`
+      : `drew ${drawSize} of ${population.length} geocoded (${total} displayable in ${countyName(GATE_COUNTY)})`
+  );
   console.log(`  seed        : ${seed}`);
   console.log(`  fingerprint : ${fingerprint}`);
   console.log(`  worksheet   : ${path.relative(ROOT, CSV_PATH)}`);

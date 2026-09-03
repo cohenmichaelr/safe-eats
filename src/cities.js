@@ -105,6 +105,26 @@ function canonicalCity(raw) {
   return ALIASES[key] ?? key;
 }
 
+/**
+ * Every raw spelling that canonicalises to `city` — the canonical string itself
+ * plus any alias pointing at it.
+ *
+ * This is what lets the city filter live in SQL (DEC-017) without becoming less
+ * forgiving than `canonicalCity`. The alternative was loading the state and
+ * canonicalising in JavaScript, which is what it used to do at three counties.
+ * Derived from ALIASES rather than maintained beside it, so a new alias needs
+ * one edit, not two.
+ */
+function spellingsFor(city) {
+  const canonical = canonicalCity(city);
+  if (!canonical) return [];
+  const spellings = new Set([canonical]);
+  for (const [raw, target] of Object.entries(ALIASES)) {
+    if (target === canonical) spellings.add(raw);
+  }
+  return [...spellings];
+}
+
 /** Title case for display: "WEST PALM BEACH" reads better as "West Palm Beach". */
 function titleCase(value) {
   return (value ?? '')
@@ -112,4 +132,4 @@ function titleCase(value) {
     .replace(/(^|[\s\-/])([a-z])/g, (_, sep, ch) => sep + ch.toUpperCase());
 }
 
-module.exports = { canonicalCity, titleCase, ALIASES, tidy };
+module.exports = { canonicalCity, spellingsFor, titleCase, ALIASES, tidy };

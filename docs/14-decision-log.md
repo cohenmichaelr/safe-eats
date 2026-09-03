@@ -389,6 +389,101 @@ Both are enforced by `scripts/score-gate.js`, which now refuses to issue a verdi
 
 ---
 
+## DEC-017 — Statewide: all 67 counties, with unverified pin accuracy labelled
+
+**Date.** 3 Sep 2026 · **Status.** Decided, implemented · **Supersedes.** OPEN-3 · **Amends.** DEC-015
+
+**Context.** The product ingested and displayed three counties. The question was what it would take
+to run Florida.
+
+**Decision.** Ingest and display all 67 counties. A county that has not passed its own accuracy gate
+is still shown, and every record in it carries a plain statement that its pin position has not been
+verified. Counties with 100 or fewer displayed establishments are verified in full rather than
+sampled.
+
+**Measured, 3 Sep 2026, against the live extracts:**
+
+| | |
+|---|---|
+| Counties | 67, codes 11 (Alachua) to 77 (Washington), contiguous |
+| Displayable (type 2010) | 54,296 |
+| All licence types | 69,512 |
+| Loaded | 69,527 establishments · 27,196 inspections · 105,571 violations |
+| Out-of-state codes | 10 (701–746), 17 rows, zero restaurants |
+| Weekly fetch | 33 MB across 14 files, from 10 MB |
+
+**What the measurement overturned.** DEC-015 and `migrations/006` derived the fetch list from a
+county-to-district map, on the finding that each of the three counties had all of its type-2010 rows
+in one district file. Across all 67 that is false. Seven counties are split, and a map would have
+silently dropped the smaller half:
+
+| County | | |
+|---|---|---|
+| Okeechobee | 7 in d4 | 84 in d7 |
+| Columbia | 1 in d4 | 138 in d5 |
+| Brevard | 1,462 in d4 | 1 in d5 |
+| Hillsborough | 3,348 in d3 | 1 in d7 |
+| Polk | 1,329 in d3 | 4 in d4 |
+| Sumter | 247 in d3 | 1 in d5 |
+| Volusia | 1,426 in d4 | 1 in d5 |
+
+So `COUNTY_DISTRICT` is deleted rather than extended: every district is fetched and the row's own
+county code decides what is kept. That costs 33 MB a week instead of 10, and it is the difference
+between a complete county and a county quietly missing rows.
+
+**Why display before verification, and why labelled.** DEC-015 gives each county its own gate — 100
+rows verified by hand against imagery, at least 99 within 50 m — because the counties differ where it
+matters: over half of Dade's addresses use the Miami grid where one wrong character lands miles away,
+against 5.8% of Palm Beach's. That reasoning is unchanged, and it means 67 gates, roughly 5,200 hand
+verifications. Holding the entire state behind that work would keep a diner in Pensacola from seeing
+a published state inspection record for years.
+
+The alternative failure is worse than it looks, though: a pin in an unverified county is visually
+identical to a verified one, so showing it silently borrows Palm Beach's verification for Baker's
+addresses. Hence the label. `position_verified` travels with every record, and the panel says that
+the address is the state's and the position derived from it has not been checked. The claim the
+product makes is now scoped to what it has actually measured.
+
+**Small counties.** Liberty has 3 displayed establishments, Lafayette 5, Union 7; about two dozen are
+under 100 and cannot yield a 100-row sample. Those counties are verified in full. That is stronger
+than sampling — every row checked, and the ≥99% rule leaves a 3-row county no failures at all — and
+cheaper, since all the small counties together are about 900 rows.
+
+**Consequences.**
+
+- `migrations/007_statewide_counties.sql` rebuilds `establishment` with
+  `CHECK (CAST(county_code AS INTEGER) BETWEEN 11 AND 77)`. The constraint still does work: it is
+  what refuses the out-of-state codes now that there is no vetted county list.
+- `/api/search` filters county, city and signal in SQL. Selecting 54,296 rows and filtering in
+  JavaScript was tolerable at 15,652 and is not now. City stays as forgiving as `canonicalCity`
+  because the alias map is finite: the spellings that reach "ROYAL PALM BEACH" are enumerable.
+- **The signal filter had to move too, and the first attempt was wrong.** Signal is derived, not
+  stored — a pass older than `STALE_AFTER_MONTHS` reads as "unknown" — so it was first handled by
+  over-fetching and filtering after. Measured statewide, "show me enforcement actions" then returned
+  4 results out of 1,269, all early in the alphabet, because the window filled before the filter ran.
+  A filter that silently returns the first slice of an answer is worse than no filter. The boundary
+  is now `staleCutoff()`, derived from the same constant and compared in SQL. The four signals
+  partition the population exactly: 17,189 + 1,779 + 1,269 + 34,072 = 54,309.
+- **A timezone bug surfaced while aligning them.** `establishmentSignal` read local months from a
+  UTC-parsed date, so an inspection exactly on the staleness boundary was stale in Florida and fresh
+  in London, from the same data. Now UTC on both sides.
+- `/api/meta` no longer carries every city. 942 entries, ~64 KB uncompressed on the first paint of a
+  phone map, for a menu that only ever shows one county — `/api/cities?county=NN` serves it on
+  demand and meta drops to 8.8 KB.
+- `DEFAULT_LIMIT` no longer exceeds the displayable universe, and cannot. The guarantee changes from
+  "the cap never applies" to "the cap is scoped to the viewport".
+- `seedGeocodeCache` tops up instead of restoring only into an empty table, or the committed cache
+  would never reach the deployed disk that already holds the three-county one.
+- `scripts/report-cities.js` (new) lists unmapped city spellings per county. The alias map covered
+  201 spellings across three counties; statewide it is far larger, and 177 candidate pairs are
+  outstanding. Aliases remain hand-checked — the module records five cases where edit distance merged
+  genuinely different cities.
+
+**Reversal condition.** If verification finds that unverified counties are materially less accurate
+than the gated ones — say a sampled county failing well below the threshold — the labelling is not
+enough, and display narrows to gated counties while the data stays statewide. The machinery for that
+is already in place: `DISPLAYED_COUNTIES` and the ingest scope are separate.
+
 ## Closed decisions
 
 
@@ -417,4 +512,5 @@ D-010 and D-011 were not in the `docs/12-PRD-v1.0.md` register, which defines D-
 | D-013 | Fiscal-year roll-over behaviour | Before 1 Jul 2027 | Raised by DEC-010. `2fdinspi.csv` is fiscal-year-to-date; what it does when FY2627 closes is unobserved. Extend `source-watchdog` to alert on a window reset, not only on a dead URL. |
 | D-014 | Esri basemap terms of use | Before public launch | Raised by DEC-013. The ArcGIS Online basemap services are publicly served and widely used with attribution, but their terms for unauthenticated production use have not been read. If they prohibit it, CARTO with a free key is the licensed fallback. |
 | OPEN-2 | Paid geocode fallback | — | *Effectively closed by implementation* (commit `03e6120`): tier-2 fallback raised coverage 92.82% → 98.86%. Needs a retrospective entry recording cost and provider. |
-| OPEN-3 | Expand beyond Palm Beach | Post-MVP | Ingest is already district-wide; gated on the accuracy sample holding |
+| OPEN-3 | ~~Expand beyond Palm Beach~~ | Closed | DEC-015 took it to three counties, DEC-017 to all 67. |
+| D-017 | Paid geocoding for the statewide remainder | Before claiming statewide coverage | Raised by DEC-017. Census resolves most of the ~50,000 new addresses free; historically 8.6% needed the paid tier, so roughly 3,500 lookups. Until decided, those rows are uncovered and counted as such under NFR-07. |

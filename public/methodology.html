@@ -16,8 +16,8 @@
   <main class="prose">
     <p class="lede">
       Safe Eats shows Florida health-inspection results for licensed food service
-      establishments in Palm Beach County. It publishes only what the state's own
-      records support. This page says exactly what that means, and where it stops.
+      establishments in all 67 Florida counties. It publishes only what the state's
+      own records support. This page says exactly what that means, and where it stops.
     </p>
 
     <h2>Where the data comes from</h2>
@@ -26,12 +26,15 @@
       Regulation (DBPR), fetched directly from the state:
     </p>
     <ul>
-      <li><code>hrfood2.csv</code> — currently licensed establishments in District 2</li>
-      <li><code>2fdinspi.csv</code> — inspections in District 2</li>
+      <li><code>hrfood1.csv</code> … <code>hrfood7.csv</code> — currently licensed establishments, one file per DBPR district</li>
+      <li><code>1fdinspi.csv</code> … <code>7fdinspi.csv</code> — inspections, likewise</li>
     </ul>
     <p>
-      District 2 covers Broward, Martin and Palm Beach. We keep county 60, Palm Beach.
-      Nothing is scraped, and no third party sits between the state's file and this map.
+      All fourteen files are read every week and every Florida county is kept. The
+      district a file covers is not the same thing as a county: seven counties have
+      their restaurants split across two district files, so filtering by county on
+      the state's own county code is the only way to get a complete one. Nothing is
+      scraped, and no third party sits between the state's file and this map.
     </p>
     <p class="callout">
       <strong>If the source breaks, this site stops rather than lies.</strong>
@@ -117,12 +120,28 @@
       placed at a guess such as a ZIP-code centre. A pin in roughly the right area
       is worse than no pin, because it looks equally confident.
     </p>
-    <p>
-      Accuracy is checked by drawing a random sample of mapped establishments with
-      a fixed seed and verifying each one by hand against aerial imagery. The
-      threshold is set before the sample is drawn and the sample is not redrawn to
-      obtain a better number.
+    <p id="accuracy">
+      Accuracy is checked <strong>county by county</strong>: a random sample of 100
+      mapped establishments is drawn with a fixed seed and each one is verified by
+      hand against aerial imagery, with at least 99 required to fall within 50
+      metres. The threshold is set before the sample is drawn, and the sample is
+      not redrawn to obtain a better number. Counties with 100 or fewer mapped
+      establishments are checked in full rather than sampled.
     </p>
+    <p>
+      Counties are checked separately because they are not alike where it matters:
+      over half of Miami-Dade's addresses use the Miami street grid, where “NW 7 ST”
+      and “NW 7 AVE” both exist and one wrong character lands miles away, against
+      about 6% of Palm Beach's. A result in one county says very little about
+      another, so it is not borrowed.
+    </p>
+    <p>
+      <strong>Most counties have not been checked yet.</strong> Their establishments
+      are still shown — the inspection record is the state's either way — and each
+      one says so on its own record rather than leaving you to assume a check that
+      has not happened. The table below is the current state of that work.
+    </p>
+    <div id="gate-table"></div>
 
     <h2>What this does not show, and why</h2>
     <dl>
@@ -141,9 +160,6 @@
         food reaches you. Mapping them would put a restaurant pin on a residential
         street and assert something the licence record does not support.
       </dd>
-
-      <dt>Counties other than Palm Beach</dt>
-      <dd>Not yet verified to the same accuracy standard.</dd>
 
       <dt>Ratings, photos, reviews and opening hours</dt>
       <dd>
@@ -237,10 +253,39 @@
         const pct = (n) => ((n / c.displayed) * 100).toFixed(1);
         document.getElementById('coverage-stat').innerHTML =
           `Of the <strong>${c.displayed.toLocaleString()}</strong> permanent food service establishments ` +
-          `licensed in Palm Beach County, <strong>${c.positioned.toLocaleString()}</strong> ` +
+          `licensed in Florida, <strong>${c.positioned.toLocaleString()}</strong> ` +
           `(${pct(c.positioned)}%) have a verified coordinate and appear on the map. ` +
           `<strong>${c.inspected.toLocaleString()}</strong> (${pct(c.inspected)}%) have at least one published inspection.`;
       }
+
+      /*
+       * The per-county gate table. Rendered from /api/meta rather than written
+       * here, so the page cannot claim a county is verified after the worksheet
+       * says otherwise — there is one source for that answer and it is the
+       * scored worksheet (src/gates.js).
+       */
+      const counties = (meta.counties || []).slice().sort((a, b) => {
+        const rank = (x) => (x.gate_status === 'pass' ? 0 : x.gate_status === 'incomplete' ? 1 : 2);
+        return rank(a) - rank(b) || a.name.localeCompare(b.name);
+      });
+
+      const label = {
+        pass: 'Verified',
+        fail: 'Did not meet the threshold',
+        incomplete: 'Verification in progress',
+        'not-drawn': 'Not yet checked',
+      };
+
+      const rows = counties.map((c) => {
+        const score = c.gate_score ? ` ${c.gate_score.within}/${c.gate_score.total} within 50 m` : '';
+        return `<tr><td>${c.name}</td><td>${label[c.gate_status] || 'Not yet checked'}${score}</td></tr>`;
+      }).join('');
+
+      const passed = counties.filter((c) => c.gate_status === 'pass').length;
+      document.getElementById('gate-table').innerHTML =
+        `<p class="gate-summary"><strong>${passed}</strong> of ${counties.length} counties verified.</p>` +
+        `<div class="gate-scroll"><table class="gate"><thead><tr><th>County</th><th>Pin accuracy</th></tr></thead>` +
+        `<tbody>${rows}</tbody></table></div>`;
     }).catch(() => {
       document.getElementById('asof').textContent = 'Data date unavailable';
       document.getElementById('mapping').textContent =

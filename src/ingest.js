@@ -17,8 +17,9 @@ const {
 /**
  * DBPR ingest — FR-101, FR-102, FR-104, FR-106..FR-109.
  *
- * Palm Beach County is District 2, county code 60 (District 2 = Broward, Martin,
- * Palm Beach). Verified against the live extracts on 21 Aug 2026.
+ * Statewide since DEC-017: all seven district extracts are fetched and every
+ * Florida county code (11-77) is kept. A county is NOT confined to one district
+ * file — see the scope comment below for the seven that are split.
  *
  * Do NOT revert to www.myfloridalicense.com/dbpr/hr/inspections/ — that host
  * serves a WordPress page which v1 saved as .csv for three years (AUD F1).
@@ -26,39 +27,66 @@ const {
 const BASE = 'https://www2.myfloridalicense.com/sto/file_download/extracts';
 
 /**
- * Counties in scope, and the district files that carry them.
+ * Counties in scope — all 67, and no district map (DEC-017).
  *
- * DBPR publishes seven district extracts, and a district file is NOT a county
- * partition: rows for a given county turn up in several districts. Measured
- * 2 Sep 2026, though, every one of these counties has all of its licence-type
- * 2010 establishments in exactly one district, and the stray rows elsewhere are
- * other licence types:
+ * 006 derived the fetch list from a county-to-district map, on the measurement
+ * that each of its three counties had all of its type-2010 rows in one district
+ * file. Across the whole state that is false. Measured 3 Sep 2026, seven
+ * counties are split, and the smaller half is the half a map would silently
+ * drop:
  *
- *   16  Broward      4,887 displayable   district 2
- *   23  Dade         7,106 displayable   district 1
- *   60  Palm Beach   3,659 displayable   district 2
+ *   57  Okeechobee     7 rows in d4,  84 in d7
+ *   22  Columbia       1 in d4,      138 in d5
+ *   15  Brevard     1,462 in d4,       1 in d5
+ *   39  Hillsborough 3,348 in d3,      1 in d7
+ *   63  Polk         1,329 in d3,      4 in d4
+ *   70  Sumter         247 in d3,      1 in d5
+ *   74  Volusia      1,426 in d4,      1 in d5
  *
- * So the district list is derived from the counties rather than configured
- * beside them — one fewer thing to keep in step. Adding a county also means
- * a migration, because the database CHECK constrains the same list (006).
+ * So every district is fetched and the row's own county code decides what is
+ * kept. That is 33 MB a week rather than 10, and it is the difference between
+ * a complete county and a county missing the rows DBPR happened to file
+ * elsewhere. A narrowed run (SAFE_EATS_COUNTY_CODES, which the /admin.html
+ * dropdown sets) costs the same fetch: correct beats clever here, and the
+ * alternative is reintroducing the map this comment exists to explain away.
+ *
+ * The codes are contiguous, 11 (Alachua) to 77 (Washington). DBPR also
+ * publishes ten out-of-state codes in the 700s carrying 17 rows and no
+ * restaurants; they are excluded here and by the CHECK in migration 007.
  */
-const COUNTY_DISTRICT = { 16: '2', 23: '1', 60: '2' };
+const COUNTY_MIN = 11;
+const COUNTY_MAX = 77;
 
-const COUNTY_CODES = (process.env.SAFE_EATS_COUNTY_CODES || Object.keys(COUNTY_DISTRICT).join(','))
+const inScope = (code) => {
+  const n = Number.parseInt((code ?? '').toString().trim(), 10);
+  return Number.isFinite(n) && n >= COUNTY_MIN && n <= COUNTY_MAX;
+};
+
+/** Narrowing override — one county, or a list. Empty means the whole state. */
+const COUNTY_CODES = (process.env.SAFE_EATS_COUNTY_CODES || '')
   .split(',')
   .map((c) => c.trim())
   .filter(Boolean);
 
-const DISTRICTS = [...new Set(COUNTY_CODES.map((c) => COUNTY_DISTRICT[c]).filter(Boolean))].sort();
+const NARROWED = COUNTY_CODES.length > 0;
+
+/** Whether a row's county is wanted by this run. */
+const wanted = (code) => {
+  const value = (code ?? '').toString().trim();
+  return NARROWED ? COUNTY_CODES.includes(value) : inScope(value);
+};
+
+const DISTRICTS = ['1', '2', '3', '4', '5', '6', '7'];
 
 /** Retained for callers that still expect a single county — the accuracy gate. */
-const COUNTY_CODE = COUNTY_CODES[0];
+const COUNTY_CODE = COUNTY_CODES[0] ?? '60';
 const DISTRICT = DISTRICTS[0];
 
 /**
- * Row floors are per district, not per county, because they guard the fetched
- * file. The smallest district we pull is 2 at ~10,600 licence rows; 3,000 stays
- * a floor that only a broken payload falls through.
+ * Row floors guard the fetched file, so they are per district. Measured across
+ * all seven on 3 Sep 2026, the smallest of each kind is district 6: 5,314
+ * licence rows and 1,891 inspection rows. The floors sit well under both, where
+ * only a broken payload falls through — which is the job (AUD F1/F2).
  */
 const sourcesFor = (district) => ({
   licenses: {
@@ -73,7 +101,7 @@ const sourcesFor = (district) => ({
     district,
     url: `${BASE}/${district}fdinspi.csv`,
     expectedColumns: ['License Number', 'Inspection Disposition', 'Inspection Date', 'County Number'],
-    rowFloor: 500,
+    rowFloor: 1000,
   },
 });
 
@@ -206,14 +234,32 @@ function parseCsv(buffer) {
 
 // ── establishments ───────────────────────────────────────────────────────────
 
-function loadEstablishments(db, rows, runId) {
-  const wanted = new Set(COUNTY_CODES);
-  const inCounty = rows.filter((r) => wanted.has((r['Location County Code'] || '').trim()));
+function loadEstablishments(db, rows, runId, source) {
+  const inCounty = rows.filter((r) => wanted(r['Location County Code']));
 
-  // FR-104 — a zero-row filter result is a failure, not an empty success.
-  assertRowFloor(inCounty.length, SOURCES.licenses.rowFloor, {
-    source: `Counties ${COUNTY_CODES.join('/')} establishments`,
-  });
+  /*
+   * Two floors, and the difference matters.
+   *
+   * The first guards the PAYLOAD, before a row is written: a district file that
+   * arrives short is broken whatever our county scope is. That is the AUD F1/F2
+   * check and it never relaxes.
+   *
+   * The second guards the FILTER, and it can only apply to a statewide run.
+   * Every district file carries thousands of in-scope rows when the scope is
+   * all 67 counties, so a filter that returns almost nothing means the county
+   * column moved. But a narrowed run (SAFE_EATS_COUNTY_CODES, set by the
+   * /admin.html dropdown) legitimately matches nothing in six of the seven
+   * files, so demanding 3,000 there would fail every single-county refresh.
+   * Its floor is instead "the run as a whole wrote something", asserted once in
+   * main() — the deliberate operator narrowing is what buys the relaxation, and
+   * the payload guard above still stands between us and an HTML error page.
+   */
+  assertRowFloor(rows.length, source.rowFloor, { source: `${source.dataset} payload` });
+  if (!NARROWED) {
+    assertRowFloor(inCounty.length, source.rowFloor, {
+      source: `${source.dataset} in-scope establishments`,
+    });
+  }
 
   /**
    * AUD F4 — the column list is explicit and omits lat/lng/geocode_*.
@@ -308,13 +354,16 @@ function loadEstablishments(db, rows, runId) {
 
 // ── inspections ──────────────────────────────────────────────────────────────
 
-function loadInspections(db, rows, runId) {
-  const wanted = new Set(COUNTY_CODES);
-  const inCounty = rows.filter((r) => wanted.has((r['County Number'] || '').trim()));
+function loadInspections(db, rows, runId, source) {
+  const inCounty = rows.filter((r) => wanted(r['County Number']));
 
-  assertRowFloor(inCounty.length, SOURCES.inspections.rowFloor, {
-    source: `Counties ${COUNTY_CODES.join('/')} inspections`,
-  });
+  // Same pair of floors, same reasoning as loadEstablishments.
+  assertRowFloor(rows.length, source.rowFloor, { source: `${source.dataset} payload` });
+  if (!NARROWED) {
+    assertRowFloor(inCounty.length, source.rowFloor, {
+      source: `${source.dataset} in-scope inspections`,
+    });
+  }
 
   const upsert = db.prepare(`
     INSERT INTO inspection (
@@ -413,7 +462,7 @@ async function ingestSource(db, source, loader) {
   try {
     const buffer = await fetchExtract(source);
     const rows = parseCsv(buffer);
-    const written = loader(db, rows, runId);
+    const written = loader(db, rows, runId, source);
 
     db.prepare(
       `UPDATE ingest_run SET finished_at = ?, status = 'success' WHERE id = ?`
@@ -431,18 +480,31 @@ async function ingestSource(db, source, loader) {
 
 async function main() {
   const db = open();
-  log(`counties ${COUNTY_CODES.join(', ')} · districts ${DISTRICTS.join(', ')} · db ${require('./db').DB_PATH}`);
+  const scope = NARROWED ? `counties ${COUNTY_CODES.join(', ')}` : `all counties (${COUNTY_MIN}-${COUNTY_MAX})`;
+  log(`${scope} · districts ${DISTRICTS.join(', ')} · db ${require('./db').DB_PATH}`);
 
   try {
-    // Every district that carries a county in scope. Licences first across all
-    // districts, then inspections: an inspection whose establishment has not
-    // loaded yet would still write, but the run reads better in that order and
-    // a licence failure stops us before touching inspections at all.
+    // Every district, always. Licences first across all districts, then
+    // inspections: an inspection whose establishment has not loaded yet would
+    // still write, but the run reads better in that order and a licence failure
+    // stops us before touching inspections at all.
+    let written = 0;
     for (const district of DISTRICTS) {
-      await ingestSource(db, sourcesFor(district).licenses, loadEstablishments);
+      written += await ingestSource(db, sourcesFor(district).licenses, loadEstablishments);
     }
     for (const district of DISTRICTS) {
       await ingestSource(db, sourcesFor(district).inspections, loadInspections);
+    }
+
+    /*
+     * The narrowed run's floor, and the only one it gets (see loadEstablishments).
+     * A refresh scoped to a county that matched nothing anywhere is a typo'd
+     * county code or a county column that moved — either way it is a failure,
+     * not an empty success. Nothing was written in that case, so the abort still
+     * leaves prior data and its as-of date untouched.
+     */
+    if (NARROWED) {
+      assertRowFloor(written, 1, { source: `Counties ${COUNTY_CODES.join('/')} establishments` });
     }
 
     const stats = db
@@ -479,5 +541,6 @@ if (require.main === module) main();
 
 module.exports = {
   normalizeAddress, toIsoDate, licenseKey,
-  SOURCES, sourcesFor, COUNTY_CODE, COUNTY_CODES, DISTRICT, DISTRICTS, COUNTY_DISTRICT,
+  SOURCES, sourcesFor, COUNTY_CODE, COUNTY_CODES, DISTRICT, DISTRICTS,
+  COUNTY_MIN, COUNTY_MAX, inScope, wanted, NARROWED,
 };

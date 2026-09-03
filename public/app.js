@@ -25,7 +25,6 @@
   let LEGEND = {};
   let windowStart = null;
   let COUNTIES = [];
-  let CITIES = [];
 
   const state = {
     map: null,
@@ -253,6 +252,23 @@
       `</span></p>` +
       `<p class="panel__plain">${escapeHtml(plainLine({ signal: est.signal, last_inspection_date: latest?.date }))}</p>`;
 
+    /*
+     * DEC-017 — the map covers all 67 counties, and only some of them have had
+     * their pin positions checked by hand against satellite imagery. Where that
+     * check has not happened, the panel says so rather than letting a pin that
+     * looks identical to a verified one imply a verification nobody did.
+     *
+     * It is placed under the address, because the address is the claim it
+     * qualifies: the street address is the state's own record and is not in
+     * doubt; the position derived from it is what has not been checked.
+     */
+    const unverified = est.position_verified
+      ? ''
+      : `<p class="panel__unverified">` +
+        `The address below is the state's record. Its position on the map is derived from that ` +
+        `address, and pin accuracy in ${escapeHtml(est.county || 'this county')} County has not yet been ` +
+        `verified against imagery. <a href="/methodology.html#accuracy">How positions are checked</a>.</p>`;
+
     const latestBlock = latest
       ? `<h3>Most recent visit</h3>${tiersHtml(latest.violations)}`
       : '';
@@ -275,7 +291,7 @@
       `<a class="panel__source" href="https://www.myfloridalicense.com/portalsearches/VerifyLicensee?Mode=0&amp;BoardType=H" target="_blank" rel="noopener">` +
       `Look up ${escapeHtml(est.license_number || 'this licence')} on the state's inspection search →</a></p>`;
 
-    return header + latestBlock + history + note;
+    return header + unverified + latestBlock + history + note;
   }
 
   async function openDetail(id) {
@@ -431,23 +447,38 @@
   /* --------------------------------------------------------------- search --- */
 
   /**
-   * The city menu follows the county menu. With three counties there are 149
-   * cities, which is a scroll nobody should have to do to find Hialeah — and it
-   * also removes a real trap, because South Florida repeats its names across
-   * county lines.
+   * The city menu follows the county menu, and is fetched when it changes.
+   *
+   * Statewide there are 942 cities and only one county's worth is ever shown,
+   * so shipping them all with the first paint spent 64 KB on a menu nobody had
+   * opened (DEC-017). The menu itself matters: it removes a real trap, because
+   * Florida repeats its town names across county lines.
    *
    * The selected city is preserved when it still exists under the new county,
    * so changing county to re-check the same town does not silently widen the
-   * search back to everywhere.
+   * search back to everywhere. A failed fetch leaves "All cities" in place —
+   * the search still works without the filter.
    */
-  function fillCities() {
+  const cityCache = new Map();
+
+  async function fillCities() {
     const county = $('county').value;
     const select = $('city');
     const previous = select.value;
 
-    const list = CITIES
-      .filter((c) => !county || c.county_code === county)
-      .sort((a, b) => a.label.localeCompare(b.label));
+    let list = cityCache.get(county);
+    if (!list) {
+      try {
+        const res = await fetch(`/api/cities${county ? `?county=${encodeURIComponent(county)}` : ''}`);
+        list = (await res.json()).cities || [];
+        cityCache.set(county, list);
+      } catch {
+        list = [];
+      }
+    }
+
+    // The menu may have moved on while the request was in flight.
+    if ($('county').value !== county) return;
 
     select.innerHTML = '<option value="">All cities</option>';
     for (const { city, label, n } of list) {
@@ -558,11 +589,11 @@
       windowStart = meta.inspection_window_start || null;
       renderLegend();
 
-      // Both filter menus are built from the API, never hardcoded: the cities
-      // are whatever the licence data contains, and the result options are
-      // whatever src/signal.js defines.
+      // Every filter menu is built from the API, never hardcoded: the counties
+      // are whatever is loaded, the cities are whatever the licence data
+      // contains (fetched per county), and the result options are whatever
+      // src/signal.js defines.
       COUNTIES = meta.counties || [];
-      CITIES = meta.cities || [];
 
       const countySelect = $('county');
       for (const { code, name } of COUNTIES) {

@@ -138,7 +138,9 @@ test('FR-104 — county scope check constraint', async (t) => {
   await t.test('accepts every county in scope', (t) => {
     const db = freshDb(t);
     migrate(db);
-    for (const [i, county] of ['60', '16', '23'].entries()) {
+    // The scope is the whole state since 007: the three originals, the far
+    // corners of the range, and a county that used to be refused (Orange).
+    for (const [i, county] of ['60', '16', '23', '11', '58', '77'].entries()) {
       assert.doesNotThrow(
         () => insertEst(db, { county_code: county, establishment_id: `600000${i}|2010|addr ${i}` }),
         `county ${county} should be storable`
@@ -146,25 +148,27 @@ test('FR-104 — county scope check constraint', async (t) => {
     }
   });
 
-  await t.test('rejects a county out of scope at the table, not just at the filter', (t) => {
+  await t.test('rejects what Florida does not have, at the table — DEC-017', (t) => {
     const db = freshDb(t);
     migrate(db);
-    // Orange (58) is a real Florida county with 4,869 displayable
-    // establishments. It is simply not in scope, so it must not be storable:
-    // expansion stays a deliberate migration rather than something an ingest
-    // can do by accident.
-    assert.throws(
-      () => insertEst(db, { county_code: '58', establishment_id: 'x|2010|y' }),
-      /CHECK constraint failed/i
-    );
+    // The constraint did not go away when the scope widened, it changed what it
+    // means. DBPR publishes ten out-of-state codes in the 700s (17 rows, zero
+    // restaurants); with no county list left to vet, keeping those out is the
+    // work it now does. 10 and 78 bracket the real range from either side.
+    for (const county of ['701', '746', '10', '78', '0']) {
+      assert.throws(
+        () => insertEst(db, { county_code: county, establishment_id: `x|2010|${county}` }),
+        /CHECK constraint failed/i,
+        `county_code ${county} is not a Florida county and must not be storable`
+      );
+    }
   });
 
   await t.test('the constraint is declared on the table itself', (t) => {
     const db = freshDb(t);
     migrate(db);
     const ddl = db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='establishment'`).get().sql;
-    assert.match(ddl, /CHECK\s*\(\s*county_code\s+IN\s*\(/i);
-    for (const county of ['16', '23', '60']) assert.match(ddl, new RegExp(`'${county}'`));
+    assert.match(ddl, /CHECK\s*\(\s*CAST\s*\(\s*county_code\s+AS\s+INTEGER\s*\)\s+BETWEEN\s+11\s+AND\s+77\s*\)/i);
   });
 
   await t.test('the rebuild kept every trigger and index', (t) => {

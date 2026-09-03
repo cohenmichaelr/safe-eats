@@ -69,19 +69,26 @@ test('geocode cache seeding', async (t) => {
     assert.match(row.resolved_at, /^\d{4}-\d{2}-\d{2}T/, 'resolved_at must be the original ISO timestamp');
   });
 
-  await t.test('a populated cache is left alone', (t) => {
-    // A running instance has a cache at least as good as the seed. Overwriting
-    // it would discard every resolution made since the file was cut.
+  await t.test('a populated cache is topped up, never overwritten — DEC-017', (t) => {
+    // The row already on the disk was resolved by this deployment and outranks
+    // the committed one; the rest of the seed still lands. Before statewide this
+    // declined entirely, which would have left the deployed service to
+    // re-geocode 64 counties it could have been handed.
     const db = freshDb(t);
     db.prepare(
       `INSERT INTO geocode_cache (normalized_address, lat, lng, quality, source, resolved_at)
-       VALUES ('100 MAIN ST, DELRAY BEACH, 33444', 26.4, -80.0, 'Exact', 'census', '2026-01-01T00:00:00.000Z')`
+       VALUES ('100 MAIN ST, DELRAY BEACH, 33444', 26.4, -80.0, 'Exact', 'hand', '2026-01-01T00:00:00.000Z')`
     ).run();
 
     const { seeded, reason } = seedGeocodeCache(db);
-    assert.equal(seeded, 0);
-    assert.match(reason, /already holds/);
-    assert.equal(cached(db), 1, 'the live cache must not be replaced by the seed');
+    assert.ok(seeded > 0, 'the addresses it has never seen must still arrive');
+    assert.match(reason, /topped up/);
+
+    const kept = db
+      .prepare("SELECT lat, source FROM geocode_cache WHERE normalized_address = '100 MAIN ST, DELRAY BEACH, 33444'")
+      .get();
+    assert.equal(kept.source, 'hand', 'the live row must survive the top-up');
+    assert.equal(kept.lat, 26.4);
   });
 
   await t.test('seeding twice does not duplicate or clobber', (t) => {
@@ -89,11 +96,11 @@ test('geocode cache seeding', async (t) => {
     const first = seedGeocodeCache(db).seeded;
     const again = seedGeocodeCache(db).seeded;
 
-    assert.equal(again, 0, 'the second run should decline, the cache being populated');
+    assert.equal(again, 0, 'every address is already present, so nothing is inserted');
     assert.equal(cached(db), first);
   });
 
-  await t.test('an existing row wins over the seed under --force', (t) => {
+  await t.test('an existing row wins over the seed', (t) => {
     // Live resolutions outrank committed ones: the file is a floor, not a truth.
     const db = freshDb(t);
     const seedRows = seedGeocodeCache(db).seeded;
@@ -102,7 +109,7 @@ test('geocode cache seeding', async (t) => {
     db.prepare('UPDATE geocode_cache SET lat = 1.5, source = ? WHERE normalized_address = ?')
       .run('manual', victim.normalized_address);
 
-    seedGeocodeCache(db, { force: true });
+    seedGeocodeCache(db);
 
     const after = db.prepare('SELECT * FROM geocode_cache WHERE normalized_address = ?').get(victim.normalized_address);
     assert.equal(after.lat, 1.5, 'a live row must not be overwritten by the seed');

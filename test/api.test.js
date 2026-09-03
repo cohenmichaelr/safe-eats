@@ -552,27 +552,40 @@ test('GET /api/establishments — FR-401', async (t) => {
     assert.ok(!body.establishments.some((e) => e.name === 'TACO TRUCK'));
   });
 
-  await t.test('cannot serve an out-of-scope county, because one cannot be stored — FR-104', async () => {
-    // The map filters on county_code, but the filter is the second line of
-    // defence: migration 006 rebuilt the table with
-    // CHECK (county_code IN ('16','23','60')), so a county outside the vetted
-    // set is refused by the database before any query runs. Orange County is
-    // real and populous; it is simply not in scope, and adding it takes a
-    // migration.
+  await t.test('cannot store a county Florida does not have — FR-104, DEC-017', async () => {
+    // The scope is now the whole state, so Orange County stores like any other.
+    // The CHECK did not go away, it changed what it means: migration 007 rebuilt
+    // the table with CAST(county_code AS INTEGER) BETWEEN 11 AND 77, the 67
+    // contiguous Florida codes. What it still refuses is the ten out-of-state
+    // codes DBPR publishes in the 700s — 17 rows, no restaurants — which is the
+    // junk the constraint exists to keep out now that no county list is vetted.
+    addEstablishment(db, {
+      establishment_id: '5800007|2010|700 ORANGE AVE, ORLANDO, 32801',
+      license_key: '5800007|2010',
+      name: 'ORLANDO BISTRO',
+      address: '700 ORANGE AVE',
+      city: 'ORLANDO',
+      county_code: '58',
+      county_name: 'Orange',
+      normalized_address: '700 ORANGE AVE, ORLANDO, 32801',
+    });
+
     assert.throws(
       () => addEstablishment(db, {
-        establishment_id: '5800007|2010|700 ORANGE AVE, ORLANDO, 32801',
-        license_key: '5800007|2010',
-        name: 'ORLANDO BISTRO',
-        address: '700 ORANGE AVE',
-        city: 'ORLANDO',
-        county_code: '58',
-        county_name: 'Orange',
-        normalized_address: '700 ORANGE AVE, ORLANDO, 32801',
+        establishment_id: '7010001|2010|1 ELSEWHERE ST, ATLANTA, 30301',
+        license_key: '7010001|2010',
+        name: 'OUT OF STATE KITCHEN',
+        address: '1 ELSEWHERE ST',
+        city: 'ATLANTA',
+        county_code: '701',
+        county_name: 'Out of State',
+        normalized_address: '1 ELSEWHERE ST, ATLANTA, 30301',
       }),
       /CHECK constraint failed/
     );
 
+    // Orange stored, but it still draws no pin: the row has no coordinate, and
+    // the map excludes those rather than inventing one.
     const { body } = await get('/api/establishments?bbox=-82,27,-80,29');
     assert.ok(!body.establishments.some((e) => e.city === 'ORLANDO'));
   });
@@ -741,4 +754,150 @@ test('the request path makes no external call — FR-403, invariant 5', async (t
   // The only fetches are the test client's own two requests to our own server.
   assert.equal(calls.length, 2);
   assert.ok(calls.every((url) => String(url).startsWith('http://127.0.0.1:')), String(calls));
+});
+
+/* ------------------------------------------------- statewide search (DEC-017) */
+
+test('search at statewide scale', async (t) => {
+  await t.test('the county filter is a WHERE clause, not a post-filter', async (t) => {
+    const { db, get } = await fixture(t);
+    addEstablishment(db, {
+      establishment_id: 'orange|2010|1 ORANGE AVE',
+      license_key: 'orange|2010',
+      name: 'ORLANDO DINER',
+      address: '1 ORANGE AVE',
+      normalized_address: '1 ORANGE AVE, ORLANDO, 32801',
+      city: 'ORLANDO',
+      county_code: '58',
+      county_name: 'Orange',
+    }, { lat: 28.54, lng: -81.38 });
+
+    const all = await get('/api/search?q=diner');
+    const orange = await get('/api/search?q=diner&county=58');
+    const palm = await get('/api/search?q=diner&county=60');
+
+    assert.ok(all.body.total >= 2);
+    assert.equal(orange.body.total, 1);
+    assert.equal(orange.body.establishments[0].county, 'Orange');
+    assert.ok(!palm.body.establishments.some((e) => e.county_code === '58'));
+  });
+
+  await t.test('the city filter keeps every spelling that canonicalises to it', async (t) => {
+    // The reason this could not simply become `city = ?`: the 12 Royal Palm
+    // Beach establishments filed under ROYAL PLM BEACH must still be found, or
+    // the filter silently hides them — which is what src/cities.js exists for.
+    const { db, get } = await fixture(t);
+    addEstablishment(db, {
+      establishment_id: 'rpb|2010|1 ROYAL PLM',
+      license_key: 'rpb|2010',
+      name: 'ROYAL CAFE',
+      address: '1 ROYAL PLM WAY',
+      normalized_address: '1 ROYAL PLM WAY, ROYAL PLM BEACH, 33411',
+      city: 'ROYAL PLM BEACH',
+      zip: '33411',
+    }, { lat: 26.7, lng: -80.23 });
+
+    const { body } = await get('/api/search?city=Royal%20Palm%20Beach');
+    assert.equal(body.total, 1, 'the misspelling is reached by the canonical name');
+    assert.equal(body.establishments[0].city, 'ROYAL PLM BEACH', 'and the raw value is preserved');
+    assert.equal(body.establishments[0].city_label, 'Royal Palm Beach');
+  });
+
+  await t.test('the row cap is applied by the query, and reported', async (t) => {
+    const { get } = await fixture(t);
+    const { body } = await get('/api/search?limit=1');
+
+    assert.equal(body.establishments.length, 1);
+    assert.ok(body.total > 1, 'total is the true count, not the page size');
+    assert.equal(body.truncated, true);
+  });
+
+  await t.test('a punctuation-only query still matches nothing', async (t) => {
+    const { get } = await fixture(t);
+    const { body } = await get('/api/search?q=%25%25%25');
+    assert.equal(body.total, 0);
+    assert.equal(body.establishments.length, 0);
+  });
+
+  await t.test('an unknown county is refused rather than ignored', async (t) => {
+    const { get } = await fixture(t);
+    const { status } = await get('/api/search?county=99');
+    assert.equal(status, 400);
+  });
+
+  await t.test('the four signals partition the displayed population', async (t) => {
+    /*
+     * The filter is a WHERE clause, and this is what proves it is the right one:
+     * every displayed establishment lands in exactly one bucket. The earlier
+     * over-fetch approach could not satisfy this — it answered "serious"
+     * statewide with 4 of 1,269, all early in the alphabet, because the window
+     * filled before the filter ran.
+     */
+    const { get } = await fixture(t);
+    const all = await get('/api/search?limit=1');
+
+    let sum = 0;
+    for (const signal of ['pass', 'warning', 'serious', 'unknown']) {
+      const { body } = await get(`/api/search?signal=${signal}&limit=50`);
+      assert.ok(body.establishments.every((e) => e.signal === signal), `${signal} rows are ${signal}`);
+      sum += body.total;
+    }
+
+    assert.equal(sum, all.body.total, 'every establishment has exactly one signal');
+  });
+
+  await t.test('a stale pass is filtered as unknown, not as a pass', async (t) => {
+    // The staleness rule expressed in SQL has to agree with the one the map
+    // applies in JavaScript, or the filter and the pin disagree on screen.
+    const { get } = await fixture(t);
+    const stale = await get('/api/search?q=stale&signal=unknown');
+    const asPass = await get('/api/search?q=stale&signal=pass');
+
+    assert.ok(stale.body.establishments.some((e) => e.name === 'STALE SHACK'));
+    assert.ok(!asPass.body.establishments.some((e) => e.name === 'STALE SHACK'));
+  });
+});
+
+test('GET /api/cities — the per-county filter options (DEC-017)', async (t) => {
+  await t.test('returns one county at a time, canonicalised', async (t) => {
+    const { db, get } = await fixture(t);
+    addEstablishment(db, {
+      establishment_id: 'rpb2|2010|2 ROYAL PLM',
+      license_key: 'rpb2|2010',
+      name: 'ROYAL DELI',
+      address: '2 ROYAL PLM WAY',
+      normalized_address: '2 ROYAL PLM WAY, ROYAL PLM BEACH, 33411',
+      city: 'ROYAL PLM BEACH',
+    }, { lat: 26.71, lng: -80.24 });
+    addEstablishment(db, {
+      establishment_id: 'orange2|2010|9 ORANGE AVE',
+      license_key: 'orange2|2010',
+      name: 'ORLANDO GRILL',
+      address: '9 ORANGE AVE',
+      normalized_address: '9 ORANGE AVE, ORLANDO, 32801',
+      city: 'ORLANDO',
+      county_code: '58',
+      county_name: 'Orange',
+    }, { lat: 28.55, lng: -81.39 });
+
+    const palm = await get('/api/cities?county=60');
+    const names = palm.body.cities.map((c) => c.city);
+
+    assert.ok(names.includes('ROYAL PALM BEACH'), 'the misspelling is counted under the real name');
+    assert.ok(!names.includes('ROYAL PLM BEACH'), 'and not as a town of its own');
+    assert.ok(!names.includes('ORLANDO'), "another county's cities do not leak in");
+    assert.equal(palm.body.cities.find((c) => c.city === 'ROYAL PALM BEACH').label, 'Royal Palm Beach');
+  });
+
+  await t.test('an unknown county is refused', async (t) => {
+    const { get } = await fixture(t);
+    assert.equal((await get('/api/cities?county=99')).status, 400);
+  });
+
+  await t.test('meta no longer carries every city in the state', async (t) => {
+    // 942 entries, ~64 KB, on the first paint of a phone map — for a menu that
+    // only ever shows one county. The route above replaced it.
+    const { get } = await fixture(t);
+    assert.equal((await get('/api/meta')).body.cities, undefined);
+  });
 });

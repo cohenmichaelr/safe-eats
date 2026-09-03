@@ -9,7 +9,7 @@
  * render — the drift commit 857098b closed. A gate that samples a different set
  * than it ships is not a gate, so the definition is shared rather than copied.
  *
- *   counties       Palm Beach (60), Broward (16), Dade (23)
+ *   counties       all 67 (DEC-017); before that, Palm Beach, Broward and Dade
  *   type 2010      permanent food service; the other four types are mobile
  *                  vendors, caterers, temporary events and vending machines,
  *                  which are not premises a diner can walk into (DEC-009)
@@ -29,10 +29,84 @@
  * clear before it is shown.
  */
 
+/**
+ * Every Florida county, code → name, taken from the extract's own
+ * `Location County` values rather than typed from an atlas (DEC-017).
+ *
+ * The codes are contiguous, 11 to 77, which is 67 values for 67 counties — the
+ * property `migrations/007_statewide_counties.sql` leans on to express
+ * "a Florida county" as a range.
+ * DBPR also publishes ten out-of-state codes (701–746) carrying 17 rows and no
+ * restaurants at all; the range is what keeps them out.
+ */
 const COUNTIES = Object.freeze({
-  60: 'Palm Beach',
+  11: 'Alachua',
+  12: 'Baker',
+  13: 'Bay',
+  14: 'Bradford',
+  15: 'Brevard',
   16: 'Broward',
+  17: 'Calhoun',
+  18: 'Charlotte',
+  19: 'Citrus',
+  20: 'Clay',
+  21: 'Collier',
+  22: 'Columbia',
   23: 'Dade',
+  24: 'DeSoto',
+  25: 'Dixie',
+  26: 'Duval',
+  27: 'Escambia',
+  28: 'Flagler',
+  29: 'Franklin',
+  30: 'Gadsden',
+  31: 'Gilchrist',
+  32: 'Glades',
+  33: 'Gulf',
+  34: 'Hamilton',
+  35: 'Hardee',
+  36: 'Hendry',
+  37: 'Hernando',
+  38: 'Highlands',
+  39: 'Hillsborough',
+  40: 'Holmes',
+  41: 'Indian River',
+  42: 'Jackson',
+  43: 'Jefferson',
+  44: 'Lafayette',
+  45: 'Lake',
+  46: 'Lee',
+  47: 'Leon',
+  48: 'Levy',
+  49: 'Liberty',
+  50: 'Madison',
+  51: 'Manatee',
+  52: 'Marion',
+  53: 'Martin',
+  54: 'Monroe',
+  55: 'Nassau',
+  56: 'Okaloosa',
+  57: 'Okeechobee',
+  58: 'Orange',
+  59: 'Osceola',
+  60: 'Palm Beach',
+  61: 'Pasco',
+  62: 'Pinellas',
+  63: 'Polk',
+  64: 'Putnam',
+  65: 'St. Johns',
+  66: 'St. Lucie',
+  67: 'Santa Rosa',
+  68: 'Sarasota',
+  69: 'Seminole',
+  70: 'Sumter',
+  71: 'Suwannee',
+  72: 'Taylor',
+  73: 'Union',
+  74: 'Volusia',
+  75: 'Wakulla',
+  76: 'Walton',
+  77: 'Washington',
 });
 
 const DISPLAYED_COUNTIES = Object.freeze(Object.keys(COUNTIES));

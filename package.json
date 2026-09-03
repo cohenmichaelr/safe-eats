@@ -13,6 +13,7 @@
     "verify:sources": "node scripts/verify-sources.js",
     "check:basemap": "node scripts/check-basemap.js",
     "gate": "node scripts/score-gate.js --all",
+    "report:cities": "node scripts/report-cities.js",
     "refresh": "node scripts/refresh.js",
     "export:geocode": "node scripts/export-geocode-cache.js",
     "start": "node src/server.js",

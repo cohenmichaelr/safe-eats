@@ -15,16 +15,23 @@ These encode audit findings. Breaking one silently reproduces a v1 failure.
 1. **Ingest never writes `lat`/`lng`.** Coordinates come only from `geocode.js` via the `geocode_cache` table, joined on normalized address. v1 lost every accumulated coordinate on each import because `INSERT OR REPLACE` deletes and reinserts rows (AUD F4). **Since SE-101 this is enforced by the database**, not by convention: triggers `IFC-1a` (a position must match a `geocode_cache` row for that normalized address), `IFC-1b` (a set coordinate may never be nulled) and `IFC-1c` (no statement writes both identity and position columns) abort the write. See `migrations/005_ifc1_boundary.sql`.
 2. **Never use `INSERT OR REPLACE`.** Use `INSERT ... ON CONFLICT DO UPDATE` with an explicit column list.
 3. **Schema changes are numbered migrations, never inline DDL.** Add a file to `migrations/` as `NNN_lower_snake_case.sql` and run `npm run migrate` (`npm run migrate:status` to inspect). An applied migration is history: its checksum is recorded and editing it makes the runner refuse to start. `src/db.js` no longer carries a `SCHEMA` constant.
-4. **Ingest aborts; it does not warn.** A non-`text/csv` content type, a payload starting with `<!DOCTYPE`, or a post-filter row count below 3,000 must throw and exit non-zero, leaving prior data and its as-of date untouched. This is AUD F1/F2, the defining v1 failure.
+4. **Ingest aborts; it does not warn.** A non-`text/csv` content type, a payload starting with `<!DOCTYPE`, or a district file arriving with fewer than 3,000 licence rows (1,000 inspection rows) must throw and exit non-zero, leaving prior data and its as-of date untouched. This is AUD F1/F2, the defining v1 failure. The **post-filter** floor is the same 3,000 for a statewide run, but a run narrowed with `SAFE_EATS_COUNTY_CODES` legitimately matches nothing in six of the seven files, so its floor is that the run as a whole wrote something — see the comment in `loadEstablishments`. The payload floor never relaxes.
 5. **No external calls at request time.** No Google Places, no Puppeteer, no scraping. A request touches SQLite only.
 6. **Unknown inspection dispositions fail the build.** Do not default them to a passing signal. The complete mapping is in `docs/40-mvp-plan.md` §5.
+7. **An unverified county says so.** All 67 counties are displayed, but only those whose accuracy gate has passed carry a position claim (DEC-015, DEC-017). `src/gates.js` defaults every county to unverified when the status file is missing or unreadable — a gate lookup must fail closed, never claim a verification nobody performed.
 
 ### Authoritative data sources
 
-Verified 21 Aug 2026, HTTP 200 `text/csv`. Palm Beach County is **District 2, county code 60** (District 2 = Broward, Martin, Palm Beach):
+Seven district files per dataset, all verified 3 Sep 2026, HTTP 200 `text/csv`, 33 MB in total.
+Scope is **all 67 Florida counties**, codes 11-77 (DEC-017):
 
-- Inspections: `https://www2.myfloridalicense.com/sto/file_download/extracts/2fdinspi.csv`
-- Active licenses: `https://www2.myfloridalicense.com/sto/file_download/extracts/hrfood2.csv`
+- Inspections: `https://www2.myfloridalicense.com/sto/file_download/extracts/{1..7}fdinspi.csv`
+- Active licenses: `https://www2.myfloridalicense.com/sto/file_download/extracts/hrfood{1..7}.csv`
+
+**A county is not confined to one district file.** Seven counties have their type-2010 rows split
+across districts — Okeechobee is 7 in district 4 and 84 in district 7 — so every district is fetched
+and the row's own `Location County Code` decides what is kept. Do not reintroduce a county-to-district
+map; it silently drops the smaller half.
 
 Do **not** use `www.myfloridalicense.com/dbpr/hr/inspections/...` — that host serves a WordPress page which v1 saved as `.csv`.
 

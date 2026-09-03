@@ -86,11 +86,36 @@ function establishmentSignal(mostRecent, now = new Date()) {
   const inspected = new Date(mostRecent.inspection_date);
   if (Number.isNaN(inspected.getTime())) return SIGNAL.UNKNOWN;
 
+  /*
+   * UTC getters, deliberately. `new Date('2024-09-01')` parses as UTC midnight,
+   * so reading a LOCAL month puts it in August anywhere west of Greenwich — and
+   * an inspection exactly on the boundary would then be stale in Florida and
+   * fresh in London, from the same data. Staleness must not depend on where the
+   * server is, and the SQL form of this rule (staleCutoff, used by the signal
+   * filter) compares the date string as written, which is the UTC reading.
+   */
   const monthsAgo =
-    (now.getFullYear() - inspected.getFullYear()) * 12 + (now.getMonth() - inspected.getMonth());
+    (now.getUTCFullYear() - inspected.getUTCFullYear()) * 12
+    + (now.getUTCMonth() - inspected.getUTCMonth());
   if (monthsAgo > STALE_AFTER_MONTHS) return SIGNAL.UNKNOWN;
 
   return mostRecent.signal ?? toSignal(mostRecent.disposition);
+}
+
+/**
+ * The staleness boundary as a date, for callers that must express the same rule
+ * in SQL — the statewide signal filter (DEC-017).
+ *
+ * `establishmentSignal` compares whole months; this returns the first date that
+ * still counts as recent, so `inspection_date >= staleCutoff(now)` selects
+ * exactly the rows that function does not call stale. Derived from the same
+ * STALE_AFTER_MONTHS, so the rule has one home even though it is asked in two
+ * languages — a second literal "24" in a query is how the map and the filter
+ * would come to disagree about what "recent" means.
+ */
+function staleCutoff(now = new Date()) {
+  const boundary = new Date(Date.UTC(now.getFullYear(), now.getMonth() - STALE_AFTER_MONTHS, 1));
+  return boundary.toISOString().slice(0, 10);
 }
 
 /** Presentation metadata. Colour is never the only channel — FR-404. */
@@ -107,6 +132,7 @@ module.exports = {
   DISPOSITION_MAP,
   UnknownDispositionError,
   STALE_AFTER_MONTHS,
+  staleCutoff,
   toSignal,
   isKnownDisposition,
   establishmentSignal,
