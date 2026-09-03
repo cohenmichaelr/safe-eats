@@ -55,8 +55,8 @@ function populationNow() {
 /** The draw this worksheet came from — the last entry in the history. */
 function lastDraw() {
   const fs = require('node:fs');
-  const path = require('node:path');
-  const file = path.join(__dirname, '..', 'docs', '07-draw-history.json');
+  const { gatePaths } = require('./gate-paths');
+  const file = gatePaths(process.env.SAFE_EATS_GATE_COUNTY || '60').history;
   if (!fs.existsSync(file)) return null;
   const history = JSON.parse(fs.readFileSync(file, 'utf8'));
   return history[history.length - 1] ?? null;

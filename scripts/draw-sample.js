@@ -34,11 +34,9 @@ const { open } = require('../src/db');
 const { DISPLAYED_LICENSE_TYPES, displayedPredicate, countyName } = require('../src/display');
 
 const ROOT = path.join(__dirname, '..');
-const CSV_PATH = path.join(ROOT, 'docs', '07-accuracy-sample.csv');
-const DOC_PATH = path.join(ROOT, 'docs', '07-accuracy-gate.md');
+const { gatePaths, SAMPLE_SIZE: GATE_SAMPLE_SIZE } = require('./gate-paths');
 
-const SAMPLE_SIZE = 100;
-const DEFAULT_SEED = 'safe-eats/AC-E2-GATE/2026-08-24';
+const SAMPLE_SIZE = GATE_SAMPLE_SIZE;
 
 /**
  * DEC-009 — the product displays permanent food service (2010) only. Mobile
@@ -55,6 +53,11 @@ const DISPLAYED_LICENSE_TYPE = DISPLAYED_LICENSE_TYPES.join(', ');
 
 /** The county this gate measures. Overridable so a new county can be drawn. */
 const GATE_COUNTY = process.env.SAFE_EATS_GATE_COUNTY || '60';
+const PATHS = gatePaths(GATE_COUNTY);
+const CSV_PATH = PATHS.csv;
+const DOC_PATH = PATHS.doc;
+const HISTORY_PATH = PATHS.history;
+const DEFAULT_SEED = PATHS.seed;
 
 /** mulberry32 — small, deterministic, adequate for drawing a sample. */
 function rng(seedText) {
@@ -82,7 +85,6 @@ const csvEscape = (v) => {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
-const HISTORY_PATH = path.join(ROOT, 'docs', '07-draw-history.json');
 
 /**
  * How many rows of an existing worksheet already carry a verdict.
@@ -230,7 +232,7 @@ Charter O3 / M3, PRD §4. The decision rule:
 | | |
 | --- | --- |
 | Seed | \`${seed}\` |
-| Population | ${population.length} geocoded of ${total} displayed Palm Beach establishments |
+| Population | ${population.length} geocoded of ${total} displayed ${countyName(GATE_COUNTY)} establishments |
 | Population filter | county ${GATE_COUNTY} ${countyName(GATE_COUNTY)} · licence type ${DISPLAYED_LICENSE_TYPE} (DEC-009) · geocoded |
 | Population fingerprint | \`${fingerprint}\` |
 | Sample size | ${SAMPLE_SIZE} |
@@ -288,7 +290,7 @@ any row is unverified.
 
   fs.writeFileSync(DOC_PATH, doc);
 
-  console.log(`drew ${SAMPLE_SIZE} of ${population.length} geocoded (${total} PB total)`);
+  console.log(`drew ${SAMPLE_SIZE} of ${population.length} geocoded (${total} displayable in ${countyName(GATE_COUNTY)})`);
   console.log(`  seed        : ${seed}`);
   console.log(`  fingerprint : ${fingerprint}`);
   console.log(`  worksheet   : ${path.relative(ROOT, CSV_PATH)}`);

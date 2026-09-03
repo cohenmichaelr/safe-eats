@@ -20,8 +20,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
-const CSV_PATH = path.join(ROOT, 'docs', '07-accuracy-sample.csv');
-const DOC_PATH = path.join(ROOT, 'docs', '07-accuracy-gate.md');
+const { gatePaths } = require('./gate-paths');
+
+const GATE_COUNTY = process.env.SAFE_EATS_GATE_COUNTY || '60';
+const CSV_PATH = gatePaths(GATE_COUNTY).csv;
+const DOC_PATH = gatePaths(GATE_COUNTY).doc;
 
 const THRESHOLD_WITHIN = 99;      // "at least 99 must fall within 50 metres"
 const THRESHOLD_DISTANCE_M = 50;
@@ -237,7 +240,69 @@ function record(result, rendered) {
   console.log(`\nrecorded -> ${path.relative(ROOT, DOC_PATH)}`);
 }
 
+/**
+ * Every county's gate at once — DEC-015 makes this a per-county bar, and
+ * tracking three of them one command at a time is how one quietly gets
+ * forgotten. Runs the scorer per county in a child process so each reads its
+ * own worksheet, its own draw history, and its own population.
+ */
+function reportAll() {
+  const { execFileSync } = require('node:child_process');
+  const { DISPLAYED_COUNTIES, countyName } = require('../src/display');
+
+  const lines = ['AC-E2-GATE — all counties', ''];
+  let allPassed = true;
+
+  for (const county of DISPLAYED_COUNTIES) {
+    let text = '';
+    let passed = false;
+    try {
+      text = execFileSync(process.execPath, [__filename], {
+        env: { ...process.env, SAFE_EATS_GATE_COUNTY: county },
+        encoding: 'utf8',
+      });
+      passed = true;
+    } catch (err) {
+      // A non-zero exit is the normal state for an unfinished gate, so the
+      // output still has to be read rather than treated as a crash.
+      text = err.stdout || String(err.message);
+    }
+
+    const outstanding = /(\d+) of (\d+) rows have no verdict/.exec(text);
+    const verified = /verified so far: (\d+)\/(\d+)/.exec(text);
+    const drift = /drift\s+([+-]?\d+) \(([\d.]+)%\)/.exec(text);
+    const within = /within 50 m\s*: (\d+)\/(\d+)/.exec(text);
+    const noSheet = /No worksheet at/.test(text);
+
+    let status;
+    if (noSheet) status = 'NOT DRAWN';
+    else if (within) status = `${passed ? 'PASS' : 'FAIL'} — ${within[1]}/${within[2]} within 50 m`;
+    else if (outstanding) status = `${Number(outstanding[2]) - Number(outstanding[1])}/${outstanding[2]} verified`;
+    else status = 'no verdict';
+
+    allPassed = allPassed && passed && Boolean(within);
+
+    lines.push(
+      `  ${countyName(county).padEnd(12)} ${status.padEnd(30)}` +
+        (drift ? `drift ${drift[1]} (${drift[2]}%)` : '')
+    );
+  }
+
+  lines.push('');
+  lines.push(
+    allPassed
+      ? '  All counties pass. Each may carry an accuracy claim of its own.'
+      : '  Not every county has a passing gate. A county without one is displayed on the\n' +
+        "  strength of another county's method, not on a measurement of its own."
+  );
+
+  console.log(lines.join('\n'));
+  process.exitCode = allPassed ? 0 : 1;
+}
+
 function main() {
+  if (process.argv.includes('--all')) return reportAll();
+
   if (!fs.existsSync(CSV_PATH)) {
     console.error(`No worksheet at ${path.relative(ROOT, CSV_PATH)} — run scripts/draw-sample.js first.`);
     process.exit(1);
