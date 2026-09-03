@@ -38,6 +38,23 @@ const COUNTIES = Object.freeze({
 const DISPLAYED_COUNTIES = Object.freeze(Object.keys(COUNTIES));
 const DISPLAYED_LICENSE_TYPES = Object.freeze(['2010']);
 
+/**
+ * Licence type labels, from the DEC-009 census of what the extract contains.
+ * Only the raw browser uses these — the map shows 2010 alone and never has to
+ * name the others. An unmapped code renders as the code itself rather than a
+ * guess: `2012` appears exactly once in the loaded data and this project does
+ * not invent a label for a row it has not identified.
+ */
+const LICENSE_TYPES = Object.freeze({
+  2010: 'Permanent food service',
+  2013: 'Caterer',
+  2014: 'Mobile food dispensing vehicle',
+  2015: 'Vending machine',
+  2016: 'Temporary event',
+});
+
+const licenseTypeName = (code) => LICENSE_TYPES[String(code)] ?? String(code ?? '');
+
 /** Human label for a county code, for UI and reporting. */
 const countyName = (code) => COUNTIES[String(code)] ?? String(code);
 
@@ -75,6 +92,8 @@ module.exports = {
   COUNTIES,
   DISPLAYED_COUNTIES,
   DISPLAYED_LICENSE_TYPES,
+  LICENSE_TYPES,
   countyName,
+  licenseTypeName,
   displayedPredicate,
 };

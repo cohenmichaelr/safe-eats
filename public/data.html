@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Safe Eats — raw data browser</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/styles.css">
+
+  <style>
+    .data { max-width: 100%; padding: .8rem .9rem 3rem; }
+    .data p.note { color: var(--ink-soft); font-size: .85rem; line-height: 1.5; margin: .4rem 0 0; }
+
+    .data__form {
+      display: flex; flex-wrap: wrap; align-items: flex-end; gap: .55rem .7rem;
+      padding: .8rem; border: 1px solid var(--rule); border-radius: .4rem; background: var(--paper);
+    }
+    .data__form label {
+      font-size: .68rem; font-weight: 600; letter-spacing: .05em;
+      text-transform: uppercase; color: var(--ink-soft);
+    }
+    .data__field { display: flex; flex-direction: column; gap: .18rem; min-width: 9rem; }
+    .data__field--grow { flex: 1 1 18rem; }
+    .data__field input, .data__field select {
+      font: inherit; font-size: .92rem; padding: .45rem .55rem; min-height: 2.4rem;
+      border: 1px solid var(--rule); border-radius: .3rem; background: var(--paper); color: var(--ink);
+    }
+
+    .data__count { margin: .9rem 0 .4rem; font-size: .85rem; color: var(--ink-soft); }
+    .data__count strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+    /* The table scrolls in its own box: 20 raw columns will never fit a phone,
+       and a horizontally scrolling <body> breaks everything else on the page. */
+    .data__scroll { overflow: auto; max-height: 65vh; border: 1px solid var(--rule); border-radius: .4rem; }
+    table.raw { border-collapse: collapse; width: 100%; font-size: .8rem; }
+    table.raw th, table.raw td { padding: .35rem .5rem; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--rule); }
+    table.raw thead th {
+      position: sticky; top: 0; z-index: 1; background: var(--paper-soft);
+      font-size: .68rem; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft);
+    }
+    table.raw tbody tr { cursor: pointer; }
+    table.raw tbody tr:hover { background: var(--paper-soft); }
+    table.raw tbody tr[aria-selected="true"] { background: #eef3fd; }
+    table.raw td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    table.raw td.muted { color: var(--ink-soft); }
+
+    .pager { display: flex; align-items: center; gap: .5rem; margin-top: .6rem; font-size: .85rem; }
+    .pager span { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+    /* The raw record. A <pre> of JSON, deliberately — any prettier rendering is
+       a shaping decision, and "unshaped" is this page's entire job. */
+    .record { margin-top: 1rem; }
+    .record h2 { font-size: .95rem; margin: 0 0 .4rem; }
+    .record pre {
+      margin: 0; padding: .8rem; max-height: 30rem; overflow: auto;
+      background: #1c1e21; color: #e8eaed; border-radius: .4rem;
+      font: .78rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre; tab-size: 2;
+    }
+    .record__links { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; font-size: .82rem; }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <h1>Safe&nbsp;Eats <span class="bar__where">raw data</span></h1>
+    <p class="bar__asof" id="asof" aria-live="polite">Loading…</p>
+  </header>
+
+  <main class="data">
+    <form class="admin__form data__form" id="signin-form" hidden>
+      <div class="data__field">
+        <label for="password">Admin password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+      </div>
+      <div class="search__actions">
+        <button type="submit" class="btn btn--primary">Sign in</button>
+      </div>
+    </form>
+
+    <form class="data__form" id="query-form">
+      <div class="data__field data__field--grow">
+        <label for="q">Search</label>
+        <input type="search" id="q" name="q" autocomplete="off" spellcheck="false"
+               placeholder="Name, address, city, or licence number">
+      </div>
+
+      <div class="data__field">
+        <label for="county">County</label>
+        <select id="county" name="county"><option value="">All counties</option></select>
+      </div>
+
+      <div class="data__field">
+        <label for="type">Licence type</label>
+        <select id="type" name="type"><option value="">All types</option></select>
+      </div>
+
+      <div class="data__field">
+        <label for="geocoded">Coordinates</label>
+        <select id="geocoded" name="geocoded">
+          <option value="">Any</option>
+          <option value="yes">Geocoded</option>
+          <option value="no">Missing</option>
+        </select>
+      </div>
+
+      <div class="search__actions">
+        <button type="button" class="btn" id="clear">Clear</button>
+        <button type="submit" class="btn btn--primary">Search</button>
+      </div>
+    </form>
+
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+
+    <p class="data__count" id="count"></p>
+
+    <div class="data__scroll">
+      <table class="raw">
+        <thead>
+          <tr>
+            <th>Name</th><th>Address</th><th>City</th><th>Zip</th>
+            <th>County</th><th>Type</th><th>Licence</th>
+            <th>Last inspection</th><th>Disposition</th><th>Signal</th>
+            <th class="num">Insp.</th><th>Lat</th><th>Lng</th><th>Geocode</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      <button type="button" class="btn" id="prev" disabled>Previous</button>
+      <button type="button" class="btn" id="next" disabled>Next</button>
+      <span id="range"></span>
+    </div>
+
+    <section class="record" id="record" hidden>
+      <h2 id="record-title">Raw record</h2>
+      <pre id="record-body"></pre>
+      <p class="record__links" id="record-links"></p>
+    </section>
+
+    <p class="note">
+      This is every row as stored, including the licence types the map does not
+      show — mobile vendors, caterers, temporary events, vending machines
+      (DEC-009). A row here is not a claim that a diner can walk into it.
+      <a href="/admin.html">Refresh the data</a> · <a href="/">Back to the map</a>
+    </p>
+  </main>
+
+  <script src="/data.js"></script>
+</body>
+</html>

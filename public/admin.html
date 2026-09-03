@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Safe Eats — manual data refresh</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/styles.css">
+
+  <!--
+    Admin-only styling lives here rather than in styles.css. The shipped
+    stylesheet is what every diner downloads on the map page; a page one person
+    opens now and then should not add bytes to it.
+  -->
+  <style>
+    .admin { max-width: 52rem; margin: 0 auto; padding: 1rem .9rem 3rem; }
+    .admin h2 { font-size: 1rem; margin: 1.6rem 0 .5rem; }
+    .admin p  { color: var(--ink-soft); font-size: .9rem; line-height: 1.5; }
+
+    .admin__form {
+      display: flex; flex-wrap: wrap; align-items: flex-end; gap: .55rem .7rem;
+      padding: .8rem; margin-top: .8rem;
+      border: 1px solid var(--rule); border-radius: .4rem; background: var(--paper);
+    }
+    .admin__form label {
+      font-size: .68rem; font-weight: 600; letter-spacing: .05em;
+      text-transform: uppercase; color: var(--ink-soft);
+    }
+    .admin__field { display: flex; flex-direction: column; gap: .18rem; min-width: 12rem; }
+    .admin__field select, .admin__field input {
+      font: inherit; font-size: .92rem; padding: .45rem .55rem; min-height: 2.4rem;
+      border: 1px solid var(--rule); border-radius: .3rem;
+      background: var(--paper); color: var(--ink);
+    }
+    .admin__check { display: flex; align-items: center; gap: .4rem; font-size: .85rem; color: var(--ink-soft); }
+    .admin__check input { min-height: 0; }
+
+    .admin__facts { display: grid; gap: .1rem; margin: .9rem 0 0; padding: 0; list-style: none; }
+    .admin__facts div { display: flex; gap: .5rem; padding: .35rem 0; border-bottom: 1px solid var(--rule); font-size: .9rem; }
+    .admin__facts dt { flex: 0 0 9rem; color: var(--ink-soft); }
+    .admin__facts dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+    /* Outcome colours are the refresh contract's three states, not the map's
+       signal palette — an amber pin and a run that needs a look are unrelated
+       things and must not borrow each other's meaning. */
+    .tag { font-weight: 600; }
+    .tag[data-outcome="ok"]         { color: #0d652d; }
+    .tag[data-outcome="needs-look"] { color: #8a5300; }
+    .tag[data-outcome="failed"]     { color: #b3261e; }
+    .tag[data-outcome="running"]    { color: var(--focus); }
+
+    .admin__log {
+      margin: .8rem 0 0; padding: .7rem .8rem; max-height: 22rem; overflow: auto;
+      background: #1c1e21; color: #e8eaed; border-radius: .4rem;
+      font: .78rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .admin__log:empty { display: none; }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <h1>Safe&nbsp;Eats <span class="bar__where">data refresh</span></h1>
+    <p class="bar__asof" id="asof" aria-live="polite">Loading…</p>
+  </header>
+
+  <main class="admin">
+    <!--
+      The one thing an operator must understand before pressing the button, so
+      it is above it rather than in a doc: a county is not what gets fetched.
+    -->
+    <p class="disclaimer">
+      A refresh downloads the state's district extracts, loads them, geocodes any
+      new address, and <strong>fails if the as-of date does not move</strong> —
+      the check v1 never had.
+    </p>
+
+    <!--
+      Sign-in. Present only when the server has SAFE_EATS_ADMIN_PASSWORD set;
+      on localhost without one, the routes are loopback-gated and this stays
+      hidden. The password is posted once and exchanged for an HttpOnly session
+      cookie, so it is never stored by this page.
+    -->
+    <form class="admin__form" id="signin-form" hidden>
+      <div class="admin__field">
+        <label for="password">Admin password</label>
+        <input type="password" id="password" name="password"
+               autocomplete="current-password" required>
+      </div>
+      <div class="search__actions">
+        <button type="submit" class="btn btn--primary">Sign in</button>
+      </div>
+    </form>
+
+    <form class="admin__form" id="refresh-form">
+      <div class="admin__field">
+        <label for="county">County</label>
+        <select id="county" name="county">
+          <option value="all">All counties</option>
+        </select>
+      </div>
+
+      <label class="admin__check">
+        <input type="checkbox" id="skip-geocode">
+        Skip geocoding
+      </label>
+
+      <div class="search__actions">
+        <button type="button" class="btn" id="signout" hidden>Sign out</button>
+        <button type="submit" class="btn btn--primary" id="run">Refresh data now</button>
+      </div>
+    </form>
+
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+
+    <h2>Last run</h2>
+    <dl class="admin__facts" id="facts">
+      <div><dt>Status</dt><dd id="f-status">—</dd></div>
+      <div><dt>Started</dt><dd id="f-started">—</dd></div>
+      <div><dt>Finished</dt><dd id="f-finished">—</dd></div>
+      <div><dt>Scope</dt><dd id="f-scope">—</dd></div>
+      <div><dt>Triggered by</dt><dd id="f-trigger">—</dd></div>
+    </dl>
+
+    <pre class="admin__log" id="log" aria-label="Refresh log"></pre>
+
+    <h2>What a county selection does</h2>
+    <p>
+      DBPR publishes <strong>district</strong> files, not county ones, so picking a
+      single county still downloads that district's whole extract — the selection
+      narrows what is written, not what is fetched. Loading never deletes, so
+      refreshing one county leaves the others exactly as they were. Geocoding is
+      not county-scoped: it resolves every address still missing coordinates.
+    </p>
+    <p><a href="/">Back to the map</a></p>
+  </main>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

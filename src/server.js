@@ -13,13 +13,31 @@
  * definition of "displayed" is `src/display.js`, shared with the accuracy gate.
  */
 
+/**
+ * `.env` is loaded here for the same reason ingest.js and geocode.js load it:
+ * the local run must see the same configuration the deployed one gets from its
+ * host. Without this, SAFE_EATS_ADMIN_PASSWORD in .env would be read by the
+ * scripts and ignored by the server — the sign-in silently disabled on the one
+ * machine where the file exists. dotenv never overrides a variable already set,
+ * so Render's environment still wins.
+ */
+require('dotenv').config();
+
 const express = require('express');
 const path = require('node:path');
 
 const { open, dataAsOf } = require('./db');
-const { displayedPredicate, COUNTIES, DISPLAYED_COUNTIES, countyName } = require('./display');
+const {
+  displayedPredicate,
+  COUNTIES,
+  DISPLAYED_COUNTIES,
+  countyName,
+  licenseTypeName,
+} = require('./display');
 const { canonicalCity, titleCase } = require('./cities');
 const { createScheduler } = require('./scheduler');
+const { createRefreshRunner } = require('./refresh-runner');
+const { createAdminSessions, COOKIE } = require('./admin-session');
 const { seedGeocodeCache } = require('./seed');
 const {
   establishmentSignal,
@@ -338,8 +356,22 @@ function toPin(row, now) {
 
 /* ----------------------------------------------------------------- app ----- */
 
-function createApp(db) {
+/**
+ * Is this request from the machine the server runs on? Express normalises IPv4
+ * over IPv6 sockets to ::ffff:127.0.0.1, which is the form a browser on the
+ * same laptop actually arrives as.
+ */
+function isLoopbackAddress(ip) {
+  const address = (ip || '').toString().replace(/^::ffff:/, '');
+  return address === '127.0.0.1' || address === '::1' || address.startsWith('127.');
+}
+
+function createApp(db, {
+  refreshRunner = createRefreshRunner(),
+  adminSessions = createAdminSessions(),
+} = {}) {
   const q = prepareStatements(db);
+  const sessions = adminSessions;
   const app = express();
 
   app.disable('x-powered-by');
@@ -557,6 +589,331 @@ function createApp(db) {
     });
   });
 
+  /* --------------------------------------------------------------- admin -- */
+
+  /**
+   * The manual refresh — /admin.html.
+   *
+   * WHY THIS IS GATED AND THE REST IS NOT
+   *
+   * Every other route reads SQLite. This one starts a process that fetches ~40MB
+   * from DBPR and rewrites the database, so an unauthenticated button would let
+   * any visitor hammer the state's servers from ours. Two postures, chosen by
+   * whether a password is configured:
+   *
+   *   SAFE_EATS_ADMIN_PASSWORD set  →  sign in first, from anywhere
+   *   not set                       →  loopback only
+   *
+   * The default is the safe one for the deployed service (where nothing is
+   * loopback) without making `npm start` on a laptop require ceremony. The page
+   * itself is plain static HTML and holds no data, so it is served either way;
+   * what it can *do* is what these routes decide.
+   *
+   * The password is never a credential the browser keeps. It is exchanged once
+   * for a session cookie — see src/admin-session.js for why that distinction
+   * matters more for a password than it did for the random token this replaced.
+   */
+  function adminGuard(req, res, next) {
+    if (sessions.configured()) {
+      if (sessions.isValid(sessions.fromRequest(req))) return next();
+      // `auth` tells the page to show the sign-in form rather than an error it
+      // cannot act on. 401, not 403: the request may succeed once authenticated.
+      return res.status(401).json({ error: 'Sign in to refresh the data.', auth: 'password' });
+    }
+
+    if (!isLoopbackAddress(req.socket?.remoteAddress)) {
+      return res.status(403).json({
+        error:
+          'Manual refresh is available on localhost only. Set SAFE_EATS_ADMIN_PASSWORD to enable it remotely.',
+      });
+    }
+    return next();
+  }
+
+  /**
+   * POST /api/admin/session { password } — sign in.
+   *
+   * The cookie is HttpOnly, so the page's own JavaScript cannot read it back:
+   * the credential is not in localStorage, not in a header the page assembles,
+   * and not in anything an injected script could exfiltrate. SameSite=Strict
+   * because every caller is this origin's own page, which also means no other
+   * site can make an authenticated refresh request on your behalf.
+   */
+  app.post('/api/admin/session', express.json({ limit: '4kb' }), (req, res) => {
+    res.set('Cache-Control', 'no-store');
+
+    if (!sessions.configured()) {
+      return res.status(400).json({ error: 'No admin password is configured on this server.' });
+    }
+
+    const result = sessions.signIn(req.socket?.remoteAddress, (req.body?.password ?? '').toString());
+
+    if (!result.ok) {
+      if (result.retryAfter) res.set('Retry-After', String(result.retryAfter));
+      // 429 for a lockout, 401 for a wrong password: the page tells the operator
+      // "wait" or "try again" from the status alone.
+      return res.status(result.retryAfter ? 429 : 401).json({ error: result.reason });
+    }
+
+    const secure = req.secure || req.get('x-forwarded-proto') === 'https';
+    res.cookie(COOKIE, result.id, {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure,
+      path: '/',
+      expires: new Date(result.expires),
+    });
+    return res.status(204).end();
+  });
+
+  /** Sign out — the session dies here, not merely in the browser. */
+  app.delete('/api/admin/session', (req, res) => {
+    sessions.signOut(sessions.fromRequest(req));
+    res.clearCookie(COOKIE, { path: '/' });
+    res.status(204).end();
+  });
+
+  /** Whether this server wants a password at all, so the page can say so. */
+  app.get('/api/admin/session', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({
+      password_required: sessions.configured(),
+      signed_in: sessions.configured() ? sessions.isValid(sessions.fromRequest(req)) : true,
+    });
+  });
+
+  const adminCounties = () =>
+    DISPLAYED_COUNTIES.map((code) => ({ code, name: countyName(code) }));
+
+  app.get('/api/admin/refresh', adminGuard, (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({
+      as_of: dataAsOf(db),
+      counties: adminCounties(),
+      // Null until a refresh has been started in this process — which is not the
+      // same as "never refreshed". `as_of` answers that, and the page says so.
+      run: refreshRunner.state(),
+    });
+  });
+
+  /**
+   * POST /api/admin/refresh { county }
+   *
+   * `county` is one county code, or omitted/"all" for every county in scope.
+   *
+   * What a county selection does and does not do, because the honest version
+   * matters here: DBPR publishes *district* files, not county ones, so a
+   * single-county refresh still downloads its district's whole extract. The
+   * selection controls which rows are loaded — it narrows the write, not the
+   * fetch. And since ingest upserts and never deletes (AUD F4), refreshing one
+   * county leaves the other counties' rows exactly as they were.
+   */
+  app.post('/api/admin/refresh', adminGuard, express.json({ limit: '4kb' }), (req, res) => {
+    const raw = (req.body?.county ?? req.query.county ?? '').toString().trim();
+    const counties = raw && raw !== 'all' ? [raw] : [];
+
+    let result;
+    try {
+      result = refreshRunner.start({
+        counties,
+        trigger: 'manual',
+        // Geocoding is the slow step and needs no rerun when only inspection
+        // outcomes have changed, so it is skippable — the same --skip-geocode
+        // the command line has, not a second notion of a partial refresh.
+        skipGeocode: Boolean(req.body?.skip_geocode ?? req.query.skip_geocode),
+      });
+    } catch (err) {
+      // A county code that is not in scope — a 400, not a 500.
+      return res.status(err.status ?? 500).json({ error: err.message });
+    }
+
+    res.set('Cache-Control', 'no-store');
+    if (!result.started) {
+      return res.status(409).json({ error: result.reason, as_of: dataAsOf(db), run: result.run });
+    }
+    // 202: accepted and running. The refresh takes seconds to minutes, so the
+    // answer to "did it work" comes from polling GET, never from this response.
+    return res.status(202).json({ as_of: dataAsOf(db), run: result.run });
+  });
+
+  /* ------------------------------------------------------------ raw data -- */
+
+  /**
+   * GET /api/admin/data — the rows as stored, not as displayed.
+   *
+   * WHY THIS IS BEHIND THE SAME GATE AS THE REFRESH
+   *
+   * Everything the map serves is filtered by `displayedPredicate`: county in
+   * scope, licence type 2010. This route deliberately is not — the point of a
+   * raw browser is to see what actually loaded, including the 2,852 mobile
+   * vendors and 706 caterers DEC-009 keeps off the map. But that decision is
+   * not a rendering preference: it says publishing a mobile vendor's licensed
+   * address asserts a restaurant is at someone's home or commissary. Serving
+   * those rows to the public from a different URL would undo the decision by
+   * the back door, so this is an operator tool and is gated as one.
+   *
+   * Filters: q (name, address, city, licence number), county, type, geocoded.
+   * Everything is a bound parameter; the only interpolation is the fragment
+   * list, which is built from fixed strings.
+   */
+  const RAW_COLUMNS = `e.establishment_id, e.license_key, e.license_number, e.name, e.address,
+           e.normalized_address, e.city, e.zip, e.county_code, e.county_name, e.district,
+           e.license_type_code, e.seats, e.risk_level, e.lat, e.lng,
+           e.geocode_source, e.geocode_quality, e.first_seen_at, e.last_seen_at`;
+
+  function rawFilter(query) {
+    const where = [];
+    const params = [];
+
+    const county = (query.county ?? '').toString().trim();
+    if (county) {
+      if (!(county in COUNTIES)) throw new BadRequest(`Not a known county: ${JSON.stringify(county)}`);
+      where.push('e.county_code = ?');
+      params.push(county);
+    }
+
+    const type = (query.type ?? '').toString().trim();
+    if (type) {
+      // Not validated against a list: the whole point is to show what loaded,
+      // including a code this code does not know about (2012 is in the data).
+      where.push('e.license_type_code = ?');
+      params.push(type);
+    }
+
+    const geocoded = (query.geocoded ?? '').toString().trim();
+    if (geocoded === 'yes') where.push('e.lat IS NOT NULL');
+    else if (geocoded === 'no') where.push('e.lat IS NULL');
+
+    const text = (query.q ?? '').toString().trim();
+    if (text) {
+      // Same normalisation as /api/search, for the same reason: a reader typing
+      // "wendy's" must reach the row stored as WENDY'S. % and _ are dropped
+      // rather than escaped — LIKE would need an explicit ESCAPE clause.
+      const cleaned = text.toUpperCase().replace(/['.]/g, '').replace(/-/g, ' ').replace(/[%_]/g, ' ').trim();
+      if (cleaned === '') {
+        // Punctuation only. Matching everything here would read as a working
+        // search that returned the entire database.
+        where.push('1 = 0');
+      } else {
+        where.push(`(${NORMALIZED} LIKE ? OR UPPER(e.license_number) LIKE ? OR e.establishment_id = ?)`);
+        params.push(`%${cleaned}%`, `%${cleaned}%`, text);
+      }
+    }
+
+    return { sql: where.length ? `WHERE ${where.join(' AND ')}` : '', params };
+  }
+
+  app.get('/api/admin/data', adminGuard, (req, res) => {
+    const filter = rawFilter(req.query);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 1000);
+    const offset = Math.max(Number(req.query.offset) || 0, 0);
+
+    const rows = db
+      .prepare(
+        `SELECT ${RAW_COLUMNS},
+                i.inspection_date, i.disposition, i.signal, i.inspection_type,
+                i.total_violations, i.high_violations,
+                (SELECT COUNT(*) FROM inspection n WHERE n.license_key = e.license_key) AS inspection_count
+           FROM establishment e
+      LEFT JOIN inspection i ON i.inspection_visit_id = (${LATEST_VISIT})
+           ${filter.sql}
+       ORDER BY e.name, e.address
+          LIMIT ? OFFSET ?`
+      )
+      .all(...filter.params, limit, offset);
+
+    const total = db
+      .prepare(`SELECT COUNT(*) AS n FROM establishment e ${filter.sql}`)
+      .get(...filter.params).n;
+
+    res.set('Cache-Control', 'no-store');
+    res.json({
+      as_of: dataAsOf(db),
+      query: {
+        q: (req.query.q ?? '').toString().trim(),
+        county: (req.query.county ?? '').toString().trim(),
+        type: (req.query.type ?? '').toString().trim(),
+        geocoded: (req.query.geocoded ?? '').toString().trim(),
+      },
+      total,
+      limit,
+      offset,
+      // Facets from the data itself, so the filters cannot list a type that is
+      // not there or omit one that is.
+      counties: db
+        .prepare('SELECT county_code AS code, COUNT(*) AS n FROM establishment GROUP BY 1 ORDER BY 1')
+        .all()
+        .map((row) => ({ ...row, name: countyName(row.code) })),
+      types: db
+        .prepare('SELECT license_type_code AS code, COUNT(*) AS n FROM establishment GROUP BY 1 ORDER BY n DESC')
+        .all()
+        .map((row) => ({ ...row, name: licenseTypeName(row.code) })),
+      rows,
+    });
+  });
+
+  /**
+   * GET /api/admin/data/:establishmentId — one row, and everything that hangs
+   * off it: every inspection visit (not just the latest), the violation codes
+   * per visit, and the geocode_cache entry its coordinates came from.
+   *
+   * Unshaped on purpose. `/api/establishments/:id` answers "what should a diner
+   * see"; this answers "what is in the database", which is the question you ask
+   * when the first one looks wrong.
+   */
+  app.get('/api/admin/data/:establishmentId', adminGuard, (req, res) => {
+    const establishment = db
+      .prepare(`SELECT ${RAW_COLUMNS} FROM establishment e WHERE e.establishment_id = ?`)
+      .get(req.params.establishmentId);
+
+    if (!establishment) return res.status(404).json({ error: 'No such establishment' });
+
+    const inspections = db
+      .prepare(
+        `SELECT * FROM inspection
+          WHERE license_key = ?
+       ORDER BY inspection_date DESC, visit_number DESC`
+      )
+      .all(establishment.license_key);
+
+    const violations = db
+      .prepare(
+        `SELECT v.inspection_visit_id, v.violation_code, v.count
+           FROM violation v
+           JOIN inspection i ON i.inspection_visit_id = v.inspection_visit_id
+          WHERE i.license_key = ?
+       ORDER BY v.inspection_visit_id, CAST(v.violation_code AS INTEGER)`
+      )
+      .all(establishment.license_key);
+
+    const byVisit = new Map();
+    for (const row of violations) {
+      const bucket = byVisit.get(row.inspection_visit_id) ?? [];
+      bucket.push({ violation_code: row.violation_code, count: row.count });
+      byVisit.set(row.inspection_visit_id, bucket);
+    }
+
+    res.set('Cache-Control', 'no-store');
+    return res.json({
+      establishment: {
+        ...establishment,
+        license_type_name: licenseTypeName(establishment.license_type_code),
+        // Says plainly whether this row is one the map shows, since the reason
+        // it may be missing from the map is nearly always one of these two.
+        displayed:
+          establishment.license_type_code === '2010' &&
+          DISPLAYED_COUNTIES.includes(establishment.county_code),
+      },
+      geocode_cache:
+        db.prepare('SELECT * FROM geocode_cache WHERE normalized_address = ?')
+          .get(establishment.normalized_address) ?? null,
+      inspections: inspections.map((row) => ({
+        ...row,
+        violations: byVisit.get(row.inspection_visit_id) ?? [],
+      })),
+    });
+  });
+
   // Static last, so a route always wins over a file of the same name.
   for (const [mount, dir] of Object.entries(VENDOR)) {
     app.use(mount, express.static(dir, { immutable: true, maxAge: '30d' }));
@@ -582,7 +939,12 @@ function createApp(db) {
 
 function main() {
   const db = open();
-  const app = createApp(db);
+
+  // One runner, two callers: the weekly schedule and the /admin.html button.
+  // Sharing it is what makes "a refresh is already running" a fact rather than
+  // a race between them.
+  const refreshRunner = createRefreshRunner();
+  const app = createApp(db, { refreshRunner });
   const port = Number(process.env.PORT) || 3000;
 
   // Restore the committed geocode cache if this is a fresh disk. A no-op when
@@ -605,7 +967,7 @@ function main() {
   // because on Render only the service holding the disk can see the database.
   // See src/scheduler.js for why that is not a workaround but the only correct
   // shape on this host.
-  const scheduler = createScheduler(db);
+  const scheduler = createScheduler(db, { runner: refreshRunner });
   scheduler.start();
 
   // `server.close()` stops accepting connections but waits on established ones,
@@ -625,4 +987,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { createApp, parseBbox, parseLimit, DEFAULT_LIMIT, MAX_LIMIT };
+module.exports = { createApp, parseBbox, parseLimit, isLoopbackAddress, DEFAULT_LIMIT, MAX_LIMIT };

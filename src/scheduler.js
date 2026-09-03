@@ -37,10 +37,8 @@
  * never reaches out to DBPR on its own.
  */
 
-const path = require('node:path');
-const { spawn } = require('node:child_process');
-
 const { dataAsOf } = require('./db');
+const { createRefreshRunner } = require('./refresh-runner');
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
@@ -69,43 +67,32 @@ function dueIn(db, now = Date.now()) {
   return Math.max(0, REFRESH_AFTER - age);
 }
 
-function createScheduler(db) {
-  let running = false;
+function createScheduler(db, { runner = createRefreshRunner() } = {}) {
   let timer = null;
 
+  /**
+   * Starting a refresh is `runner`'s job, not the scheduler's. The overlap
+   * guard lives there because the manual trigger on /admin.html is a second
+   * caller, and a guard that only one of two callers consults is not a guard.
+   */
   function runRefresh() {
-    // Overlap guard. A refresh that takes longer than the check interval must
-    // not be started twice — two ingests writing the same rows concurrently is
-    // not something the invariants were designed against, and it should never
-    // be allowed to happen in the first place.
-    if (running) return log('refresh already running — skipping this check');
-    running = true;
+    const started = Date.now();
+    const { started: ok, reason } = runner.start({ trigger: 'scheduled' });
+    if (!ok) return log(`${reason} — skipping this check`);
 
     log('refresh starting');
-    const started = Date.now();
 
-    // A child process rather than an in-process require: a refresh that throws,
-    // leaks, or exhausts memory must not take the web service down with it. The
-    // map staying up on last week's data is a far better failure than the map
-    // going away.
-    const child = spawn(process.execPath, [path.join(__dirname, '..', 'scripts', 'refresh.js')], {
-      cwd: path.join(__dirname, '..'),
-      stdio: 'inherit',
-      env: process.env,
-    });
+    const settle = setInterval(() => {
+      if (runner.isRunning()) return;
+      clearInterval(settle);
 
-    child.on('close', (code) => {
-      running = false;
       const seconds = ((Date.now() - started) / 1000).toFixed(1);
+      const { exit_code: code, note } = runner.state() ?? {};
       if (code === 0) log(`refresh ok in ${seconds}s`);
       else if (code === 2) log(`refresh ok in ${seconds}s, but something needs a look (exit 2)`);
-      else log(`refresh FAILED in ${seconds}s (exit ${code}) — previous data is untouched`);
-    });
-
-    child.on('error', (err) => {
-      running = false;
-      log(`refresh could not be started: ${err.message}`);
-    });
+      else log(`refresh FAILED in ${seconds}s (exit ${code ?? note}) — previous data is untouched`);
+    }, 1000);
+    settle.unref?.();
   }
 
   function check() {
@@ -143,6 +130,9 @@ function createScheduler(db) {
       if (timer) clearTimeout(timer);
       timer = null;
     },
+
+    /** The shared runner, so a caller that built its own scheduler can find it. */
+    runner,
 
     // Exported for tests: the decision is pure given a database.
     dueIn: (now) => dueIn(db, now),
