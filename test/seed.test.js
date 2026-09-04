@@ -123,3 +123,36 @@ test('geocode cache seeding', async (t) => {
     assert.ok(fs.statSync(SEED_PATH).size > 10_000, 'the seed looks truncated');
   });
 });
+
+test('a cached failure is not a resolution to protect', async (t) => {
+  /*
+   * The bug this exists to prevent, found on the deployed service: the disk had
+   * these addresses cached with lat NULL from an earlier seed — "asked, no good
+   * answer" — and the newer committed seed carried real coordinates for them,
+   * bought from the paid tier. DO NOTHING kept the failures, and coverage sat at
+   * 88.32% with the answers sitting in the repository.
+   */
+  const db = freshDb(t);
+
+  seedGeocodeCache(db);
+  const total = cached(db);
+
+  // Rewrite the cache as one that only ever recorded failures.
+  db.prepare("UPDATE geocode_cache SET lat = NULL, lng = NULL, quality = 'No_Match' WHERE lat IS NOT NULL").run();
+
+  // ...except one row, a live resolution such as a hand correction.
+  const keeper = db.prepare('SELECT normalized_address FROM geocode_cache LIMIT 1').get().normalized_address;
+  db.prepare("UPDATE geocode_cache SET lat = 1.5, lng = 2.5, source = 'hand' WHERE normalized_address = ?").run(keeper);
+
+  const { seeded } = seedGeocodeCache(db);
+
+  assert.ok(seeded > 0, 'the seed must fill in what the cache recorded as unresolved');
+  assert.equal(cached(db), total, 'and must not duplicate a single address');
+
+  const restored = db.prepare('SELECT COUNT(*) AS n FROM geocode_cache WHERE lat IS NOT NULL').get().n;
+  assert.ok(restored > 1, `expected many rows resolved from the seed, got ${restored}`);
+
+  const kept = db.prepare('SELECT lat, source FROM geocode_cache WHERE normalized_address = ?').get(keeper);
+  assert.equal(kept.source, 'hand', 'a live coordinate still outranks the committed one');
+  assert.equal(kept.lat, 1.5);
+});

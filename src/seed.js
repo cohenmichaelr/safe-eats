@@ -106,23 +106,41 @@ function seedGeocodeCache(db) {
 
   const rows = parseCsv(fs.readFileSync(SEED_PATH, 'utf8'));
 
-  // DO NOTHING rather than DO UPDATE, and now load-bearing: this is what makes
-  // topping up a non-empty cache safe. A row already present was resolved by
-  // this deployment — including any coordinate corrected by hand — and a live
-  // resolution outranks a committed one.
+  /*
+   * A live coordinate outranks a committed one — but a live NULL does not.
+   *
+   * This was DO NOTHING, and that was wrong in a way that took a deployment to
+   * see. A cached row with lat IS NULL is not a resolution to protect; it is a
+   * record of "asked, and the answer was not good enough". When the committed
+   * seed later carries a real coordinate for that address — which is exactly
+   * what the paid tier produces — DO NOTHING keeps the failure and discards the
+   * answer. On the deployed service that showed up as coverage sitting at
+   * 88.32% while the seed in the repository held 5,840 resolutions it had
+   * already paid for.
+   *
+   * So: fill in the nulls, never overwrite a coordinate. A hand-corrected pin
+   * still survives every boot, because that row has a lat.
+   */
   const insert = db.prepare(
     `INSERT INTO geocode_cache (normalized_address, lat, lng, quality, source, resolved_at)
      VALUES (@normalized_address, @lat, @lng, @quality, @source, @resolved_at)
-     ON CONFLICT(normalized_address) DO NOTHING`
+     ON CONFLICT(normalized_address) DO UPDATE SET
+       lat         = excluded.lat,
+       lng         = excluded.lng,
+       quality     = excluded.quality,
+       source      = excluded.source,
+       resolved_at = excluded.resolved_at
+     WHERE geocode_cache.lat IS NULL AND excluded.lat IS NOT NULL`
   );
 
   const load = db.transaction((all) => {
     let n = 0;
     for (const r of all) {
       if (!r.normalized_address) continue;
-      // `changes` rather than a bare increment: with the top-up, "seeded" has
-      // to mean addresses that actually arrived, not rows we read past. A count
-      // of attempts would report 58,000 restored on a boot that restored none.
+      // `changes` rather than a bare increment: "seeded" has to mean addresses
+      // that actually arrived — inserted, or filled in over a cached failure —
+      // not rows we read past. A count of attempts would report 59,000 restored
+      // on a boot that restored none.
       const info = insert.run({
         normalized_address: r.normalized_address,
         // Coarse rows are cached with null coordinates on purpose — they record
