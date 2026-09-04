@@ -40,9 +40,12 @@ const PROVIDERS = {
   carto: (key, style = process.env.SAFE_EATS_BASEMAP_STYLE || 'voyager') => ({
     provider: `CARTO ${style}`,
     // {r} is Leaflet's retina suffix; CARTO serves @2x for it.
-    url: `https://basemaps.cartocdn.com/rastertiles/${style}/{z}/{x}/{y}{r}.png?api_key=${key}`,
+    // `key`, not `api_key` — the wrong parameter name is accepted with HTTP 200
+    // and answered with a tile watermarked "API KEY REQUIRED", which is how
+    // DEC-013 lost CARTO in the first place.
+    url: `https://basemaps.cartocdn.com/rastertiles/${style}/{z}/{x}/{y}{r}.png?key=${key}`,
     // A concrete tile for the canary to fetch — same z/x/y the reference uses.
-    tile: (z, x, y) => `https://basemaps.cartocdn.com/rastertiles/${style}/${z}/${x}/${y}.png?api_key=${key}`,
+    tile: (z, x, y) => `https://basemaps.cartocdn.com/rastertiles/${style}/${z}/${x}/${y}.png?key=${key}`,
     attribution: '© OpenStreetMap contributors © CARTO',
     maxZoom: 20,
     licensed: true,
@@ -77,4 +80,11 @@ function describe(config = basemap()) {
   };
 }
 
-module.exports = { basemap, describe, PROVIDERS };
+/**
+ * A tile URL safe to print or commit. The key is public to a browser fetching
+ * tiles, which is not a reason to write it into a repository — the canary's
+ * pinned reference is a committed file, and it records a URL.
+ */
+const redact = (url) => String(url).replace(/([?&](?:api_)?key=)[^&]*/i, '$1<redacted>');
+
+module.exports = { basemap, describe, redact, PROVIDERS };

@@ -47,7 +47,7 @@ const ROOT = path.join(__dirname, '..');
 const REFERENCE_PATH = path.join(ROOT, 'docs', 'basemap-reference.json');
 
 require('dotenv').config({ quiet: true });
-const { basemap, describe } = require('../src/basemap');
+const { basemap, describe, redact } = require('../src/basemap');
 
 /**
  * The reference image lives in docs/ and is committed; the tiles a failing run
@@ -192,7 +192,7 @@ function saveArtifact(buf, label) {
 
 async function pin() {
   const ref = readReference();
-  console.log(`\nBasemap reference — ${ref.provider}\n${ref.url}\n`);
+  console.log(`\nBasemap reference — ${ref.provider}\n${redact(ref.url)}\n`);
 
   const got = await fetchTile(ref.url);
   const failures = hardChecks(ref, got);
@@ -209,6 +209,9 @@ async function pin() {
 
   const next = {
     ...ref,
+    // Redacted: this file is committed, and the canary composes the real URL
+    // from src/basemap.js on every run anyway.
+    url: redact(ref.url),
     image: path.basename(file),
     sha256: got.sha256,
     bytes: got.buf.length,
@@ -226,7 +229,7 @@ async function pin() {
 
 async function check() {
   const ref = readReference();
-  console.log(`\nBasemap canary — ${ref.provider}\n${ref.url}\n`);
+  console.log(`\nBasemap canary — ${ref.provider}\n${redact(ref.url)}\n`);
 
   if (!ref.sha256) {
     console.error('  No reference pinned. Run: node scripts/check-basemap.js --pin\n');

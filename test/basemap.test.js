@@ -30,7 +30,10 @@ test('basemap provider', async (t) => {
     const config = withKey('test-key-123', basemap);
     assert.match(config.provider, /CARTO/);
     assert.equal(config.licensed, true);
-    assert.match(config.url, /api_key=test-key-123/);
+    // `key`, not `api_key`: the wrong name still returns HTTP 200, with the
+    // tile watermarked "API KEY REQUIRED" across it.
+    assert.match(config.url, /[?&]key=test-key-123/);
+    assert.ok(!config.url.includes('api_key'));
   });
 
   await t.test('no key falls back to OpenStreetMap, and says it is not licensed', () => {
@@ -40,7 +43,7 @@ test('basemap provider', async (t) => {
     const config = withKey(null, basemap);
     assert.equal(config.provider, 'OpenStreetMap');
     assert.equal(config.licensed, false);
-    assert.ok(!config.url.includes('api_key'));
+    assert.ok(!config.url.includes('key='));
   });
 
   await t.test('the key never appears in what gets written down', () => {
@@ -56,6 +59,6 @@ test('basemap provider', async (t) => {
     // exists so a provider swap cannot silently start checking a tile in the
     // ocean.
     assert.match(PROVIDERS.osm().tile(12, 1130, 1731), /\/12\/1130\/1731\.png$/);
-    assert.match(PROVIDERS.carto('k').tile(12, 1130, 1731), /\/12\/1130\/1731\.png\?api_key=k$/);
+    assert.match(PROVIDERS.carto('k').tile(12, 1130, 1731), /\/12\/1130\/1731\.png\?key=k$/);
   });
 });

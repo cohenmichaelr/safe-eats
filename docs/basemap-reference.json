@@ -1,10 +1,10 @@
 {
-  "provider": "OpenStreetMap",
-  "url": "https://tile.openstreetmap.org/12/1130/1731.png",
+  "provider": "CARTO voyager",
+  "url": "https://basemaps.cartocdn.com/rastertiles/voyager/12/1130/1731.png?key=<redacted>",
   "note": "Central Palm Beach, zoom 12. See DEC-013 for why this check exists.",
   "minBytes": 2000,
-  "sha256": "00015cdfa7b2a6227a54a6545ac4cf177ad52b8b6b5be16d27d11e1b5a22a9b6",
-  "bytes": 7128,
-  "capturedAt": "2026-09-04T01:12:25.159Z",
+  "sha256": "5c19511f53b724407099cc542665f14c0f437a85ee20070840a6476da4cb4cb0",
+  "bytes": 4020,
+  "capturedAt": "2026-09-04T01:21:28.031Z",
   "image": "basemap-reference.png"
 }
