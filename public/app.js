@@ -638,6 +638,20 @@
     } catch (err) {
       $('asof').textContent = 'Data date unavailable';
       setStatus(`Could not load map settings: ${err.message}`, 'error');
+
+      /*
+       * A map with no tiles is a grey rectangle, and the reader cannot tell
+       * that from a broken site. Since the provider moved into /api/meta
+       * (DEC-018), a failed meta call would leave exactly that — so fall back
+       * to a basemap rather than to nothing. OSM's tiles are the right choice
+       * here precisely because they need no key: this path runs when the
+       * server could not tell us anything.
+       */
+      addBasemap({
+        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '© OpenStreetMap contributors',
+        max_zoom: 19,
+      });
     }
   }
 
@@ -680,7 +694,45 @@
     }).addTo(state.map);
   }
 
+  /**
+   * Say what went wrong, in the page, where the reader is looking.
+   *
+   * A map that fails to initialise renders nothing at all: no tiles, no filter
+   * menus, no city list — because every one of those is filled after the map is
+   * built. That is indistinguishable from a broken site, and it is exactly what
+   * the reader saw when the map library did not arrive. Silence is the one
+   * failure mode this project refuses everywhere else; it should not be the
+   * front end's either.
+   */
+  function fail(message, detail) {
+    const status = $('status');
+    if (status) {
+      status.textContent = detail ? `${message} (${detail})` : message;
+      status.dataset.tone = 'error';
+    }
+    const heading = $('results-heading');
+    if (heading) heading.textContent = 'Map unavailable';
+  }
+
   function init() {
+    // The vendored libraries are served with a 30-day immutable cache, so a
+    // copy that arrived truncated once stays truncated until a hard reload.
+    // Name that rather than dying at the first L.map call.
+    if (typeof L === 'undefined' || !L.map) {
+      return fail('The map library did not load. Reload the page, bypassing the cache — Ctrl+Shift+R, or Cmd+Shift+R on a Mac.');
+    }
+    if (!L.markerClusterGroup) {
+      return fail('The map clustering plugin did not load. Reload the page bypassing the cache — Ctrl+Shift+R, or Cmd+Shift+R on a Mac.');
+    }
+
+    try {
+      return start();
+    } catch (err) {
+      return fail('The map could not start', err.message);
+    }
+  }
+
+  function start() {
     state.map = L.map('map', {
       zoomControl: true,
       preferCanvas: false,
