@@ -692,6 +692,11 @@
       attribution: config.attribution,
       maxZoom: config.max_zoom || 19,
     }).addTo(state.map);
+
+    // The provider's own ceiling, now that we know it — CARTO serves 20, OSM 19.
+    // The map was constructed with the conservative default so that clustering
+    // could attach before any of this was known.
+    if (config.max_zoom) state.map.setMaxZoom(config.max_zoom);
   }
 
   /**
@@ -736,6 +741,24 @@
     state.map = L.map('map', {
       zoomControl: true,
       preferCanvas: false,
+      /*
+       * maxZoom is set here, explicitly, and it is load-bearing.
+       *
+       * Leaflet infers a map's maxZoom from its tile layers, and
+       * markerClusterGroup refuses to attach to a map whose maxZoom is not
+       * finite — it throws a bare string, "Map has no maxZoom specified",
+       * which is not an Error and so carries no message to report.
+       *
+       * That is fine while the tile layer is added during startup. It stopped
+       * being fine when the provider moved into /api/meta (DEC-018): the
+       * layer now arrives after the fetch, so at this point the map has no
+       * layers at all and the cluster group cannot attach. The whole page
+       * dies with it, because every menu is filled further down.
+       *
+       * Naming it here decouples clustering from when the tiles arrive.
+       * addBasemap raises it to the provider's own maximum once known.
+       */
+      maxZoom: 19,
     }).fitBounds(COUNTY_BOUNDS);
 
     state.cluster = L.markerClusterGroup({
