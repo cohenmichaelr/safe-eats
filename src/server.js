@@ -37,6 +37,7 @@ const { canonicalCity, spellingsFor, titleCase } = require('./cities');
 const { createScheduler } = require('./scheduler');
 const { createRefreshRunner } = require('./refresh-runner');
 const { createGates } = require('./gates');
+const { basemap } = require('./basemap');
 const { seedGeocodeCache } = require('./seed');
 const {
   establishmentSignal,
@@ -382,9 +383,25 @@ function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGa
         gate_score: gates.scoreOf(code),
       })),
 
+      /*
+       * The tile layer, composed server-side (D-014). The page used to hold the
+       * provider URL, which meant changing provider was a front-end edit and the
+       * licence question lived in a comment next to a hardcoded host. Now the
+       * server says what to draw on, and `src/basemap.js` is the one place that
+       * decides.
+       */
+      basemap: (() => {
+        const config = basemap();
+        return {
+          url: config.url,
+          attribution: config.attribution,
+          max_zoom: config.maxZoom,
+        };
+      })(),
+
       attribution: {
         data: 'Florida Department of Business & Professional Regulation',
-        basemap: 'Esri World Street Map — Esri, HERE, Garmin, USGS, Intermap, © OpenStreetMap contributors',
+        basemap: basemap().attribution,
       },
     });
   });

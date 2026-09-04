@@ -1,10 +1,10 @@
 {
-  "provider": "Esri World Street Map",
-  "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/1731/1130",
+  "provider": "OpenStreetMap",
+  "url": "https://tile.openstreetmap.org/12/1130/1731.png",
   "note": "Central Palm Beach, zoom 12. See DEC-013 for why this check exists.",
   "minBytes": 2000,
-  "sha256": "a7ac2dc421aae2dd150556f33a6a62fe0c4998e800d30dbf80cf75613c32dd54",
-  "bytes": 10590,
-  "capturedAt": "2026-09-02T13:01:54.622Z",
-  "image": "basemap-reference.jpg"
+  "sha256": "00015cdfa7b2a6227a54a6545ac4cf177ad52b8b6b5be16d27d11e1b5a22a9b6",
+  "bytes": 7128,
+  "capturedAt": "2026-09-04T01:12:25.159Z",
+  "image": "basemap-reference.png"
 }

@@ -58,6 +58,19 @@ services:
       mountPath: /var/data
       sizeGB: 1
 
+    # The public URL. Render's own <service>-<hash>.onrender.com cannot be moved
+    # between services, so the launch URL has to be a domain we own — see
+    # DEC-013 on the v1 cutover. Add the domain here AND point DNS at Render:
+    #   apex  →  an ALIAS/ANAME record to the service's onrender.com hostname
+    #   www   →  a CNAME to the same
+    # Render issues and renews the TLS certificate once DNS resolves.
+    # Uncomment and set to the domain you actually own, then sync the blueprint.
+    # Left commented deliberately: a blueprint that claims a domain nobody owns
+    # fails certificate issuance and leaves the service looking broken.
+    # domains:
+    #   - example.org
+    #   - www.example.org
+
     envVars:
       # The database lives on the disk, not in the repo checkout, which is
       # replaced wholesale on every deploy.
@@ -90,6 +103,17 @@ services:
       # Only needed for a SELF-HOSTED healthchecks instance, whose hostname
       # cannot be detected. Set to "healthchecks" in that case.
       - key: SAFE_EATS_ALERT_STYLE
+        sync: false
+
+      # The basemap provider (DEC-018). Set = CARTO, licensed, 5M tiles a month
+      # on a free key that takes a minute to request and needs no account.
+      # Unset = OpenStreetMap's donated tiles, which their usage policy asks
+      # production not to lean on — correct for a laptop, not for this.
+      #
+      # This key reaches the browser by design: the browser is what fetches the
+      # tiles. That is not AUD F3, which was v1 serving its GOOGLE_MAPS_API_KEY
+      # — a key with billing on geocoding — to every page.
+      - key: SAFE_EATS_BASEMAP_KEY
         sync: false
 
       # Only used by the tier-2 paid geocoder, a manual batch job. It never

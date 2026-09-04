@@ -28,6 +28,7 @@
 
   const state = {
     map: null,
+    basemapAdded: false,
     cluster: null,
     lastBbox: null,
     inFlight: null,
@@ -586,6 +587,14 @@
       if (!res.ok) throw new Error(meta.error || 'meta unavailable');
 
       LEGEND = meta.signals || {};
+      addBasemap(meta.basemap);
+
+      // The tile provider's credit, which is a licence condition rather than a
+      // courtesy: CARTO and the OSMF both require it.
+      const credit = $('basemap-credit');
+      if (credit && meta.attribution?.basemap) {
+        credit.textContent = `Basemap: ${meta.attribution.basemap}.`;
+      }
       windowStart = meta.inspection_window_start || null;
       renderLegend();
 
@@ -634,14 +643,12 @@
 
   /* ----------------------------------------------------------------- init --- */
 
-  function init() {
-    state.map = L.map('map', {
-      zoomControl: true,
-      preferCanvas: false,
-    }).fitBounds(COUNTY_BOUNDS);
-
+  /** The tile layer, added once /api/meta says which provider to draw on. */
+  function addBasemap(config) {
+    if (!config || state.basemapAdded) return;
+    state.basemapAdded = true;
     /*
-     * Esri World Street Map — DEC-013.
+     * Basemap history — DEC-013, D-014.
      *
      * Two changes from DEC-008, for two different reasons.
      *
@@ -662,16 +669,22 @@
      * stroke and a drop shadow (see .pin in styles.css) to hold their edge
      * against tan, green and orange alike.
      *
-     * Esri's street map bakes its labels into the tile, so unlike the Light Gray
-     * canvas it needs no second reference layer.
+     * The provider itself is served by /api/meta rather than named here (D-014):
+     * the licence question belongs with the decision that answers it, not in a
+     * hardcoded host in the front end. Until meta arrives there is no tile
+     * layer, which is why the map is created after it.
      */
-    const ESRI = 'https://services.arcgisonline.com/ArcGIS/rest/services';
-
-    L.tileLayer(`${ESRI}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`, {
-      attribution:
-        'Tiles © Esri — Esri, HERE, Garmin, USGS, Intermap, © OpenStreetMap contributors, and the GIS user community',
-      maxZoom: 19,
+    L.tileLayer(config.url, {
+      attribution: config.attribution,
+      maxZoom: config.max_zoom || 19,
     }).addTo(state.map);
+  }
+
+  function init() {
+    state.map = L.map('map', {
+      zoomControl: true,
+      preferCanvas: false,
+    }).fitBounds(COUNTY_BOUNDS);
 
     state.cluster = L.markerClusterGroup({
       showCoverageOnHover: false,

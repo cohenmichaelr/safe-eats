@@ -479,10 +479,60 @@ cheaper, since all the small counties together are about 900 rows.
   outstanding. Aliases remain hand-checked — the module records five cases where edit distance merged
   genuinely different cities.
 
+**Coverage, closed at Gate 1.** The Census geocoder alone reached 91.0% statewide, under the 95% bar
+— rural addresses match worse, as the plan anticipated. The tier-2 paid fallback (D-017) resolved
+4,528 of the 5,272 remaining addresses; 739 came back too coarse to accept and 5 returned nothing.
+**Displayed coverage is now 98.73%** (53,619 of 54,309), from 52,444 Census and 5,840 Google
+resolutions. 5,272 paid lookups, list price $26.36 and likely nil against Google's 10,000-a-month
+free tier.
+
 **Reversal condition.** If verification finds that unverified counties are materially less accurate
 than the gated ones — say a sampled county failing well below the threshold — the labelling is not
 enough, and display narrows to gated counties while the data stays statewide. The machinery for that
 is already in place: `DISPLAYED_COUNTIES` and the ingest scope are separate.
+
+## DEC-018 — The basemap is configuration, and production is licensed (closes D-014)
+
+**Date.** 4 Sep 2026 · **Status.** Decided, implemented · **Closes.** D-014 · **Amends.** DEC-013
+
+**Context.** D-014 was raised by DEC-013 and marked "before public launch": v2 draws its tiles from
+`services.arcgisonline.com`, Esri's keyless legacy endpoint, and nobody had read whether
+unauthenticated production use is permitted. Launch is now the question, so it had to be answered.
+
+**What the terms say.** Esri's own developer documentation states that basemap services require an
+ArcGIS Location Platform or ArcGIS Online account, that billing occurs when tiles are returned, and
+that applications must display attribution. The master-agreement page carries links to E204/E300
+rather than terms. **No published text was found permitting unauthenticated production use of the
+legacy endpoint.** Absence of a prohibition is not a licence, and a public site is not the place to
+find out.
+
+**Decision.** The provider becomes configuration, in `src/basemap.js`:
+
+| | |
+|---|---|
+| `SAFE_EATS_BASEMAP_KEY` set | **CARTO**, licensed — a free key, no account required, 5,000,000 tiles a month. The fallback D-014 itself named. |
+| unset | **OpenStreetMap**, under the OSMF Tile Usage Policy. Correct for a laptop; marked `licensed: false` so it cannot be mistaken for a production posture. |
+
+`/api/meta` composes the tile URL and its attribution; `public/app.js` no longer names a host, and the
+footer credit is filled from the same source rather than typed into the HTML where it would go stale.
+
+**The key is public, and that is not AUD F3.** A basemap key travels to the browser by definition —
+the browser fetches the tiles. AUD F3 was v1 serving its **Google Maps** key from `/config`: a key
+with billing attached to geocoding and Places. That key remains server-side only, in
+`src/geocode.js` tier 2. The distinction is what a key can spend, not whether it is visible.
+
+**What this cost, and what it caught.** Pinning the new reference tile produced a clean 7,128-byte
+map of Pahokee. The *first* pin did not: OpenStreetMap answered Node's default User-Agent with a
+256×256 PNG reading **"Access blocked — App is not following the tile usage policy"**. HTTP 200,
+`image/png`, plausible size — every machine-checkable assertion passed, and the pinned definition of
+"correct" was a picture of a refusal. That is the AUD F1 shape exactly, and it is why
+`check-basemap.js` looks at pixels and makes a person open the image. The canary now sends an
+identifying User-Agent, which the OSMF policy requires anyway, and refuses to compare against a pin
+taken from a different provider.
+
+**Reversal condition.** If CARTO changes its free tier or begins watermarking keyed tiles the way it
+watermarked keyless ones (DEC-013), the canary reports LOOK rather than PASS and the provider moves
+again — which now costs one environment variable rather than a front-end edit.
 
 ## Closed decisions
 
@@ -496,6 +546,7 @@ is already in place: `DISPLAYED_COUNTIES` and the ingest scope are separate.
 | D-004 | Establishment types included | DEC-009 | 24 Aug 2026 |
 | D-005 | Historical backfill depth | DEC-010 | 1 Sep 2026 |
 | D-012 | Violation severity display | DEC-011 | 2 Sep 2026 |
+| D-014 | Esri basemap terms of use | DEC-018 | 4 Sep 2026 |
 | D-015 | Watch the basemap, not just the data | `scripts/check-basemap.js` | 2 Sep 2026 |
 | OPEN-1 | Hosting target | DEC-014 | 2 Sep 2026 |
 | D-016 | Accuracy sample vs. a growing population | DEC-016 | 3 Sep 2026 |
@@ -510,7 +561,6 @@ D-010 and D-011 were not in the `docs/12-PRD-v1.0.md` register, which defines D-
 | ID | Decision needed | By | Notes |
 |---|---|---|---|
 | D-013 | Fiscal-year roll-over behaviour | Before 1 Jul 2027 | Raised by DEC-010. `2fdinspi.csv` is fiscal-year-to-date; what it does when FY2627 closes is unobserved. Extend `source-watchdog` to alert on a window reset, not only on a dead URL. |
-| D-014 | Esri basemap terms of use | Before public launch | Raised by DEC-013. The ArcGIS Online basemap services are publicly served and widely used with attribution, but their terms for unauthenticated production use have not been read. If they prohibit it, CARTO with a free key is the licensed fallback. |
 | OPEN-2 | Paid geocode fallback | — | *Effectively closed by implementation* (commit `03e6120`): tier-2 fallback raised coverage 92.82% → 98.86%. Needs a retrospective entry recording cost and provider. |
 | OPEN-3 | ~~Expand beyond Palm Beach~~ | Closed | DEC-015 took it to three counties, DEC-017 to all 67. |
-| D-017 | Paid geocoding for the statewide remainder | Before claiming statewide coverage | Raised by DEC-017. Census resolves most of the ~50,000 new addresses free; historically 8.6% needed the paid tier, so roughly 3,500 lookups. Until decided, those rows are uncovered and counted as such under NFR-07. |
+| D-017 | ~~Paid geocoding for the statewide remainder~~ | Closed 4 Sep 2026 | Run. 5,272 lookups took displayed coverage from 91.0% to 98.73%, clearing Gate 1's 95% bar. Recorded in DEC-017. |

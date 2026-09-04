@@ -46,6 +46,9 @@ const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 const REFERENCE_PATH = path.join(ROOT, 'docs', 'basemap-reference.json');
 
+require('dotenv').config({ quiet: true });
+const { basemap, describe } = require('../src/basemap');
+
 /**
  * The reference image lives in docs/ and is committed; the tiles a failing run
  * writes out live in data/ and are not. The distinction matters: a pinned sha256
@@ -61,9 +64,21 @@ const ARTIFACT_DIR = path.join(ROOT, 'data', 'basemap');
  * not a survey: if the provider has changed its terms or its styling, it has not
  * done so for this tile alone.
  */
+/**
+ * Zoom 12 over central Palm Beach — a canary, not a survey. Held as z/x/y so the
+ * URL follows whatever provider is configured (D-014): checking a pinned Esri
+ * tile while the product draws on CARTO would be a green check for a map nobody
+ * is looking at.
+ *
+ * Note that Esri's tile path is {z}/{y}/{x} and almost everyone else's is
+ * {z}/{x}/{y}. The coordinates below are in x/y order and `src/basemap.js`
+ * composes the URL, which is the other reason this stopped being a literal.
+ */
+const REFERENCE_TILE = { z: 12, x: 1130, y: 1731 };
+
 const DEFAULT_REFERENCE = {
-  provider: 'Esri World Street Map',
-  url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/12/1731/1130',
+  provider: describe().provider,
+  url: basemap().tile(REFERENCE_TILE.z, REFERENCE_TILE.x, REFERENCE_TILE.y),
   note: 'Central Palm Beach, zoom 12. See DEC-013 for why this check exists.',
   minBytes: 2000,
   sha256: null,
@@ -77,7 +92,25 @@ const LOOK = (m, d) => console.log(`   LOOK  ${m}${d ? ` — ${d}` : ''}`);
 
 function readReference() {
   if (!fs.existsSync(REFERENCE_PATH)) return { ...DEFAULT_REFERENCE };
-  return { ...DEFAULT_REFERENCE, ...JSON.parse(fs.readFileSync(REFERENCE_PATH, 'utf8')) };
+
+  const pinned = JSON.parse(fs.readFileSync(REFERENCE_PATH, 'utf8'));
+
+  /*
+   * A pin belongs to the provider it was taken from. If configuration has moved
+   * the map to a different one, the old sha256 describes a tile the product no
+   * longer draws — comparing against it would report a mismatch that means
+   * nothing, or worse, a match that means nothing. Fall back to an unpinned
+   * check and ask for a fresh pin.
+   */
+  if (pinned.provider && pinned.provider !== DEFAULT_REFERENCE.provider) {
+    console.log(
+      `   LOOK  provider changed — pinned against ${pinned.provider}, now serving ` +
+        `${DEFAULT_REFERENCE.provider}. Re-pin with --pin after looking at the tile.`
+    );
+    return { ...DEFAULT_REFERENCE };
+  }
+
+  return { ...DEFAULT_REFERENCE, ...pinned, url: DEFAULT_REFERENCE.url };
 }
 
 /** Magic bytes. A PNG or JPEG says so in its first few bytes, whatever the header claims. */
@@ -99,7 +132,22 @@ async function fetchTile(url) {
   const timer = setTimeout(() => controller.abort(), 30_000);
 
   try {
-    const res = await fetch(url, { redirect: 'follow', signal: controller.signal });
+    /*
+     * An identifying User-Agent, because one provider's terms require it and
+     * this check found out the hard way. OpenStreetMap's Tile Usage Policy asks
+     * every client to identify itself; Node's default sends nothing useful, and
+     * OSM answers with a 256x256 PNG reading "Access blocked" — a valid image,
+     * correct content type, plausible size. Every machine-checkable assertion
+     * passed and the pinned "reference" was a picture of a refusal. That is the
+     * AUD F1 shape again, and the reason this check looks at pixels at all.
+     */
+    const res = await fetch(url, {
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'safe-eats-basemap-canary/2.0 (+https://github.com/cohenmichaelr/safe-eats)',
+      },
+    });
     const buf = Buffer.from(await res.arrayBuffer());
     return {
       res,

@@ -107,7 +107,10 @@
   <footer class="foot">
     <p>
       Data: <a href="https://www2.myfloridalicense.com/sto/file_download/extracts/" rel="noopener">Florida DBPR public extracts</a>.
-      Basemap: <a href="https://www.esri.com/en-us/legal/terms/full-master-agreement" rel="noopener">Esri</a> World Street Map &#8212; Esri, HERE, Garmin, USGS, Intermap, © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> contributors.
+      <!-- Filled from /api/meta: the basemap provider is configuration (D-014),
+           so its credit cannot be typed here without going stale the moment it
+           changes. -->
+      <span id="basemap-credit"></span>
     </p>
     <p id="legend-note" class="foot__note"></p>
     <p><a href="/methodology.html">How this works, and what it cannot tell you</a></p>
