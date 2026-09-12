@@ -534,6 +534,77 @@ taken from a different provider.
 watermarked keyless ones (DEC-013), the canary reports LOOK rather than PASS and the provider moves
 again — which now costs one environment variable rather than a front-end edit.
 
+
+## DEC-019 — Food type is read from the name, and labelled as read from the name
+
+**Date.** 12 Sep 2026 · **Status.** Decided, implemented · **Relates to.** DEC-009, DEC-011, FR-407
+
+**Context.** A food-type filter — Greek, pizza, Chinese, American — was asked for directly. The
+obvious objection is that the data cannot support it, and that objection is correct as far as it
+goes: **none of the 35 columns in the DBPR licence extract describes what an establishment serves.**
+The nearest column is the licence type, and the displayed population is already pinned to one value
+of it (2010, permanent food service — DEC-009), so it separates restaurants from vending machines,
+not Greek from Chinese.
+
+The question is therefore not "can we filter by cuisine" but "is there an honest filter in this
+neighbourhood that is worth having". There is, and it is one people already use: **the name.** A
+diner looking for Greek food in Boynton Beach types "greek" or "taverna", and the 278 Florida
+establishments with GREEK, GYRO, SOUVLAKI or TAVERNA in their licensed name are a genuinely useful
+answer to that.
+
+**Decision.** Ship the filter, matched on the licensed business name, and never let it present as
+anything else.
+
+| | |
+|---|---|
+| What it matches | Whole words in `establishment.name`, 21 types, keyword lists in `src/cuisine.js` |
+| What it claims | *This licence was issued to a business whose name says "gyro".* |
+| What it must never claim | *This kitchen serves Greek food.* |
+| Where it says so | Field label reads "Food type **by name**"; the results sentence reads "named as Greek", not "serving Greek"; a disclosure under the form states the basis and the coverage; `/api/meta` carries `cuisine_basis: "name"` so no page can render the menu without the caveat being available to it |
+
+This is the DEC-011 line, held in the same place. DEC-011 refuses to write our own gloss for a bare
+violation code, because a claim about a named business has to be the state's. This filter is
+allowed precisely because it is **not** a claim about the business — it is a claim about the
+business's name, which is the state's own record and is quoted verbatim beside every result.
+
+**Coverage is partial and stated.** About 28% of the 54,296 displayed establishments carry a word
+any of the 21 types recognise. The rest are named after people, streets and moods. The page says so,
+because "no Greek restaurants in this county" is a conclusion the data cannot support and an empty
+result would otherwise imply it.
+
+**What was measured and rejected.** Keyword lists were tuned against all 54,309 type-2010 names, not
+written from imagination:
+
+| Rejected | Why |
+|---|---|
+| `GRILL` / `GRILLE` → American | 2,920 names carry it: Chipotle Mexican Grill, Carrabba's Italian Grill, Kiku Sushi & Grill. It is how a Florida restaurant is named, not what it cooks. |
+| `ISLAND` → Caribbean | Springhill Suites Amelia Island, Coney Island Lunch. Florida is full of islands. |
+| `CHOP` → Chinese | Chop & Toss Salad Co. |
+| `PIE` / `PIES` → Pizza | 45 matches, and Peace Pie is an ice-cream shop. |
+| `INDIAN` unqualified | 19 of 221 matches were Indian River (a county), Indian Shores, Indian Harbour, Indian Rocks and Indian Pass. The 18 excluded phrases in `CUISINES.indian.not` are each a measured collision. |
+
+**Why the matcher is a registered SQL function, not SQL.** The natural implementation is a chain of
+`LIKE '% GYRO %'` against the name with its punctuation replaced inline. Built, measured, discarded:
+SQLite re-evaluates the nested `REPLACE`s per pattern, so cost scaled with keyword count — 500 ms for
+Greek's eight words over 54,296 rows, and over three seconds through the endpoint, which runs the
+predicate twice.
+
+A two-stage filter — a cheap `LIKE '%GYRO%'` on the raw column, then the exact test on the
+survivors — ran in 52 ms and is **wrong**. A prefilter is only sound if it can never exclude a true
+match, and punctuation inside a name breaks that: `GYRO KING SUB'S AND SALADS` is a real row, and a
+raw-substring prefilter for `SUBS` drops it. Being fast about the wrong answer is the failure this
+project keeps a gate for.
+
+So the matcher is one function, written once in JS and registered on the connection as
+`cuisine_match`. Statewide it runs in 67–88 ms and returns — verified against the pure-SQL predicate
+across all 21 types on the full extract — the identical result set. Against a **pre-existing**
+statewide baseline of 561 ms for an unfiltered browse, the filter costs about 150 ms; combined with a
+county, the realistic case, it is 43–71 ms.
+
+**Reversal condition.** If DBPR ever publishes a cuisine or category column, this filter is replaced
+by it rather than supplemented — a stated fact beats an inferred one, and the "by name" qualifier
+comes off only when the qualifier stops being true.
+
 ## Closed decisions
 
 

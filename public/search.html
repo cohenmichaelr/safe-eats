@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Search Florida food inspections — Safe Eats</title>
+  <meta name="description" content="Search every licensed food service establishment in Florida by name, county, city and inspection result, and read the state's full published inspection history for each one.">
+
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="page">
+  <a class="skip-link" href="#results">Skip to results</a>
+
+  <header class="bar">
+    <h1>Safe&nbsp;Eats <span class="bar__where">Florida</span></h1>
+    <p class="bar__asof" id="asof" aria-live="polite">Loading…</p>
+    <a class="bar__link" href="/">Back to the map</a>
+  </header>
+
+  <p class="disclaimer">
+    Inspection results describe <strong>one visit on one day</strong> — not the kitchen today.
+    Published by the Florida Department of Business &amp; Professional Regulation.
+  </p>
+
+  <main class="find">
+    <h2 class="find__title">Search the inspection records</h2>
+
+    <!--
+      FOUR FILTERS, AND WHY THERE ARE NOT SIX
+
+      The obvious menu for a restaurant search is name, city, state, county and
+      cuisine. Two of those cannot be built honestly from this data, and a
+      control that looks like a filter but does not filter is worse than an
+      absent one — it tells the reader they have narrowed something.
+
+      State: the DBPR extracts are Florida's own licensing records. Every one of
+      the 54,296 establishments here is in Florida, so a state menu would have a
+      single option. It is stated as a fact below rather than offered as a
+      choice.
+
+      Cuisine / food type: none of the 35 fields in the licence extract
+      describes what an establishment serves. The nearest column is the licence
+      type, and the displayed population is already filtered to one value of it
+      — 2010, permanent food service — because the other four are mobile
+      vendors, caterers, temporary events and vending machines, which are not
+      premises a diner can walk into (DEC-009). Inferring "Italian" or "seafood"
+      from a name would be inventing a fact about a named business, the same
+      line DEC-011 draws over violation codes. Name search does the honest
+      version of that job, because restaurants tend to put it in their names.
+    -->
+    <form class="find__form" id="find-form" role="search">
+      <div class="find__field find__field--grow">
+        <label for="q">Restaurant name or street address</label>
+        <input type="search" id="q" name="q" autocomplete="off"
+               placeholder="Try pizza, wendys, or Ocean Ave">
+      </div>
+
+      <div class="find__field">
+        <label for="county">County</label>
+        <select id="county" name="county">
+          <option value="">All 67 counties</option>
+        </select>
+      </div>
+
+      <div class="find__field">
+        <label for="city">City</label>
+        <select id="city" name="city">
+          <option value="">All cities</option>
+        </select>
+      </div>
+
+      <!--
+        Food type — DEC-019. The label says "by name" and the hint under the
+        form says why, because this control is the one place on the site where
+        a category is ours rather than the state's.
+      -->
+      <div class="find__field">
+        <label for="cuisine">Food type <span class="find__qual">by name</span></label>
+        <select id="cuisine" name="cuisine">
+          <option value="">Any food type</option>
+        </select>
+      </div>
+
+      <div class="find__field">
+        <label for="signal">Inspection result</label>
+        <div class="find__withmark">
+          <select id="signal" name="signal">
+            <option value="">Any result</option>
+          </select>
+          <span class="find__mark" id="signal-mark" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="find__field">
+        <label for="sort">Order by</label>
+        <select id="sort" name="sort"></select>
+      </div>
+
+      <div class="find__actions">
+        <button type="submit" class="btn btn--primary">Search</button>
+        <button type="button" class="btn" id="clear">Clear</button>
+      </div>
+    </form>
+
+    <p class="find__scope" id="scope" aria-live="polite"></p>
+
+    <!--
+      The two filters the data cannot support, said plainly and once, under the
+      form where someone who went looking for them will be.
+    -->
+    <details class="find__why">
+      <summary>What “food type” means here, and why there is no state filter</summary>
+      <p><b>Food type reads the name, not a record.</b> The state's licence
+        extract has no column describing what an establishment serves — so
+        choosing <i>Greek</i> finds places whose licensed name contains
+        <i>Greek</i>, <i>gyro</i>, <i>souvlaki</i> or <i>taverna</i>. That is a
+        fact about the licence. It is <b>not</b> a statement that the kitchen
+        serves Greek food, and a place that matches nothing is not a place that
+        serves nothing.</p>
+      <p><b>Roughly 7 in 10 establishments match no food type at all</b>,
+        because they are named after a person, a street or a mood. Use it to
+        narrow a search, never to conclude a kind of restaurant is absent from
+        a town.</p>
+      <p><b>State</b> — these are Florida's own licensing records, so every
+        establishment here is in Florida. There is nothing to narrow.</p>
+      <p>Everything listed is a <b>permanent food service establishment</b>;
+        mobile vendors, caterers, temporary events and vending machines are
+        excluded because they are not premises you can walk into.</p>
+      <p><a href="/methodology.html">How this works, and what it cannot tell you</a></p>
+    </details>
+
+    <section id="results" aria-labelledby="results-heading">
+      <h2 id="results-heading" class="sr-only">Search results</h2>
+      <ol class="find__list" id="results-list"></ol>
+    </section>
+
+    <nav class="find__pager" id="pager" aria-label="Result pages" hidden>
+      <button type="button" class="btn" id="prev">← Previous</button>
+      <span class="find__pagecount" id="pagecount" aria-live="polite"></span>
+      <button type="button" class="btn" id="next">Next →</button>
+    </nav>
+  </main>
+
+  <footer class="foot">
+    <p>
+      Data: <a href="https://www2.myfloridalicense.com/sto/file_download/extracts/" rel="noopener">Florida DBPR public extracts</a>.
+    </p>
+    <p><a href="/methodology.html">How this works, and what it cannot tell you</a></p>
+    <p class="foot__affil">Safe Eats is an independent project. It is not affiliated with, operated by, or endorsed by the State of Florida or the Department of Business &amp; Professional Regulation. The authoritative records are the state's.</p>
+  </footer>
+
+  <script src="/render.js"></script>
+  <script src="/search.js"></script>
+</body>
+</html>
