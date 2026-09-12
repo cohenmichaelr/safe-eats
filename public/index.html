@@ -16,6 +16,11 @@
   <header class="bar">
     <h1>Safe&nbsp;Eats <span class="bar__where">Florida</span></h1>
     <p class="bar__asof" id="asof" aria-live="polite">Loading…</p>
+    <!-- The map answers "what is near here". The search page answers "find me
+         this place", which is a different question and a worse fit for a
+         viewport: a name search that matches 40 establishments across six
+         counties has no bounding box worth showing. -->
+    <a class="bar__link" href="/search.html">Search all records</a>
   </header>
 
   <!--
@@ -119,6 +124,10 @@
 
   <script src="/vendor/leaflet/leaflet.js"></script>
   <script src="/vendor/markercluster/leaflet.markercluster.js"></script>
+  <!-- Shared with search.js: the signal marks, the wording, and the
+       inspection markup. Must load before app.js, which reads window.SafeEats
+       at definition time. -->
+  <script src="/render.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

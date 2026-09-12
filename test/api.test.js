@@ -901,3 +901,291 @@ test('GET /api/cities — the per-county filter options (DEC-017)', async (t) =>
     assert.equal((await get('/api/meta')).body.cities, undefined);
   });
 });
+
+/* ------------------------------------------- GET /api/search — paging ------ */
+
+/**
+ * The search page walks the result set 25 rows at a time, which this endpoint
+ * could not do before: it served a prefix and said whether it had truncated
+ * one. Everything below exists because a paged list fails in ways a prefix
+ * cannot — a row that appears on two pages, a row that appears on neither, and
+ * an ordering that answers "which places have gone longest without a visit"
+ * with the ones that have never had one.
+ */
+test('GET /api/search — paging and ordering', async (t) => {
+  await t.test('offset walks the result set without repeating or skipping a row', async (t) => {
+    const { get } = await fixture(t);
+
+    const all = await get('/api/search?limit=100');
+    const total = all.body.total;
+    assert.ok(total >= 5, 'fixture should hold enough rows to page through');
+
+    const seen = [];
+    for (let offset = 0; offset < total; offset += 2) {
+      const page = await get(`/api/search?limit=2&offset=${offset}`);
+      seen.push(...page.body.establishments.map((e) => e.id));
+    }
+
+    assert.equal(seen.length, total, 'every row appears exactly once across the pages');
+    assert.equal(new Set(seen).size, total, 'no row appears on two pages');
+    assert.deepEqual(
+      seen,
+      all.body.establishments.map((e) => e.id),
+      'paged and unpaged requests agree on the order'
+    );
+  });
+
+  await t.test('the total is the result set, not the page', async (t) => {
+    const { get } = await fixture(t);
+    const page = await get('/api/search?limit=2');
+    assert.equal(page.body.count, 2);
+    assert.ok(page.body.total > 2, 'total describes the whole match, not this page');
+    assert.equal(page.body.limit, 2);
+    assert.equal(page.body.offset, 0);
+  });
+
+  await t.test('truncated means there is a page after this one', async (t) => {
+    const { get } = await fixture(t);
+    const total = (await get('/api/search?limit=100')).body.total;
+
+    const first = await get('/api/search?limit=2&offset=0');
+    const last = await get(`/api/search?limit=2&offset=${total - 1}`);
+
+    assert.equal(first.body.truncated, true);
+    assert.equal(last.body.truncated, false, 'the final page is not truncated');
+  });
+
+  await t.test('an offset past the end is an empty page, not an error', async (t) => {
+    const { get } = await fixture(t);
+    const { status, body } = await get('/api/search?offset=10000');
+    assert.equal(status, 200);
+    assert.deepEqual(body.establishments, []);
+    assert.equal(body.count, 0);
+    assert.equal(body.truncated, false);
+    assert.ok(body.total > 0, 'what matched is unaffected by where the page sits');
+  });
+
+  await t.test('a malformed offset is refused rather than coerced', async (t) => {
+    const { get } = await fixture(t);
+    for (const bad of ['-1', 'abc', '1.5']) {
+      const { status } = await get(`/api/search?offset=${bad}`);
+      assert.equal(status, 400, `offset=${bad} must be refused`);
+    }
+  });
+
+  await t.test('an offset past what SQLite can be handed is a 400, not a 500', async (t) => {
+    const { get } = await fixture(t);
+    // `Number.isInteger(1e20)` is true — it is an integer-valued double — so an
+    // integer check alone lets these through to the driver, which rejects the
+    // bind and turns a nonsense query string into a server error.
+    for (const huge of ['1e20', '99999999999999999999', '9007199254740993']) {
+      const { status } = await get(`/api/search?offset=${huge}`);
+      assert.equal(status, 400, `offset=${huge} must be refused by us, not by the driver`);
+    }
+  });
+
+  await t.test('an unknown sort is refused, not silently ignored', async (t) => {
+    const { get } = await fixture(t);
+    const { status, body } = await get('/api/search?sort=rating');
+    assert.equal(status, 400);
+    assert.match(body.error, /Unknown sort/);
+  });
+
+  await t.test('/api/meta publishes exactly the sorts /api/search accepts', async (t) => {
+    const { get } = await fixture(t);
+    const { body } = await get('/api/meta');
+
+    assert.ok(Array.isArray(body.sorts) && body.sorts.length);
+    for (const { key, label } of body.sorts) {
+      assert.ok(label, `${key} has no label for the menu`);
+      const res = await get(`/api/search?sort=${encodeURIComponent(key)}`);
+      assert.equal(res.status, 200, `${key} is published but refused`);
+    }
+  });
+
+  /*
+   * The date sorts, and the NULL case that made them necessary.
+   *
+   * SQLite orders NULL first in ASC, so "longest since an inspection" asked
+   * naively answers with a page of establishments that have never had one.
+   * True, and not the question — the reader wants the oldest real date.
+   */
+  await t.test('most recently inspected leads with the newest visit', async (t) => {
+    const { get } = await fixture(t);
+    const { body } = await get('/api/search?sort=recent&limit=100');
+    const dates = body.establishments.map((e) => e.last_inspection_date);
+    const withDates = dates.filter(Boolean);
+
+    assert.equal(withDates[0], withDates.reduce((a, b) => (a > b ? a : b)), 'the newest visit leads');
+    assert.deepEqual(withDates, [...withDates].sort().reverse(), 'dates descend');
+    assert.ok(
+      dates.slice(withDates.length).every((d) => d === null),
+      'never-inspected rows come after every dated one'
+    );
+  });
+
+  await t.test('longest since an inspection leads with the oldest visit, not with never', async (t) => {
+    const { get } = await fixture(t);
+    const { body } = await get('/api/search?sort=oldest&limit=100');
+    const names = body.establishments.map((e) => e.name);
+    const dates = body.establishments.map((e) => e.last_inspection_date);
+    const withDates = dates.filter(Boolean);
+
+    assert.equal(names[0], 'STALE SHACK', 'the 2019 inspection is the longest ago');
+    assert.deepEqual(withDates, [...withDates].sort(), 'dates ascend');
+    assert.equal(
+      names[names.length - 1],
+      'UNINSPECTED KITCHEN',
+      'never inspected sorts last here too — it is not "the oldest inspection"'
+    );
+  });
+
+  await t.test('most serious first ranks by the signal the map would draw', async (t) => {
+    const { get } = await fixture(t);
+    const { body } = await get('/api/search?sort=severity&limit=100');
+    const rank = { serious: 0, warning: 1, pass: 2, unknown: 3 };
+    const ranks = body.establishments.map((e) => rank[e.signal]);
+
+    assert.equal(body.establishments[0].signal, 'serious');
+    assert.deepEqual(ranks, [...ranks].sort(), 'severity never increases down the list');
+
+    // STALE SHACK was stored as a pass in 2019. The ordering must age it out
+    // exactly as the filter and the map do, or the list claims a verdict the
+    // pin does not show.
+    const stale = body.establishments.find((e) => e.name === 'STALE SHACK');
+    assert.equal(stale.signal, 'unknown');
+    assert.ok(
+      body.establishments.indexOf(stale) > body.establishments.findIndex((e) => e.signal === 'pass'),
+      'a stale pass ranks with the unknowns, not with the passes'
+    );
+  });
+
+  await t.test('relevance leads the default sort, and only the default', async (t) => {
+    const { db, get } = await fixture(t);
+    // A name match and an address match for the same word. The default order
+    // must put the name first; an explicit date order must not reshuffle for it.
+    addEstablishment(
+      db,
+      {
+        establishment_id: '6000090|2010|9 STALE ST, LANTANA, 33462',
+        license_key: '6000090|2010',
+        name: 'ADDRESS MATCH ONLY',
+        address: '9 STALE ST',
+        normalized_address: '9 STALE ST, LANTANA, 33462',
+        city: 'LANTANA',
+      },
+      { lat: 26.58, lng: -80.05 }
+    );
+
+    const byName = await get('/api/search?q=stale');
+    assert.equal(
+      byName.body.establishments[0].name,
+      'STALE SHACK',
+      'the name match outranks the address match'
+    );
+
+    const byDate = await get('/api/search?q=stale&sort=oldest');
+    assert.equal(byDate.body.establishments.length, 2, 'both matches are returned');
+    assert.equal(
+      byDate.body.establishments[0].name,
+      'STALE SHACK',
+      'the only dated match leads a date sort'
+    );
+    assert.equal(
+      byDate.body.establishments.at(-1).name,
+      'ADDRESS MATCH ONLY',
+      'the undated address match falls to the end under a date sort'
+    );
+  });
+});
+
+/* --------------------------------------- GET /api/search — food type ------- */
+
+test('GET /api/search — food type (DEC-019)', async (t) => {
+  await t.test('/api/meta publishes the menu and says what it is derived from', async (t) => {
+    const { get } = await fixture(t);
+    const { body } = await get('/api/meta');
+
+    assert.ok(Array.isArray(body.cuisines) && body.cuisines.length);
+    // The basis travels with the data. A page that renders this menu without
+    // saying the categories are read off the name is making a claim the API
+    // never made, so the API states it.
+    assert.equal(body.cuisine_basis, 'name');
+
+    for (const { key, label } of body.cuisines) {
+      assert.ok(label, `${key} has no label`);
+      const res = await get(`/api/search?cuisine=${encodeURIComponent(key)}`);
+      assert.equal(res.status, 200, `${key} is published but refused`);
+    }
+  });
+
+  await t.test('filters to establishments whose name carries the word', async (t) => {
+    const { get } = await fixture(t);
+    // PASSING DINER is the fixture's only displayed name with an American word.
+    const { body } = await get('/api/search?cuisine=american');
+    assert.deepEqual(body.establishments.map((e) => e.name), ['PASSING DINER']);
+  });
+
+  await t.test('every returned row satisfies the matcher, and every other row does not', async (t) => {
+    const { get } = await fixture(t);
+    const { matchesCuisine } = require('../src/cuisine');
+
+    const all = await get('/api/search?limit=1000');
+    const greek = await get('/api/search?cuisine=greek&limit=1000');
+
+    for (const e of greek.body.establishments) {
+      assert.ok(matchesCuisine(e.name, 'greek'), `${e.name} was returned but does not match`);
+    }
+    const missed = all.body.establishments
+      .filter((e) => matchesCuisine(e.name, 'greek'))
+      .filter((e) => !greek.body.establishments.some((g) => g.id === e.id));
+    assert.deepEqual(missed, [], 'a matching establishment was left out');
+  });
+
+  await t.test('the food type cannot reach outside the displayed population', async (t) => {
+    const { get } = await fixture(t);
+    /*
+     * TACO TRUCK is a mobile vendor (licence type 2014). Its name is as Mexican
+     * as a name gets, and DEC-009 keeps it off the map — so it must stay out of
+     * this filter too. A filter that widens the population it searches is how a
+     * commissary address ends up presented as a place you can eat.
+     */
+    const { body } = await get('/api/search?cuisine=mexican');
+    assert.equal(body.total, 0);
+    assert.ok(!body.establishments.some((e) => e.name === 'TACO TRUCK'));
+  });
+
+  await t.test('an unknown food type is refused, not silently ignored', async (t) => {
+    const { get } = await fixture(t);
+    const { status, body } = await get('/api/search?cuisine=klingon');
+    assert.equal(status, 400);
+    assert.match(body.error, /Unknown food type/);
+  });
+
+  await t.test('it combines with the other filters rather than replacing them', async (t) => {
+    const { db, get } = await fixture(t);
+    addEstablishment(db, {
+      establishment_id: 'orange9|2010|9 ORANGE AVE',
+      license_key: 'orange9|2010',
+      name: 'ORLANDO DINER',
+      address: '9 ORANGE AVE',
+      normalized_address: '9 ORANGE AVE, ORLANDO, 32801',
+      city: 'ORLANDO',
+      county_code: '58',
+      county_name: 'Orange',
+    }, { lat: 28.54, lng: -81.38 });
+
+    const statewide = await get('/api/search?cuisine=american');
+    const palmBeach = await get('/api/search?cuisine=american&county=60');
+
+    assert.equal(statewide.body.total, 2, 'both diners match the food type');
+    assert.deepEqual(palmBeach.body.establishments.map((e) => e.name), ['PASSING DINER'],
+      'the county filter still applies');
+  });
+
+  await t.test('the echoed query names the food type, for the page to describe', async (t) => {
+    const { get } = await fixture(t);
+    const { body } = await get('/api/search?cuisine=greek');
+    assert.equal(body.query.cuisine, 'greek');
+  });
+});

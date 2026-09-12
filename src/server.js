@@ -34,6 +34,12 @@ const {
   licenseTypeName,
 } = require('./display');
 const { canonicalCity, spellingsFor, titleCase } = require('./cities');
+const {
+  CUISINES,
+  cuisinePredicate,
+  cuisineOptions,
+  registerCuisineMatcher,
+} = require('./cuisine');
 const { createScheduler } = require('./scheduler');
 const { createRefreshRunner } = require('./refresh-runner');
 const { createGates } = require('./gates');
@@ -287,6 +293,97 @@ function parseLimit(raw) {
   return Math.min(n, MAX_LIMIT);
 }
 
+/**
+ * The orderings /api/search offers, and the only ones it accepts.
+ *
+ * The labels live here rather than in the page because the page is not the only
+ * caller, and a sort whose meaning is written in HTML is a sort the API cannot
+ * describe. /api/meta serves this map so the menu is built from what the server
+ * actually implements.
+ *
+ * There is no "best result first". Ranking establishments by how well they did
+ * would read as a recommendation, and a pass is a record of one visit, not a
+ * verdict on a kitchen (DEC-011). Worst-first is offered because it is the
+ * order someone checking on a specific place they already searched for needs —
+ * and it surfaces nothing the `signal` filter does not already return.
+ */
+const SORTS = Object.freeze({
+  name: 'Name (A–Z)',
+  recent: 'Most recently inspected',
+  oldest: 'Longest since an inspection',
+  severity: 'Most serious result first',
+});
+
+/**
+ * ORDER BY for a chosen sort, with its bound parameters.
+ *
+ * Returned as a pair rather than a string because severity needs the same
+ * staleness cutoff the filter uses, and ORDER BY placeholders bind in the order
+ * they appear in the statement — building the SQL without its params beside it
+ * is how that goes wrong silently.
+ *
+ * `i.inspection_date IS NULL` leads the date sorts so that never-inspected
+ * establishments land at the end of both. SQLite would otherwise put them first
+ * in ASC, answering "longest since an inspection" with a page of places that
+ * have never had one — true, and not the question.
+ */
+function orderBy(sort, cleaned, cutoff) {
+  const sql = [];
+  const params = [];
+
+  // A name match outranks an address match: someone typing "delray" who wants
+  // Delray Beach should not be led by a shop on Delray Road. Relevance applies
+  // to the default sort only — a reader who asked for date order asked for it.
+  if (sort === 'name' && cleaned) {
+    sql.push(`CASE WHEN ${NORMALIZED_NAME} LIKE ? THEN 0 ELSE 1 END`);
+    params.push(`%${cleaned}%`);
+  }
+
+  if (sort === 'recent' || sort === 'oldest') {
+    sql.push('i.inspection_date IS NULL');
+    sql.push(`i.inspection_date ${sort === 'recent' ? 'DESC' : 'ASC'}`);
+  }
+
+  if (sort === 'severity') {
+    // The same four-way definition of "unknown" the signal filter uses, in the
+    // same order the legend is written. A stale pass is unknown here too, or
+    // the ordering would claim a verdict the map does not show.
+    sql.push(`CASE
+        WHEN i.inspection_date IS NULL OR i.inspection_date < ? OR i.signal IS NULL THEN 3
+        WHEN i.signal = 'serious' THEN 0
+        WHEN i.signal = 'warning' THEN 1
+        WHEN i.signal = 'pass' THEN 2
+        ELSE 3
+      END`);
+    params.push(cutoff);
+    sql.push('i.inspection_date IS NULL', 'i.inspection_date DESC');
+  }
+
+  // Name last in every ordering, so equal rows come back in a stable sequence.
+  // Without it page 2 can repeat a row from page 1: SQLite is free to return
+  // ties in any order, and LIMIT/OFFSET over an unstable sort is how a paging
+  // list quietly duplicates and skips.
+  sql.push('e.name');
+  return { sql: sql.join(', '), params };
+}
+
+/**
+ * Paging offset. Uncapped on purpose: the cap that matters is `limit`, and a
+ * deep offset costs a scan SQLite is already paying for in ORDER BY. Rejecting
+ * a large one would only break a legitimate walk to the end of a county.
+ *
+ * Safe-integer rather than integer, though. `Number.isInteger(1e20)` is true —
+ * it is an integer-valued double — but it is past int64, and binding it turns
+ * a nonsense query string into a 500 from deep inside the driver. The bound is
+ * on what SQLite can be handed, not on how far a reader may page.
+ */
+function parseOffset(raw) {
+  if (raw === undefined || raw === '') return 0;
+  const n = Number(raw);
+  if (!Number.isSafeInteger(n) || n < 0) throw new BadRequest('offset must be a non-negative integer');
+  return n;
+}
+
 /* ------------------------------------------------------------- shaping ----- */
 
 /**
@@ -334,6 +431,11 @@ function toPin(row, now) {
 /* ----------------------------------------------------------------- app ----- */
 
 function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGates() } = {}) {
+  // `cuisine_match` is a SQL function this connection has to be taught before
+  // any statement naming it is prepared (src/cuisine.js explains why the
+  // matching lives in JS rather than in the query).
+  registerCuisineMatcher(db);
+
   const q = prepareStatements(db);
   const app = express();
 
@@ -366,6 +468,17 @@ function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGa
       signals: SIGNAL_DISPLAY,
       dispositions,
       stale_after_months: STALE_AFTER_MONTHS,
+      // The orderings /api/search accepts, so the search page's menu cannot
+      // offer one the API would reject.
+      sorts: Object.entries(SORTS).map(([key, label]) => ({ key, label })),
+      /*
+       * Food types, and the fact that they are read off the name (DEC-019).
+       * Served rather than written into the page, so the menu cannot offer a
+       * type the API would reject — and so the caveat travels with the data
+       * rather than living in one page's HTML.
+       */
+      cuisines: cuisineOptions(),
+      cuisine_basis: 'name',
       coverage: q.coverage.get(...q.displayedParams),
       /*
        * Every county, with whether its pin positions have been verified
@@ -487,13 +600,22 @@ function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGa
     const city = (req.query.city ?? '').toString().trim();
     const county = (req.query.county ?? '').toString().trim();
     const signal = (req.query.signal ?? '').toString().trim();
+    const cuisine = (req.query.cuisine ?? '').toString().trim();
+    const sort = (req.query.sort ?? 'name').toString().trim() || 'name';
     const limit = parseLimit(req.query.limit ?? '200');
+    const offset = parseOffset(req.query.offset);
 
     if (signal && !SIGNAL_DISPLAY[signal]) {
       throw new BadRequest(`Unknown signal ${JSON.stringify(signal)}`);
     }
     if (county && !(county in COUNTIES)) {
       throw new BadRequest(`Not a displayed county: ${JSON.stringify(county)}`);
+    }
+    if (!SORTS[sort]) {
+      throw new BadRequest(`Unknown sort ${JSON.stringify(sort)}`);
+    }
+    if (cuisine && !CUISINES[cuisine]) {
+      throw new BadRequest(`Unknown food type ${JSON.stringify(cuisine)}`);
     }
 
     const where = [];
@@ -512,6 +634,19 @@ function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGa
       const spellings = spellingsFor(city);
       where.push(`UPPER(TRIM(e.city)) IN (${spellings.map(() => '?').join(', ')})`);
       params.push(...spellings);
+    }
+
+    /*
+     * Food type is a name match, and is written here as one (DEC-019). It sits
+     * beside the city filter because it has the same shape — a finite, known
+     * set of spellings expanded into SQL — and deliberately NOT beside the
+     * signal filter, which reads a published record. This one reads our
+     * reading of a name, and every surface that shows it says so.
+     */
+    if (cuisine) {
+      const predicate = cuisinePredicate(cuisine);
+      where.push(predicate.sql);
+      params.push(...predicate.params);
     }
 
     let cleaned = null;
@@ -534,8 +669,9 @@ function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGa
       }
     }
 
+    const cutoff = staleCutoff(new Date());
+
     if (signal) {
-      const cutoff = staleCutoff(new Date());
       if (signal === 'unknown') {
         // Four ways to be unknown: never inspected, no date, too old to speak
         // for the premises now, or an inspection whose disposition maps to it.
@@ -549,6 +685,8 @@ function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGa
         params.push(signal, cutoff);
       }
     }
+
+    const order = orderBy(sort, cleaned, cutoff);
 
     const filterSql = `${q.displayedSql}${where.length ? ` AND ${where.join(' AND ')}` : ''}`;
     const filterParams = [...q.displayedParams, ...params];
@@ -567,14 +705,10 @@ function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGa
            FROM establishment e
       LEFT JOIN inspection i ON i.inspection_visit_id = (${LATEST_VISIT})
           WHERE ${filterSql}
-       ORDER BY ${cleaned
-            ? // A name match outranks an address match: someone typing "delray"
-              // who wants Delray Beach should not be led by a shop on Delray Road.
-              `CASE WHEN ${NORMALIZED_NAME} LIKE ? THEN 0 ELSE 1 END, e.name`
-            : 'e.name'}
-          LIMIT ?`
+       ORDER BY ${order.sql}
+          LIMIT ? OFFSET ?`
       )
-      .all(...filterParams, ...(cleaned ? [`%${cleaned}%`] : []), limit);
+      .all(...filterParams, ...order.params, limit, offset);
 
     const now = new Date();
     const results = rows.map((row) => toPin(row, now));
@@ -584,14 +718,18 @@ function createApp(db, { refreshRunner = createRefreshRunner(), gates = createGa
       .prepare(`SELECT COUNT(*) AS n FROM ${countFrom} WHERE ${filterSql}`)
       .get(...filterParams).n;
 
-    const truncated = total > limit;
+    // "There is a page after this one", which at offset 0 is the same statement
+    // the map page has always read from this field.
+    const truncated = total > offset + results.length;
 
     res.set('Cache-Control', 'public, max-age=60');
     res.json({
       as_of: dataAsOf(db),
-      query: { q: text, county, city, signal },
+      query: { q: text, county, city, signal, cuisine, sort },
       count: Math.min(results.length, limit),
       total,
+      limit,
+      offset,
       truncated,
       establishments: results.slice(0, limit),
     });
@@ -1023,4 +1161,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { createApp, parseBbox, parseLimit, DEFAULT_LIMIT, MAX_LIMIT };
+module.exports = { createApp, parseBbox, parseLimit, parseOffset, orderBy, SORTS, DEFAULT_LIMIT, MAX_LIMIT };
