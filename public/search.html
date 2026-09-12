@@ -26,27 +26,28 @@
     <h2 class="find__title">Search the inspection records</h2>
 
     <!--
-      FOUR FILTERS, AND WHY THERE ARE NOT SIX
+      FIVE FILTERS, AND WHY THERE IS NOT A SIXTH
 
-      The obvious menu for a restaurant search is name, city, state, county and
-      cuisine. Two of those cannot be built honestly from this data, and a
-      control that looks like a filter but does not filter is worse than an
-      absent one — it tells the reader they have narrowed something.
+      The obvious menu for a restaurant search is name, city, county, state and
+      cuisine. Four of those are here. One cannot exist, and one is here only
+      because it was made honest first — a control that looks like a filter but
+      does not filter is worse than an absent one, because it tells the reader
+      they have narrowed something.
 
       State: the DBPR extracts are Florida's own licensing records. Every one of
-      the 54,296 establishments here is in Florida, so a state menu would have a
-      single option. It is stated as a fact below rather than offered as a
-      choice.
+      the 54,296 establishments here is in Florida, so a state menu would carry
+      a single option. It is stated as a fact in the disclosure below rather
+      than offered as a choice.
 
-      Cuisine / food type: none of the 35 fields in the licence extract
-      describes what an establishment serves. The nearest column is the licence
-      type, and the displayed population is already filtered to one value of it
-      — 2010, permanent food service — because the other four are mobile
-      vendors, caterers, temporary events and vending machines, which are not
-      premises a diner can walk into (DEC-009). Inferring "Italian" or "seafood"
-      from a name would be inventing a fact about a named business, the same
-      line DEC-011 draws over violation codes. Name search does the honest
-      version of that job, because restaurants tend to put it in their names.
+      Food type: none of the 35 fields in the licence extract describes what an
+      establishment serves, so this filter matches the licensed NAME and says so
+      at every surface — the label, the results sentence, and /api/meta's
+      `cuisine_basis` (DEC-019). It is a claim about the state's record of the
+      name, never about the kitchen, which is the same line DEC-011 draws over
+      violation codes.
+
+      The same five, in the same order, are on the map page. A filter a reader
+      found on one page and cannot find on the other reads as a bug.
     -->
     <form class="find__form" id="find-form" role="search">
       <div class="find__field find__field--grow">
@@ -75,7 +76,7 @@
         a category is ours rather than the state's.
       -->
       <div class="find__field">
-        <label for="cuisine">Food type <span class="find__qual">by name</span></label>
+        <label for="cuisine">Food type <span class="label-qual">by name</span></label>
         <select id="cuisine" name="cuisine">
           <option value="">Any food type</option>
         </select>

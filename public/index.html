@@ -35,12 +35,14 @@
   </p>
 
   <!--
-    Search — FR-407. Name/address text, city, and inspection result.
+    Search — FR-407. The same five filters as /search.html, in the same order:
+    name/address text, county, city, food type, inspection result. A filter a
+    reader found on one page and cannot find on the other reads as a bug.
 
-    There is deliberately no cuisine filter: the state's licence extract has no
-    such column, so any "Italian / Chinese / seafood" menu here would be
-    guessed. Searching the name gets most of the way there honestly, because
-    restaurants tend to put it in their names.
+    Food type is matched on the licensed NAME, not on a cuisine column — the
+    state publishes none (DEC-019). The label carries "by name" for the same
+    reason it does on the search page, and the scope line under the map says
+    "named as", never "serving". /search.html holds the full explanation.
   -->
   <form class="search" id="search" role="search">
     <div class="search__field search__field--grow">
@@ -57,6 +59,11 @@
     <div class="search__field">
       <label for="city">City</label>
       <select id="city" name="city"><option value="">All cities</option></select>
+    </div>
+
+    <div class="search__field">
+      <label for="cuisine">Food type <span class="label-qual">by name</span></label>
+      <select id="cuisine" name="cuisine"><option value="">Any food type</option></select>
     </div>
 
     <div class="search__field">

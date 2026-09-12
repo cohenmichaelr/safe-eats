@@ -963,11 +963,12 @@ main.find {
   body.page main.find { flex: 0 0 auto; }
 }
 
-/* The "by name" qualifier on the food-type label. It is smaller than the label
-   but not hidden: this control is the one filter on the site whose categories
-   are ours rather than the state's, and the reader is told so at the point of
-   use rather than in a footnote (DEC-019). */
-.find__qual {
+/* The "by name" qualifier on the food-type label, used by both the map and the
+   search page. It is smaller than the label but not hidden: this control is the
+   one filter on the site whose categories are ours rather than the state's, and
+   the reader is told so at the point of use rather than in a footnote
+   (DEC-019). Not prefixed for either page, because it belongs to neither. */
+.label-qual {
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
