@@ -27,6 +27,9 @@
     markSvg, SHAPE_GLYPH, label, countyName, formatDate, plainLine, escapeHtml, detailHtml,
   } = window.SafeEats;
 
+  /** key -> label for the food types, as published by /api/meta. */
+  const CUISINES = new Map();
+
   const state = {
     map: null,
     basemapAdded: false,
@@ -297,7 +300,7 @@
     if (event) event.preventDefault();
 
     const params = new URLSearchParams();
-    for (const id of ['q', 'county', 'city', 'signal']) {
+    for (const id of ['q', 'county', 'city', 'cuisine', 'signal']) {
       const value = $(id).value.trim();
       if (value) params.set(id, value);
     }
@@ -328,6 +331,11 @@
 
       const bits = [];
       if (body.query.q) bits.push(`matching “${escapeHtml(body.query.q)}”`);
+      // "named as", never "serving": the filter matched the licensed name
+      // and the sentence has to say the same thing the control does (DEC-019).
+      if (body.query.cuisine) {
+        bits.push(`named as ${escapeHtml(CUISINES.get(body.query.cuisine) || body.query.cuisine)}`);
+      }
       if (body.query.city) bits.push(`in ${escapeHtml(body.query.city)}`);
       if (body.query.county && !body.query.city) bits.push(`in ${escapeHtml(countyName(body.query.county))} County`);
       if (body.query.signal) bits.push(`with result “${escapeHtml(label(body.query.signal))}”`);
@@ -357,6 +365,7 @@
     $('county').value = '';
     fillCities();
     $('city').value = '';
+    $('cuisine').value = '';
     $('signal').value = '';
     updateSignalMark();
     state.searching = false;
@@ -394,6 +403,15 @@
         countySelect.append(option);
       }
       fillCities();
+
+      const cuisineSelect = $('cuisine');
+      for (const { key, label: name } of meta.cuisines || []) {
+        CUISINES.set(key, name);
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = name;
+        cuisineSelect.append(option);
+      }
 
       const signalSelect = $('signal');
       for (const key of ['pass', 'warning', 'serious', 'unknown']) {
